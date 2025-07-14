@@ -1,7 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 
-const API_KEY = process.env.NASA_API_KEY || '4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga';
+const API_KEY = "4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga";
 
 const endpoints = {
   apod: `https://api.nasa.gov/planetary/apod`,
