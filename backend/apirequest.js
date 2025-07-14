@@ -4,9 +4,9 @@ const axios = require('axios');
 const API_KEY = "4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga";
 
 const endpoints = {
-  apod: `https://api.nasa.gov/planetary/apod`,
-  insight: `https://api.nasa.gov/insight_weather/`,
-  marsRover: `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos`,
+  apod: `https://api.nasa.gov/planetary/apod?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
+  insight: `https://api.nasa.gov/insight_weather/?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
+  marsRover: `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
   imageLibrary: `https://images-api.nasa.gov/search`,
   gibs: `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/1.0.0/`,
 };
