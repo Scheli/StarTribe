@@ -8,15 +8,6 @@
 <body>
   <h1 id="welcome">Sto caricando...</h1>
 
-  <script type="module">
-    import { verificaAccesso } from "../js/verificaAccesso.js";
-
-    (async () => {
-      const msg = await verificaAccesso();
-      if (msg) {
-        document.getElementById("welcome").textContent = msg;
-      }
-    })();
-  </script>
+  <script type="module" src="../js/areaprotetta.js"></script>
 </body>
 </html>

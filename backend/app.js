@@ -15,6 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret123";
 
 let db;
 
+// Registrazione utente
 app.post("/api/register", async (req, res) => {
   const { username, email, password, birthdate } = req.body;
 
@@ -53,6 +54,41 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+// Login utente
+app.post("/api/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: "Email e password sono obbligatori" });
+  }
+
+  try {
+    const db = await connectToDB();
+    const user = await db.collection("utenti").findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Credenziali non valide" });
+    }
+
+    const passwordValida = await bcrypt.compare(password, user.password);
+    if (!passwordValida) {
+      return res.status(401).json({ success: false, message: "Credenziali non valide" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id.toString(), username: user.username },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.json({ success: true, message: "Login effettuato", token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Errore interno del server" });
+  }
+});
+
+// Endpoint protetto
 app.get("/api/sicuro", (req, res) => {
   const authHeader = req.headers.authorization;
 
@@ -69,6 +105,7 @@ app.get("/api/sicuro", (req, res) => {
   }
 });
 
+// Avvio server e connessione DB
 app.listen(8080, async () => {
   try {
     db = await connectToDB();

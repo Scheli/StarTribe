@@ -1,9 +1,7 @@
 export async function verificaAccesso(redirectUrl = "/frontend/html/registrazione.html") {
   const token = localStorage.getItem("token");
   if (!token) {
-    alert("Devi essere registrato per accedere.");
-    window.location.href = redirectUrl;
-    return false;
+    return { accesso: false, message: "Devi essere registrato per accedere." };
   }
 
   try {
@@ -13,15 +11,12 @@ export async function verificaAccesso(redirectUrl = "/frontend/html/registrazion
 
     if (response.ok) {
       const data = await response.json();
-      return data.message;
+      return { accesso: true, message: data.message };
     } else {
-      alert("Token non valido o scaduto, effettua il login.");
       localStorage.removeItem("token");
-      window.location.href = redirectUrl;
-      return false;
+      return { accesso: false, message: "Token non valido o scaduto, effettua il login." };
     }
   } catch (error) {
-    alert("Errore di connessione, riprova.");
-    return false;
+    return { accesso: false, message: "Errore di connessione, riprova." };
   }
 }
