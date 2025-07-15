@@ -19,7 +19,7 @@ body {
 
 :root {
   --bg-primary-color: #090a21;
-  --bg-primary-color-selected: #1b0933;
+  --bg-primary-color-selected: #290e4d;
 }
 
 .navbar {
@@ -54,9 +54,47 @@ body {
 
 
 .footer {
-  background-color: var(--bg-primary-color-selected);
+  background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
   padding: 20px;
-  height: 80px; /* altezza fissa footer */
+  height: 80px;
   color: white;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #ffffff33;
 }
+
+.foot-buttons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.news-icon-btn {
+  width: 48px;
+  height: 48px;
+  background-color: #1f1f3d;
+  border: 2px solid #ffffff20;
+  border-radius: 50%;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.news-icon-btn:hover {
+  background-color: #2a2a50;
+  box-shadow: 0 0 10px #ffffff30;
+  transform: scale(1.05);
+}
+
+
+
+/*css gestione account*/
+
