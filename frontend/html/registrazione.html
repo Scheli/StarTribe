@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrazione Utente</title>
+</head>
+<body>
+  <h1>Registrazione</h1>
+  <form id="registerForm">
+    <label for="username">Nome utente:</label><br />
+    <input type="text" id="username" name="username" required /><br /><br />
+
+    <label for="email">Email:</label><br />
+    <input type="email" id="email" name="email" required /><br /><br />
+
+    <label for="password">Password:</label><br />
+    <input type="password" id="password" name="password" required /><br /><br />
+    <input type="date" id="birthdate" placeholder="Data di nascita" required><br>
+  <button type="submit">Registrati</button>
+
+    <button type="submit">Registrati</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script src="/frontend/js/registrazione.js"></script>
+</body>
+</html>
