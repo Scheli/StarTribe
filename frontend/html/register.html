@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarTribeRegister</title>
+    <link rel="stylesheet" href="/frontend/css/style.css" />
+    <link rel="stylesheet" href="/frontend/css/popup.css" />
+     <link rel="icon" type="image/x-icon" href="#" />
+</head>
+<body>
+     <div id="popup">Operazione completata con successo!</div>
+     <div class="container">
+      <form id="contact-form">
+        <div class="form-controls">
+          <label for="name">Nome Utente</label>
+          <input type="text" id="name" name="Il tuo NomeUtente" placeholder="Nome Utente"/>
+        </div>
+
+         <div class="form-controls">
+          <label for="dob">Data Di Nascita</label>
+          <input type="date" id="date" name="La tua data di nascita" placeholder="data di nascita" />
+        </div>
+
+        <div class="form-controls">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="La tua Mail" placeholder="Mail" />
+        </div> 
+      
+
+        <div class="form-controls">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="la tua password" placeholder="password"/>
+        </div>
+
+      
+        <div class="form-checkbox">
+          <input type="checkbox" name="consents" id="consents" />
+          <p>Accetta la politica sulla privacy</p>
+        </div>
+
+        <input onclick="showMessage()"  class="send-form" type="submit" value="accedi" id="send-form" disabled/>
+
+      </form>
+
+    </div>
+
+   <!--  <div class="container">
+        <h1>Lascia un Commento</h1>
+
+        <div class="toggle-buttons">
+            <button id="showLogin">Accedi</button>
+            <button id="showRegister">Registrati</button>
+        </div>  -->
+
+    <!--     <form class="comment-form">
+            <div id="loginSection" class="form-section">
+                <h2>Accedi</h2>
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" name="loginEmail" required>
+
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" name="loginPassword" required>
+
+                <button type="submit">Accedi</button>
+            </div>
+
+            <div id="registerSection" class="form-section hidden">
+                <h2>Registrati</h2>
+                <label for="registerUsername">Nome Utente:</label>
+                <input type="text" id="registerUsername" name="registerUsername" required>
+
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" name="registerEmail" required>
+
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" name="registerPassword" required>
+
+                <label for="registerDate">Data di Nascita:</label>
+                <input type="date" id="registerDate" name="registerDate" required>
+
+                <button type="submit">Registrati</button>
+            </div>
+        </form>
+
+        <div class="comments-display">
+            </div>
+    </div> -->
+
+
+
+    <script src="/frontend/script/Rscript.js"></script>
+</body>
+</html>

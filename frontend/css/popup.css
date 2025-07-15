@@ -1,0 +1,16 @@
+    #popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: orangered;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      opacity: 0;
+      z-index: 9999;
+    }
+
+    #popup.show {
+      opacity: 1;
+    }

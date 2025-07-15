@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarTribeLogin</title>
+    <link rel="stylesheet" href="/frontend/css/style.css" />
+    <link rel="stylesheet" href="/frontend/css/popup.css" />
+     <link rel="icon" type="image/x-icon" href="#" />
+</head>
+<body>
+
+   <div id="popup">Operazione completata con successo!</div>
+
+    <div class="container"></div>
+
+        <form id="contact-form">
+
+        <div class="form-controls">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="La tua Mail" placeholder="Mail" />
+        </div> 
+      
+        <div class="form-controls">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="la tua password" placeholder="password"/>
+        </div>
+
+        <div class="form-checkbox">
+          <input type="checkbox" name="consents" id="consents" />
+          <p>Accetta la politica sulla privacy</p>
+        </div>
+
+        <input onclick="showMessage()"  class="send-form" type="submit" value="accedi" id="send-form" disabled/>
+
+      </form>
+        <script src="/frontend/script/lscript.js"></script>
+    </div>
