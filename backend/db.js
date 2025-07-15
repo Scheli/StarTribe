@@ -22,3 +22,9 @@ export async function connectToDB() {
   }
 }
 
+export async function GetUtentiConsigliati(db) {
+  const utenti = await db.collection("utenti").aggregate([
+    { $sample: { size: 3 } }
+  ]).toArray();
+  return utenti;
+}
