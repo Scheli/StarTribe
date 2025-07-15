@@ -15,7 +15,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret123";
 
 let db;
 
-// Registrazione utente
 app.post("/api/register", async (req, res) => {
   const { username, email, password, birthdate } = req.body;
 
@@ -54,7 +53,6 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login utente
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -88,7 +86,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Endpoint protetto
 app.get("/api/sicuro", (req, res) => {
   const authHeader = req.headers.authorization;
 
@@ -105,7 +102,6 @@ app.get("/api/sicuro", (req, res) => {
   }
 });
 
-// Avvio server e connessione DB
 app.listen(8080, async () => {
   try {
     db = await connectToDB();

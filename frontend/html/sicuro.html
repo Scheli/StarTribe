@@ -8,6 +8,14 @@
 <body>
   <h1 id="welcome">Sto caricando...</h1>
 
+  <button id="logoutBtn">Logout</button>
+
   <script type="module" src="../js/areaprotetta.js"></script>
+  <script>
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token'); 
+      window.location.href = '../login.html'; 
+    });
+  </script>
 </body>
 </html>
