@@ -1,33 +1,36 @@
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-
 dotenv.config();
 
-let cachedDb = null;
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+let db;
 
 export async function connectToDB() {
-  if (cachedDb) return cachedDb;
-
-  const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI non definito in .env");
-
-  const client = new MongoClient(uri);
-  await client.connect();
-  cachedDb = client.db("StarTribeDB");
-  return cachedDb;
+  if (!db) {
+    try {
+      await client.connect();
+      db = client.db("StarTribeDB"); // ✅ nome del tuo database
+      console.log("✅ Connessione a MongoDB riuscita");
+    } catch (err) {
+      console.error("❌ Errore nella connessione a MongoDB:", err);
+      throw err;
+    }
+  }
+  return db;
 }
 
 export async function aggiungiUtente(utente) {
-  try {
-    const db = await connectToDB();
+  const db = await connectToDB();
+  const utenti = db.collection("utenti");
 
-    const existingUser = await db.collection("utenti").findOne({ email: utente.email });
-    if (existingUser) return null;
+  const utenteEsistente = await utenti.findOne({ email: utente.email });
+  if (utenteEsistente) return null;
 
-    const result = await db.collection("utenti").insertOne(utente);
-    return result.insertedId;
-  } catch (err) {
-    console.error("Errore aggiunta utente:", err);
-    return null;
-  }
+  const result = await utenti.insertOne(utente);
+  return result.insertedId;
 }
