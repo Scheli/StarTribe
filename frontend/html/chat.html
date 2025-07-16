@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat Realtime Scuola</title>
+  <link rel="stylesheet" href="../style/style.css" />
+</head>
+<body>
+  <div id="loginPane" class="pane active">
+    <h1>Entra in chat</h1>
+    <form id="loginForm">
+      <input type="text" id="usernameInput" placeholder="Inserisci username" maxlength="20" required />
+      <button type="submit">Entra</button>
+    </form>
+  </div>
+
+  <div id="chatPane" class="pane" hidden>
+    <header>
+      <h2>Chat globale</h2>
+      <div id="currentUser"></div>
+    </header>
+
+    <main class="chat-layout">
+      <aside class="userlist">
+        <h3>Utenti online</h3>
+        <ul id="userList"></ul>
+      </aside>
+      <section class="messages">
+        <ul id="messages"></ul>
+      </section>
+    </main>
+
+    <form id="messageForm" autocomplete="off">
+      <input id="messageInput" placeholder="Scrivi un messaggio..." maxlength="500" />
+      <button id="sendButton" type="submit">Invia</button>
+    </form>
+  </div>
+
+  <!-- Socket.io client (servito dal backend) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../js/chat.js" type="module"></script>
+</body>
+</html>
