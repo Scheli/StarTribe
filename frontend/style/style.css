@@ -51,10 +51,15 @@ body {
   background-color: var(--bg-primary-color);
   flex-grow: 1;
   display: flex; 
+  color: white;
+  padding-bottom: 80px;
 }
 
 
 .footer {
+  position: fixed;            /* rende il footer fisso */
+  bottom: 0;                 /* lo posiziona in basso */
+  width: 100%;               /* tutta la larghezza */
   background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
   padding: 20px;
   height: 80px;
@@ -64,6 +69,8 @@ body {
   align-items: center;
   justify-content: center;
   border-top: 1px solid #ffffff33;
+  z-index: 1000;             /* sopra altri elementi */
+  box-sizing: border-box;    /* include padding e border nell’altezza */
 }
 
 .foot-buttons {
@@ -127,6 +134,34 @@ body {
 .bordo{
   border-bottom: 1px solid #2e2e50;
 }
+
+.utente {
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+.utente img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.utente .info {
+  display: flex;
+  gap: 20px;
+  font-size: 1rem;
+  color: #000000;
+}
+
 
 
 

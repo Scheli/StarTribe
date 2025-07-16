@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { connectToDB, aggiungiUtente } from "./db.js";
+import { connectToDB, aggiungiUtente, GetUtentiConsigliati} from "./db.js";
+import { getAPOD, getInSightWeather, getMarsRoverPhoto, searchImageLibrary} from "./apirequest.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -108,5 +109,80 @@ app.listen(8080, async () => {
     console.log("✅ Server avviato su http://localhost:8080 e connesso al DB");
   } catch (e) {
     console.error("❌ Errore durante la connessione al DB:", e);
+  }
+});
+
+
+app.get('/news', async (req, res) => {
+  try {
+    const utenti = await GetUtentiConsigliati(db);
+    res.json(utenti);
+  } catch (error) {
+    console.error('Errore nella GET /utenti-consigliati:', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+
+app.get('/news/apod', async (req, res) => {
+  try {
+    const PictureDay = await getAPOD();
+    res.json(PictureDay);
+  } catch (error) {
+    console.error('Errore nella GET di APOD: ', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+app.get('/news/getInSightWeather', async (req, res) => {
+  try{
+    const Weather = await getInSightWeather();
+    res.json(Weather);
+  } catch (error){
+    console.log('Errore nella GET di Weather: ', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+app.get('/news/getMarsRoverPhoto', async (req, res) => {
+  try{
+    const photos = await getMarsRoverPhoto();
+    res.json(photos);
+  }catch(error){
+    console.log('Errore nella GET di photos: ', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+app.get('/news/searchImageLibrary', async (req, res) =>{
+  try{
+    const image = await searchImageLibrary();
+    res.json(image);
+  }catch(error){
+    console.log('Errore nella GET di image: ', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+
+
+app.get('/news/all', async (req, res) => {
+  try {
+    const [apod, weather, roverPhoto, imageLibrary] = await Promise.all([
+      getAPOD(),
+      getInSightWeather(),
+      getMarsRoverPhoto(),
+      searchImageLibrary()
+    ]);
+
+    res.json({
+      apod,
+      weather,
+      roverPhoto,
+      imageLibrary
+    });
+  } catch (error) {
+    console.error('Errore nella GET /news/all:', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
