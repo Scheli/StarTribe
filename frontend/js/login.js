@@ -28,7 +28,7 @@ form.addEventListener("submit", async (e) => {
 
       if (data.token) {
         localStorage.setItem("token", data.token);
-        window.location.href = "/frontend/html/sicuro.html";
+        window.location.href = "/frontend/html/profilo.html";
       }
 
     } else {

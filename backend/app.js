@@ -76,15 +76,16 @@ app.get("/api/profilo", async (req, res) => {
     }
 
     res.json({
-      success: true,
-      utente: {
-        username: utente.username,
-        email: utente.email,
-        birthdate: utente.birthdate,
-        punti: utente.punti,
-        immagineProfilo: utente.immagineProfilo
-      }
-    });
+  success: true,
+  utente: {
+    username: utente.username,
+    email: utente.email,
+    birthdate: utente.birthdate,
+    punti: utente.punti,
+    immagineProfilo: utente.immagineProfilo,
+    bannerProfilo: utente.bannerProfilo || ""
+  }
+});
   } catch (err) {
     console.error("Errore profilo:", err);
     return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
@@ -181,6 +182,37 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     res.status(401).json({ success: false, message: "Token non valido o scaduto" });
   }
 });
+app.post("/api/upload/banner", upload.single("file"), async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ success: false, message: "Nessun file ricevuto" });
+    }
+
+    const url = req.file.path;
+    const db = await connectToDB();
+    const risultato = await db.collection("utenti").updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { bannerProfilo: url } }
+    );
+
+    if (risultato.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: "Utente non trovato" });
+    }
+
+    res.json({ success: true, message: "Banner aggiornato!", url });
+  } catch (err) {
+    console.error("Errore upload banner:", err);
+    res.status(401).json({ success: false, message: "Token non valido o scaduto" });
+  }
+});
+
 
 app.put("/api/profilo/update", async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -296,5 +328,30 @@ app.get('/news/all', async (req, res) => {
   } catch (error) {
     console.error('Errore nella GET /news/all:', error);
     res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+app.get("/api/utente/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const db = await connectToDB();
+    const utente = await db.collection("utenti").findOne({ _id: new ObjectId(id) });
+
+    if (!utente) {
+      return res.status(404).json({ success: false, message: "Utente non trovato" });
+    }
+
+    res.json({
+      success: true,
+      utente: {
+        username: utente.username,
+        punti: utente.punti,
+        immagineProfilo: utente.immagineProfilo,
+        bannerProfilo: utente.bannerProfilo || null
+      }
+    });
+  } catch (err) {
+    console.error("Errore:", err);
+    res.status(500).json({ success: false, message: "Errore del server" });
   }
 });

@@ -9,15 +9,21 @@ async function caricaUtentiConsigliati() {
     utentiContainer.innerHTML = '<h3>Utenti suggeriti:</h3>';
     
     utenti.forEach(utente => {
-      const div = document.createElement('div');
-      div.classList.add('utente');
-      div.innerHTML = `
-        <img src="${utente.immagineProfilo}">
-        <p><strong>Username:</strong> ${utente.username}</p>
-        <p><strong>Punteggio:</strong> ${utente.punti}</p>
-      `;
-      utentiContainer.appendChild(div);
-    });
+  const div = document.createElement('div');
+  div.classList.add('utente');
+  div.innerHTML = `
+    <img src="${utente.immagineProfilo}">
+    <p><strong>Username:</strong> ${utente.username}</p>
+    <p><strong>Punteggio:</strong> ${utente.punti}</p>
+  `;
+  div.style.cursor = 'pointer';
+  div.addEventListener('click', () => {
+    localStorage.setItem('utenteVisualizzato', utente._id);
+    window.location.href = '/frontend/html/ProEsterno.html';
+  });
+  utentiContainer.appendChild(div);
+});
+
   } catch (error) {
     console.error('Errore nel caricamento utenti:', error);
   }

@@ -22,6 +22,15 @@
 
       <button type="submit">Salva modifiche</button>
     </form>
+<h3>Banner profilo</h3>
+<div id="bannerProfilo"></div>
+
+<h3>Modifica banner</h3>
+<form id="bannerForm">
+  <input type="file" name="file" accept="image/*" required />
+  <br><br>
+  <button type="submit">Carica banner</button>
+</form>
 
     <h3>foto del profilo:</h3>
     <div id="mediaProfilo"></div>
@@ -34,7 +43,17 @@
     <button type="submit">Carica</button>
   </form>
   <p id="messaggio"></p>
+  <button id="logoutBtn">Logout</button>
+
 
   <script src="../js/profilo.js"></script>
+  <script type="module" src="../js/areaprotetta.js"></script>
+  <script>
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token'); 
+      window.location.href = 'login.html'; 
+    });
+  </script>
 </body>
 </html>
+

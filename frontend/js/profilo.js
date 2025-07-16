@@ -26,7 +26,7 @@ async function caricaProfilo() {
     document.getElementById("birthdate").value = data.utente.birthdate.split("T")[0];
     document.getElementById("punti").value = data.utente.punti;
 
-    const media = document.getElementById("mediaProfilo");
+   const media = document.getElementById("mediaProfilo");
     media.innerHTML = "";
     if (data.utente.immagineProfilo) {
       if (èVideo(data.utente.immagineProfilo)) {
@@ -35,6 +35,13 @@ async function caricaProfilo() {
         media.innerHTML = `<img src="${data.utente.immagineProfilo}" alt="Immagine profilo" width="200"/>`;
       }
     }
+
+    const banner = document.getElementById("bannerProfilo");
+    banner.innerHTML = "";
+    if (data.utente.bannerProfilo) {
+      banner.innerHTML = `<img src="${data.utente.bannerProfilo}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+    }
+
   } catch (err) {
     console.error(err);
   }
@@ -42,7 +49,7 @@ async function caricaProfilo() {
 
 document.getElementById("uploadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const file = document.querySelector('input[name="file"]').files[0];
+  const file = document.querySelector('#uploadForm input[name="file"]').files[0];
   if (!file || !token) return;
 
   const formData = new FormData();
@@ -56,6 +63,25 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
 
   const data = await res.json();
   document.getElementById("messaggio").innerText = data.message || "Upload completato";
+  await caricaProfilo();
+});
+
+document.getElementById("bannerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = document.querySelector('#bannerForm input[name="file"]').files[0];
+  if (!file || !token) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("http://localhost:8080/api/upload/banner", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: formData
+  });
+
+  const data = await res.json();
+  document.getElementById("messaggio").innerText = data.message || "Banner caricato";
   await caricaProfilo();
 });
 
