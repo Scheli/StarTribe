@@ -4,11 +4,21 @@
     box-sizing: border-box;
 }
 
+body,html{
+  height: 100%;
+
+}
+
 :root {
   --bg-primary-color: #090a21;
   --bg-primary-color-selected: #290e4d;
   --testobottoni:purple;
+  --form: #d067fd7b;
+  --sfumatura:rgba(0, 0, 255, 0.415);
+  --viola2:rgba(235, 7, 235, 0.616);
 }
+
+/*landingpage "index.html"*/
 
 .container{
     display: flex;
@@ -17,18 +27,25 @@
     background-color: var(--bg-primary-color);
     padding-left: 45px;
     padding-right: 45px;
+    height: 100%;
+    width: 100%;
     
 }
 
 .sistema{
-
+    height: 80%;
 }
 
 .buttons{
     display: flex;
     justify-content: space-between;
-    position: fixed;
-    padding: 70px;
+    padding: 50px;
+     padding-left: 295px;
+    padding-right: 295px;
+    height: 20%;
+   position: sticky;
+  /*  border-top: 1px solid #282250;
+    box-shadow: inset 0 0 10px #2e2e50; */
 }
 
 .buttons button{
@@ -39,17 +56,111 @@
     background-color: var(--bg-primary-color-selected);
     box-shadow: 3px 3px var(--testobottoni);
     border-radius: 10px;
+    color: var(--testobottoni);
+    /*border: 1px solid  white transparent; */
+  
 }
 
 .buttons a{
     text-decoration: none;
-    color: var(--testobottoni);
 }
 
+/*pagine register e login*/
 
+.container form{
 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--testobottoni);
+  width: 100%;
+  gap: 20px;
+}
 
+.box-form{
+ background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
+  padding: 45px 250px;
+  border: 1px solid #282250;
+  box-shadow: inset 0 0 10px #2e2e50;
+}
 
+.contact-form {
+  display: flex;
+  justify-content: center;
+  padding: 20px 250px;
+}
+
+.contact-form form {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 20px;
+}
+
+.form-controls{
+    display: flex;
+    flex-direction: column;
+}
+
+/*inputs*/
+.form-controls input{
+    padding: 8px 12px;
+    border: none;
+    background-color:var(--form);
+    border-radius: 4px;
+    box-shadow: 2px 2px var(--testobottoni);
+    color: var(--bg-primary-color);
+}
+
+.form-controls input::placeholder{
+   color: var(--bg-primary-color);
+}
+.form-controls input:focus{
+  outline: 2px solid var(--sfumatura); /* Spessore 2px, stile solido, colore arancione brillante */
+    outline-offset: 3px;       /* Spazio tra il bordo dell'elemento e l'outline */
+    box-shadow: 0 0 0 5px var(--testobottoni)
+}
+/*bottone form*/
+.send-form{
+    margin-top: 20px;
+    padding: 10px 15px;
+    border: none;
+    background: var(--testobottoni);
+    color: var(--bg-primary-color);
+    font-weight: bold;
+    box-shadow: 2px 2px var(--viola2);
+    border-radius: 10px;
+
+}
+.send-form:hover {
+    background:var(--sfumatura) ;
+    cursor: pointer;
+    color: var(--bg-primary-color);
+     box-shadow: 2px 2px var(--sfumatura);
+}
+
+.send-form:disabled{
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: rgba(181, 181, 181, 0.599);
+    box-shadow: 2px 2px grey;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.form-checkbox{
+    display: flex;
+    gap: 15px;
+    align-items: center;    
+}
+
+.form-checkbox input{
+  
+  width: 25px;
+    height: 25px;
+    accent-color: var(--form);
+}
 
 
 
@@ -62,7 +173,7 @@
 
 
 .error-input{
-    border: 1px solid red;
+    border: 1px solid rgb(255, 0, 0)!important ;
     animation: scalePulse 0.4s ease;
 }
 
