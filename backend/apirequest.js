@@ -74,7 +74,7 @@ function getGIBSExampleURL() {
   console.log(`\n GIBS Example URL:\n${url}`);
 }
 
-// ▶️ Esegui tutte le richieste
+// Esegui tutte le richieste
 (async () => {
   try {
     await getAPOD();
