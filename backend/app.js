@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import multer from "multer";
-import { storage } from "./utils/cloudinary.js"; // ✅ nuovo import
+import { storage } from "./utils/cloudinary.js"; 
 import { ObjectId } from "mongodb";
 
 dotenv.config();
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret123";
-const upload = multer({ storage }); // ✅ multer + cloudinary
+const upload = multer({ storage }); 
 
 let db;
 
@@ -57,6 +57,39 @@ app.post("/api/register", async (req, res) => {
     res.status(500).json({ success: false, message: "Errore interno del server" });
   }
 });
+
+app.get("/api/profilo", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const dbLocal = await connectToDB(); 
+
+    const utente = await dbLocal.collection("utenti").findOne({ _id: new ObjectId(decoded.userId) });
+    if (!utente) {
+      return res.status(404).json({ success: false, message: "Utente non trovato" });
+    }
+
+    res.json({
+      success: true,
+      utente: {
+        username: utente.username,
+        email: utente.email,
+        birthdate: utente.birthdate,
+        punti: utente.punti,
+        immagineProfilo: utente.immagineProfilo
+      }
+    });
+  } catch (err) {
+    console.error("Errore profilo:", err);
+    return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
+  }
+});
+
 
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
@@ -107,41 +140,77 @@ app.get("/api/sicuro", (req, res) => {
   }
 });
 
-// ✅ NUOVO ENDPOINT: upload immagine o video utente
-app.post("/api/upload/:idUtente", upload.single("file"), async (req, res) => {
+app.post("/api/upload", upload.single("file"), async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
   try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
     if (!req.file || !req.file.path) {
       return res.status(400).json({ success: false, message: "Nessun file ricevuto" });
     }
 
-    const db = await connectToDB();
-    const userId = req.params.idUtente;
     const url = req.file.path;
     const tipo = req.file.mimetype.startsWith("video") ? "video" : "immagine";
 
+    const db = await connectToDB();
     const risultato = await db.collection("utenti").updateOne(
       { _id: new ObjectId(userId) },
-      {
-        $set: {
-          immagineProfilo: url,
-          tipoMediaProfilo: tipo,
-        }
-      }
+      { $set: { immagineProfilo: url, tipoMediaProfilo: tipo } }
     );
 
     if (risultato.modifiedCount === 0) {
       return res.status(404).json({ success: false, message: "Utente non trovato" });
     }
 
-    res.json({
-      success: true,
-      message: "File caricato e salvato",
-      url,
-      tipo
-    });
+    res.json({ success: true, message: "File caricato e assegnato all'utente!", url, tipo });
+
   } catch (err) {
     console.error("Errore upload:", err);
-    res.status(500).json({ success: false, message: "Errore durante l'upload" });
+    res.status(401).json({ success: false, message: "Token non valido o scaduto" });
+  }
+});
+
+app.put("/api/profilo/update", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
+
+  const token = authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ success: false, message: "Token mancante" });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const { username, birthdate } = req.body;
+    if (!username || !birthdate) {
+      return res.status(400).json({ success: false, message: "Username e data di nascita sono obbligatori" });
+    }
+
+    const db = await connectToDB();
+    const result = await db.collection("utenti").updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { username, birthdate } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: "Utente non trovato o dati identici" });
+    }
+
+    res.json({ success: true, message: "Profilo aggiornato con successo" });
+  } catch (err) {
+    console.error("Errore aggiornamento profilo:", err);
+    return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
   }
 });
 
