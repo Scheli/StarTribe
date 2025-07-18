@@ -37,23 +37,31 @@ body {
 }
 
 
-.nav-search{
-    display: flex;
-    gap: 15px;
-    justify-content: center;
+.nav-search {
+  display: flex;
+  gap: 10px;
 }
 
-.nav-search input[type="text"]{
-    padding: 8px 200px;
-    border:3px solid white;
-    background: none;
-    border-radius: 6px;
-    text-align: center;
-    color: white;
-}
-
-.nav-search input[type="text"]::placeholder{
+.nav-search input[type="text"] {
+  padding: 10px 30px;
+  border: none;
+  background: #ffffff15;
+  border-radius: 10px;
+  border:1px solid white;
   color: white;
+  width: 400px;
+  transition: 0.3s ease;
+}
+
+.nav-search input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--accent-color);
+  background: #ffffff25;
+}
+
+.nav-search input::placeholder {
+  color: #ccc;
+  text-align: center;
 }
 
 .container {
