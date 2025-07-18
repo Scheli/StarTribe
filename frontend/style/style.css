@@ -242,3 +242,130 @@ body {
 
 /*css gestione account*/
 
+/*CSS Chat*/
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  background:#f4f4f4;
+  color:#222;
+}
+
+.pane {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+#loginPane h1 {
+  margin-top:0;
+}
+
+#loginForm {
+  display:flex;
+  gap:.5rem;
+}
+
+#loginForm input {
+  flex:1;
+  padding:.5rem;
+  font-size:1rem;
+}
+
+#loginForm button {
+  padding:.5rem 1rem;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+#chatPane {
+  max-width: 900px;
+}
+
+.chat-layout {
+  display:grid;
+  grid-template-columns: 200px 1fr;
+  gap:1rem;
+  height:60vh;
+  overflow:hidden;
+}
+
+.userlist {
+  background:#fafafa;
+  border:1px solid #ddd;
+  border-radius:4px;
+  padding:.5rem;
+  overflow-y:auto;
+}
+
+.userlist ul {
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.userlist li {
+  padding:.25rem 0;
+  border-bottom:1px solid #eee;
+}
+
+.messages {
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:4px;
+  padding:.5rem;
+  overflow-y:auto;
+}
+
+#messages {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:.25rem;
+}
+
+.message {
+  padding:.25rem .5rem;
+  border-radius:4px;
+  word-wrap:break-word;
+}
+
+.message.me {
+  background:#d1e7dd;
+  align-self:flex-end;
+}
+
+.message.other {
+  background:#e2e3e5;
+  align-self:flex-start;
+}
+
+.message.system {
+  background:transparent;
+  color:#6c757d;
+  font-style:italic;
+  text-align:center;
+}
+
+#messageForm {
+  display:flex;
+  gap:.5rem;
+  margin-top:1rem;
+}
+
+#messageForm input {
+  flex:1;
+  padding:.5rem;
+  font-size:1rem;
+}
+
+#messageForm button {
+  padding:.5rem 1rem;
+  font-size:1rem;
+  cursor:pointer;
+}
