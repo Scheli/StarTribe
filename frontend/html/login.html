@@ -10,8 +10,7 @@
 </head>
 <body>
 
-   <div id="popup">Operazione completata con successo!</div>
-
+  
     <div class="container">
       <div class="box-form">
         <form id="contact-form">
@@ -31,12 +30,20 @@
           <p>Accetta la politica sulla privacy!</p>
         </div>
 
-        <input onclick="showMessage()"  class="send-form" type="submit" value="ACCEDI" id="send-form" disabled/>
+        <input onclick="showPopup()"  class="send-form" type="submit" value="ACCEDI" id="send-form" disabled/>
 
       </form>
       </div>
-        
     </div>
+<div id="popupOverlay">
+        <div id="popupContainer">
+            <button id="closePopupBtn">&times;</button>
+            <div id="popupContent">
+                </div>
+        </div>
+    </div>
+        
+    
 <script src="/frontend/script/lscript.js"></script>
 </body>
 </html>

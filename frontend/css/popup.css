@@ -1,4 +1,4 @@
-    #popup {
+  /*   #popup {
       position: fixed;
       top: 20px;
       right: 20px;
@@ -14,3 +14,125 @@
     #popup.show {
       opacity: 1;
     }
+ */
+
+
+/* ESEMPIO DI COME DEVE ESSERE LA REGOLA PER #popupOverlay */
+#popupOverlay {
+    display: none; /* NESSUN !important qui */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--sfumatura);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    /* ASSICURATI CHE NON CI SIANO ALTRE DICHIARAZIONI DI 'display' QUI SOTTO */
+}
+
+/* ... altre regole CSS intermedie, se presenti ... */
+
+.show-popup {
+    display: flex !important; /* MANTIENI QUESTO !important */
+}
+
+
+#popupContainer {
+    background-color: var(--bg-primary-color-selected); /* Sfondo del popup scuro */
+    padding: 30px;
+    border-radius: 15px; /* Angoli più arrotondati */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px var(--viola2); /* Doppia ombra con bagliore viola */
+    width: 80%;
+    max-width: 550px; /* leggermente più grande */
+    position: relative;
+    border: 2px solid var(--viola2); /* Bordo esterno viola brillante */
+    overflow: hidden; /* Per contenere l'effetto di sfondo */
+    animation: fadeIn 0.4s ease-out; /* Animazione più lenta */
+}
+
+#popupContainer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, var(--sfumatura) 0%, transparent 70%),
+                radial-gradient(circle at bottom right, var(--viola2) 0%, transparent 70%); /* Sfumature cosmiche */
+    opacity: 0.2;
+    z-index: -1;
+}
+
+
+#closePopupBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 30px; /* Icona più grande */
+    cursor: pointer;
+    color: var(--viola2); /* Colore della 'X' viola brillante */
+    text-shadow: 0 0 5px var(--testobottoni); /* Luminescenza per la 'X' */
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#closePopupBtn:hover {
+    color: white; /* 'X' bianca all'hover */
+    transform: rotate(90deg); /* Animazione di rotazione */
+}
+
+#popupContent {
+    margin-top: 15px;
+    text-align: center;
+    color: var(--text-light); /* Testo del popup chiaro */
+}
+
+#popupContent h2 {
+    color: var(--viola2); /* Titolo del popup in viola brillante */
+    font-size: 2.2em; /* Titolo più grande */
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px var(--testobottoni); /* Effetto luminescenza */
+}
+
+#popupContent p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+#popupContent img {
+    border-radius: 8px; /* Angoli arrotondati per le immagini nel popup */
+    border: 2px solid var(--testobottoni); /* Bordo viola */
+    margin-top: 20px;
+}
+
+
+/* Animazione per l'apertura del popup */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Stili specifici per il popup di errore --- */
+.popup-error #popupContainer {
+    border-color: red; /* Bordo rosso per l'errore */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px red; /* Bagliore rosso */
+}
+
+.popup-error #popupContent h2 {
+    color: red; /* Titolo rosso per l'errore */
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+}
+
+.popup-error #closePopupBtn {
+    color: red;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.popup-error #popupContent img {
+    border-color: red; /* Bordo immagine rosso */
+}

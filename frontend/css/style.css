@@ -6,7 +6,7 @@
 
 body,html{
   height: 100%;
-
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 :root {
@@ -79,6 +79,8 @@ body,html{
 
 .box-form{
  background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
+ margin-left: 100px;
+ margin-right: 100px;
   padding: 45px 250px;
   border: 1px solid #282250;
   box-shadow: inset 0 0 10px #2e2e50;
