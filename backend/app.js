@@ -58,6 +58,52 @@ app.post("/api/register", async (req, res) => {
     res.status(500).json({ success: false, message: "Errore interno del server" });
   }
 });
+app.post("/api/segui", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const { utenteDaSeguireId } = req.body;
+
+  if (!utenteDaSeguireId) {
+    return res.status(400).json({ success: false, message: "ID utente da seguire mancante" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const mioId = decoded.userId;
+
+    if (mioId === utenteDaSeguireId) {
+      return res.status(400).json({ success: false, message: "Non puoi seguire te stesso" });
+    }
+
+    const db = await connectToDB();
+    const utenti = db.collection("utenti");
+
+    const utenteTarget = await utenti.findOne({ _id: new ObjectId(utenteDaSeguireId) });
+    if (!utenteTarget) {
+      return res.status(404).json({ success: false, message: "Utente da seguire non trovato" });
+    }
+
+    await utenti.updateOne(
+      { _id: new ObjectId(mioId) },
+      { $addToSet: { seguiti: new ObjectId(utenteDaSeguireId) } }
+    );
+
+    await utenti.updateOne(
+      { _id: new ObjectId(utenteDaSeguireId) },
+      { $addToSet: { follower: new ObjectId(mioId) } }
+    );
+
+    res.json({ success: true, message: "Utente seguito con successo" });
+  } catch (err) {
+    console.error("Errore nel seguire l'utente:", err);
+    res.status(401).json({ success: false, message: "Token non valido o errore interno" });
+  }
+});
+
 
 app.get("/api/profilo", async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -75,7 +121,7 @@ app.get("/api/profilo", async (req, res) => {
       return res.status(404).json({ success: false, message: "Utente non trovato" });
     }
 
-    res.json({
+res.json({
   success: true,
   utente: {
     username: utente.username,
@@ -83,12 +129,53 @@ app.get("/api/profilo", async (req, res) => {
     birthdate: utente.birthdate,
     punti: utente.punti,
     immagineProfilo: utente.immagineProfilo,
-    bannerProfilo: utente.bannerProfilo || ""
+    bannerProfilo: utente.bannerProfilo || "",
+    seguiti: utente.seguiti || [],
   }
 });
+
+
   } catch (err) {
     console.error("Errore profilo:", err);
     return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
+  }
+});
+app.post("/api/unfollow", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
+
+  const token = authHeader.split(" ")[1];
+  const { utenteDaSmettereId } = req.body;
+
+  if (!utenteDaSmettereId) {
+    return res.status(400).json({ success: false, message: "ID utente da smettere di seguire mancante" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const mioId = decoded.userId;
+
+    if (mioId === utenteDaSmettereId) {
+      return res.status(400).json({ success: false, message: "Non puoi smettere di seguire te stesso" });
+    }
+
+    const db = await connectToDB();
+    const utenti = db.collection("utenti");
+
+    await utenti.updateOne(
+      { _id: new ObjectId(mioId) },
+      { $pull: { seguiti: new ObjectId(utenteDaSmettereId) } }
+    );
+
+    await utenti.updateOne(
+      { _id: new ObjectId(utenteDaSmettereId) },
+      { $pull: { follower: new ObjectId(mioId) } }
+    );
+
+    res.json({ success: true, message: "Hai smesso di seguire l'utente" });
+  } catch (err) {
+    console.error("Errore durante unfollow:", err);
+    res.status(401).json({ success: false, message: "Token non valido o errore interno" });
   }
 });
 
@@ -350,6 +437,7 @@ app.get("/api/utente/:id", async (req, res) => {
         bannerProfilo: utente.bannerProfilo || null
       }
     });
+  
   } catch (err) {
     console.error("Errore:", err);
     res.status(500).json({ success: false, message: "Errore del server" });
