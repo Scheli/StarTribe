@@ -1,63 +1,99 @@
-import express from 'express';
-import http from 'http';
-import mongoose from 'mongoose';
-import { Server as SocketIO } from 'socket.io';
-import cors from 'cors';
+import path from "path";
+import express from "express";
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const server = http.createServer(app);
-const io = new SocketIO(server, { cors: { origin: '*' } });
-
 app.use(cors());
-app.use(express.json());
 
-// Connessione MongoDB (sostituisci URI con il tuo)
-mongoose.connect('mongodb+srv://databaseprogetto:StarTribe@startribedb.dwlllm5.mongodb.net/', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+// Percorso alla cartella frontend (static files)
+const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
+app.use(express.static(FRONTEND_DIR));
+
+// Se qualcuno va su /, reindirizziamo alla pagina chat
+app.get("/", (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "html", "chat.html"));
 });
 
-// Schemi mongoose
-const UserSchema = new mongoose.Schema({
-  username: String,
-  // altri campi utente ...
+// Creiamo server HTTP e istanza Socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // per ambiente scolastico / locale
+    methods: ["GET", "POST"]
+  }
 });
 
-const MessageSchema = new mongoose.Schema({
-  userId: mongoose.Schema.Types.ObjectId,
-  username: String,
-  text: String,
-  createdAt: { type: Date, default: Date.now },
-});
+// Mappa per tenere traccia degli utenti
+// key: socket.id, value: { username }
+const users = new Map();
 
-const User = mongoose.model('User', UserSchema);
-const Message = mongoose.model('Message', MessageSchema);
+function broadcastUserList() {
+  const list = Array.from(users.values()).map(u => u.username);
+  io.emit("user-list", list);
+}
 
-// API per ottenere messaggi (esempio)
-app.get('/api/messages', async (req, res) => {
-  const messages = await Message.find().sort({ createdAt: 1 }).limit(100);
-  res.json(messages);
-});
+io.on("connection", socket => {
+  console.log("Nuova connessione:", socket.id);
 
-// Socket.IO gestione messaggi
-io.on('connection', (socket) => {
-  console.log('Nuovo client connesso');
+  // Il client invia lo username dopo la connessione
+  socket.on("join", username => {
+    if (typeof username !== "string" || !username.trim()) {
+      username = "Anonimo";
+    }
+    username = username.trim();
+    users.set(socket.id, { username });
+    console.log(`${username} si è unito alla chat`);
 
-  // Quando arriva un messaggio
-  socket.on('chatMessage', async ({ userId, username, text }) => {
-    const message = new Message({ userId, username, text });
-    await message.save();
+    // Notifica tutti che l'utente è entrato
+    io.emit("system-message", {
+      type: "join",
+      username,
+      timestamp: Date.now()
+    });
 
-    // Invia a tutti i client
-    io.emit('message', { userId, username, text, createdAt: message.createdAt });
+    // Aggiorna elenco utenti a tutti
+    broadcastUserList();
   });
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnesso');
+  // Messaggio chat
+  socket.on("chat-message", msgText => {
+    const entry = users.get(socket.id);
+    if (!entry) return; // utente non registrato
+    const payload = {
+      username: entry.username,
+      message: String(msgText || "").slice(0, 2000), // cut lungo
+      timestamp: Date.now()
+    };
+    io.emit("chat-message", payload);
+  });
+
+  // Disconnessione
+  socket.on("disconnect", reason => {
+    const entry = users.get(socket.id);
+    if (entry) {
+      const username = entry.username;
+      users.delete(socket.id);
+      console.log(`${username} ha lasciato la chat (${reason})`);
+      io.emit("system-message", {
+        type: "leave",
+        username,
+        timestamp: Date.now()
+      });
+      broadcastUserList();
+    } else {
+      console.log(`Socket ${socket.id} disconnesso senza username (${reason})`);
+    }
   });
 });
 
-// Server in ascolto
-server.listen(3000, () => {
-  console.log('Server in ascolto sulla porta 3000');
+// Avvio server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server chat avviato su http://localhost:${PORT}`);
 });
