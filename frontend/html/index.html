@@ -7,5 +7,66 @@
 </head>
 <body>
     <h1>esempio</h1>
+    <!-- socket.io client -->
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+<div id="chat-container" style="border:1px solid #ccc; padding:10px; width: 300px;">
+  <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ddd; margin-bottom:10px;"></div>
+  <input type="text" id="chat-input" placeholder="Scrivi un messaggio..." style="width: 80%;" />
+  <button id="send-btn">Invia</button>
+</div>
+
+<script>
+  // Simuliamo dati utente già loggato (sostituisci con dati reali)
+  const currentUser = {
+    userId: '60b8b2f4e1f1a30d4c8d3f52', // esempio ObjectId Mongo
+    username: 'MarioRossi',
+  };
+
+  const socket = io('http://localhost:3000');
+
+  const messagesEl = document.getElementById('messages');
+  const inputEl = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  // Carica messaggi preesistenti via API REST
+  fetch('http://localhost:3000/api/messages')
+    .then(res => res.json())
+    .then(messages => {
+      messages.forEach(m => addMessage(m));
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+
+  // Funzione per aggiungere messaggi nel DOM
+  function addMessage({ username, text, createdAt }) {
+    const msgEl = document.createElement('div');
+    msgEl.textContent = `[${new Date(createdAt).toLocaleTimeString()}] ${username}: ${text}`;
+    messagesEl.appendChild(msgEl);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // Quando ricevo messaggi dal server
+  socket.on('message', (message) => {
+    addMessage(message);
+  });
+
+  // Invia messaggio
+  sendBtn.addEventListener('click', () => {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    socket.emit('chatMessage', { 
+      userId: currentUser.userId,
+      username: currentUser.username,
+      text 
+    });
+    inputEl.value = '';
+  });
+
+  // Invia anche premendo Invio
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendBtn.click();
+  });
+</script>
+
 </body>
 </html>
