@@ -1,4 +1,4 @@
-// backend/utils/cloudinary.js
+
 
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -16,7 +16,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "uploads",
-    resource_type: "auto", // 📌 Cloudinary capisce se è immagine o video
+    resource_type: "auto",
     allowed_formats: ["jpg", "jpeg", "png", "webp", "gif", "mp4", "webm", "mov"],
   },
 });
