@@ -11,7 +11,7 @@ const io = new SocketIO(server, { cors: { origin: '*' } });
 app.use(cors());
 app.use(express.json());
 
-// Connessione MongoDB (sostituisci URI con il tuo)
+// Connessione MongoDB
 mongoose.connect('mongodb+srv://databaseprogetto:StarTribe@startribedb.dwlllm5.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
