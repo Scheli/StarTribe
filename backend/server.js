@@ -11,16 +11,14 @@ const io = new SocketIO(server, { cors: { origin: '*' } });
 app.use(cors());
 app.use(express.json());
 
-// Connessione MongoDB
 mongoose.connect('mongodb+srv://databaseprogetto:StarTribe@startribedb.dwlllm5.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-// Schemi mongoose
 const UserSchema = new mongoose.Schema({
   username: String,
-  // altri campi utente ...
+  
 });
 
 const MessageSchema = new mongoose.Schema({

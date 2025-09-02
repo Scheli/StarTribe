@@ -1,12 +1,7 @@
 import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
-dotenv.config();
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const client = new MongoClient(uri);
 
 let db;
 
@@ -14,7 +9,7 @@ export async function connectToDB() {
   if (!db) {
     try {
       await client.connect();
-      db = client.db("StarTribeDB"); // ✅ nome del tuo database
+      db = client.db("StarTribeDB");
       console.log("✅ Connessione a MongoDB riuscita");
     } catch (err) {
       console.error("❌ Errore nella connessione a MongoDB:", err);
@@ -35,10 +30,11 @@ export async function aggiungiUtente(utente) {
   return result.insertedId;
 }
 
-
-export async function GetUtentiConsigliati(db) {
-  const utenti = await db.collection("utenti").aggregate([
-    { $sample: { size: 3 } }
-  ]).toArray();
+export async function GetUtentiConsigliati(dbInstance) {
+  const db = dbInstance || (await connectToDB());
+  const utenti = await db
+    .collection("utenti")
+    .aggregate([{ $sample: { size: 3 } }])
+    .toArray();
   return utenti;
 }
