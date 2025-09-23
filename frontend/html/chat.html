@@ -1,33 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <title>Test Chat</title>
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <link rel="stylesheet" href="..\style\style.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script defer src="../js/chat.js"></script>
 </head>
 <body>
-  <h2>Chat Test</h2>
-  <input id="msg" placeholder="Scrivi un messaggio..." />
-  <button onclick="sendMsg()">Invia</button>
-  <ul id="messages"></ul>
 
-  <script>
-    const socket = io("http://localhost:3000");
+  <div class="chat-container">
+    <div class="chat-header">
+      Chat Live – <span id="usernameDisplay"></span>
+    </div>
 
-    socket.on("connect", () => {
-      console.log("Connesso al server");
-    });
+    <div class="chat-messages" id="chat"></div>
 
-    socket.on("message", (msg) => {
-      const li = document.createElement("li");
-      li.innerText = `${msg.username}: ${msg.text}`;
-      document.getElementById("messages").appendChild(li);
-    });
-
-    function sendMsg() {
-      const text = document.getElementById("msg").value;
-      socket.emit("chatMessage", { userId: "123", username: "Tester", text });
-      document.getElementById("msg").value = "";
-    }
-  </script>
+    <form class="chat-input" id="form">
+      <input type="text" id="messageInput" placeholder="Scrivi un messaggio..." autocomplete="off" />
+      <button type="submit">Invia</button>
+    </form>
+  </div>
 </body>
 </html>

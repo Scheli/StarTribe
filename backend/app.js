@@ -9,13 +9,67 @@ import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js
 import multer from "multer";
 import { storage, cloudinary } from "./utils/cloudinary.js";
 import { ObjectId } from "mongodb";
+import path from "path";
+import { createServer } from "http";
+import {Server} from "socket.io";
 
 const app = express();
+const PORT = process.env.PORT || 8080;
+const httpServer = createServer(app);
 app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret123";
 const upload = multer({ storage });
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    method: ["GET", "POST"]
+  }
+});
+httpServer.listen(PORT, () => {
+  console.log(`Server avviato su http://localhost:${PORT}`);
+})
+
+/*===Autenticazione con JWT===*/
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if(!token) {
+    return next(new Error("Token mancante"));
+  }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    socket.user = decoded;
+    return next();
+  } catch (err) {
+    console.error("Errore autenticazione socket: ", err);
+    return next(new Error("Token non valido"));
+  }
+});
+
+/*===Server per backend chat===*/
+const utentiConnessi = new Map();
+
+io.on("connection", socket => {
+  const username = socket.user?.username || "Utente";
+
+  utentiConnessi.set(socket.id, username);
+  socket.broadcast.emit("update", `${username} è entrato in chat`);
+
+  socket.on("chat", msg => {
+    io.emit("chat", {
+      username,
+      message: msg,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  socket.on("disconnect", ()=>{
+      socket.broadcast.emit("update", `${username} ha lasciato la chat`);
+      utentiConnessi.delete(socket.id);
+  })
+});
 
 // ---------------- sicurezza e utnente ----------------
 
@@ -570,7 +624,3 @@ app.get("/api/utente/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Errore del server" });
   }
 });
-
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server avviato su http://localhost:${PORT}`));
