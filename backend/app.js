@@ -33,6 +33,7 @@ httpServer.listen(PORT, () => {
 })
 
 /*===Autenticazione con JWT===*/
+
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
   if(!token) {
@@ -49,6 +50,7 @@ io.use((socket, next) => {
 });
 
 /*===Server per backend chat===*/
+
 const utentiConnessi = new Map();
 
 io.on("connection", socket => {
