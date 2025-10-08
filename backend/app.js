@@ -625,7 +625,6 @@
     }
   });
 
-// middleware globale per JSON (va bene)
 app.use(express.json());
 
 // rotta con multer (upload singolo file)
@@ -668,5 +667,72 @@ app.post("/api/pubblicapost", upload.single("file"), async (req, res) => {
   } catch (err) {
     console.error("Errore upload:", err);
     res.status(401).json({ success: false, message: "Token non valido o scaduto" });
+  }
+});
+
+
+// -- GET CARICAMENTO PAGINA POST --
+
+// app.get("/api/utente/:id", async (req, res) => {
+//     const id = req.params.id;
+
+//     try {
+//       const db = await connectToDB();
+//       const utente = await db.collection("utenti").findOne({ _id: new ObjectId(id) });
+
+//       if (!utente) {
+//         return res.status(404).json({ success: false, message: "Utente non trovato" });
+//       }
+
+//       res.json({
+//         success: true,
+//         utente: {
+//           username: utente.username,
+//           punti: utente.punti,
+//           immagineProfilo: utente.immagineProfilo,
+//           bannerProfilo: utente.bannerProfilo || null,
+//         },
+//       });
+//     } catch (err) {
+//       console.error("Errore:", err);
+//       res.status(500).json({ success: false, message: "Errore del server" });
+//     }
+//   });
+
+app.get("/api/post", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const db = await connectToDB();
+    const collection = db.collection("articoli");
+
+    // Recupera tutti i post
+    const posts = await collection.find({}).toArray();
+
+    // Formatta la data e altri campi
+    const postsFormatted = posts.map(post => ({
+      titolo: post.titolo,
+      descrizione: post.descrizione,
+      ImmaginePost: post.ImmaginePost,
+      TipoImmaginePost: post.TipoImmaginePost,
+      UserId: post.UserId,
+      createdAt: post.createdAt ? new Date(post.createdAt).toLocaleDateString('it-IT') : null
+    }));
+
+    res.json(postsFormatted);
+
+  } catch (err) {
+    console.error("Errore:", err);
+    res.status(500).json({ success: false, message: "Errore del server" });
   }
 });
