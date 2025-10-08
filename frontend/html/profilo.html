@@ -3,146 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <title>Profilo Utente</title>
-  <style>
-    /* avatar ovale */
-    #mediaProfilo img, #mediaProfilo video {
-      width: 220px; height: 260px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    /* galleria cornici (icone) */
-    .bordi-wrapper {
-      margin-top: 20px;
-    }
-    .bordi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 20px;
-      align-items: start;
-      max-width: 900px;
-    }
-    .bordo-card {
-      text-align: center;
-    }
-
-    .pfp-border {
-      width: 110px; height: 110px;
-      object-fit: contain;
-      cursor: pointer;
-      transition: transform .15s ease, opacity .15s ease, filter .15s ease;
-    }
-    .pfp-border:hover { transform: scale(1.03); }
-
-    .pfp-border.locked {
-      filter: grayscale(1) brightness(0.6);
-      cursor: not-allowed;
-      opacity: .6;
-    }
-    .pfp-border.selected {
-      outline: 3px solid #67d2ff;
-      border-radius: 12px;
-    }
-
-    .bordo-label {
-      margin-top: 6px;
-      font-weight: 600;
-    }
-
-    .row { margin: 14px 0; }
-  </style>
+  <link rel="stylesheet" href="../style/profilo.css" />
 </head>
 <body>
-  <h2>Profilo Utente</h2>
+  <h2 class="titolo-profilo">Profilo Utente</h2>
 
-  <div id="infoUtente">
-    <!-- Modifica dati base -->
-    <form id="modificaForm" class="row">
-      <label><strong>Username:</strong></label>
-      <input type="text" id="username" required><br><br>
+  <!-- Banner utente -->
+  <div id="bannerProfilo" class="banner-profilo"></div>
 
-      <label><strong>Email:</strong></label>
-      <input type="text" id="email" disabled><br><br>
+  <!-- Sezione principale: foto profilo + info utente -->
+  <section class="sezione-utente">
+    <div id="mediaProfilo" class="media-profilo"></div>
 
-      <label><strong>Data di nascita:</strong></label>
-      <input type="date" id="birthdate" required><br><br>
+    <div class="info-base">
+      <h3>Informazioni Utente</h3>
+      <p><strong>Username:</strong> <span id="usernameDisplay"></span></p>
+      <p><strong>Email:</strong> <span id="emailDisplay"></span></p>
+      <p><strong>Data di nascita:</strong> <span id="birthdateDisplay"></span></p>
+      <p><strong>Punti:</strong> <span id="puntiDisplay"></span></p>
 
-      <label><strong>Punti:</strong></label>
-      <input type="number" id="punti" disabled><br><br>
-
-      <button type="submit">Salva modifiche</button>
-    </form>
-
-    <!-- Banner attuale -->
-    <h3>Banner profilo</h3>
-    <div id="bannerProfilo" class="row"></div>
-
-    <!-- Upload banner -->
-    <h3>Modifica banner</h3>
-    <form id="bannerForm" class="row">
-      <input type="file" name="file" accept="image/*" required />
-      <br><br>
-      <button type="submit">Carica banner</button>
-    </form>
-
-    <h3>Foto del profilo</h3>
-    <div id="mediaProfilo" class="row"></div>
-
-    <h3>Modifica immagine profilo</h3>
-    <form id="uploadForm" class="row">
-      <input type="file" name="file" accept="image/*,video/*" required />
-      <br><br>
-      <button type="submit">Carica</button>
-    </form>
-
-    <p id="messaggio" class="row"></p>
-    <button id="logoutBtn">Logout</button>
-
-    <div class="bordi-wrapper">
-      <h3>Decorazioni disponibili</h3>
-      <div class="bordi-grid" id="bordiGrid">
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="bronzo"   src="/frontend/assets/border-bronzo.png"   alt="Bronzo">
-          <div class="bordo-label">Bronzo</div>
-        </div>
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="argento"  src="/frontend/assets/border-argento.png"  alt="Argento">
-          <div class="bordo-label">Argento</div>
-        </div>
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="oro"      src="/frontend/assets/border-oro.png"      alt="Oro">
-          <div class="bordo-label">Oro</div>
-        </div>
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="platino"  src="/frontend/assets/border-platino.png"  alt="Platino">
-          <div class="bordo-label">Platino</div>
-        </div>
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="rubino"   src="/frontend/assets/border-rubino.png"   alt="Rubino">
-          <div class="bordo-label">Rubino</div>
-        </div>
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="diamante" src="/frontend/assets/border-diamante.png" alt="Diamante">
-          <div class="bordo-label">Diamante</div>
-        </div>
-        <div class="bordo-card">
-          <img class="pfp-border" data-border="universo" src="/frontend/assets/border-universo.png" alt="Universo">
-          <div class="bordo-label">Universo</div>
-        </div>
+      <div class="azioni-utente">
+        <button id="btnModificaInfo">Modifica informazioni</button>
+        <button id="btnModificaBanner">Modifica banner</button>
+        <button id="btnModificaMedia">Modifica immagine profilo</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Sezione decorazioni -->
+  <section class="bordi-wrapper">
+    <h3>Decorazioni disponibili</h3>
+    <div class="bordi-grid" id="bordiGrid">
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="bronzo" src="/frontend/assets/border-bronzo.png" alt="Bronzo">
+        <div class="bordo-label">Bronzo</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="argento" src="/frontend/assets/border-argento.png" alt="Argento">
+        <div class="bordo-label">Argento</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="oro" src="/frontend/assets/border-oro.png" alt="Oro">
+        <div class="bordo-label">Oro</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="platino" src="/frontend/assets/border-platino.png" alt="Platino">
+        <div class="bordo-label">Platino</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="rubino" src="/frontend/assets/border-rubino.png" alt="Rubino">
+        <div class="bordo-label">Rubino</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="diamante" src="/frontend/assets/border-diamante.png" alt="Diamante">
+        <div class="bordo-label">Diamante</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="universo" src="/frontend/assets/border-universo.png" alt="Universo">
+        <div class="bordo-label">Universo</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottone logout -->
+  <div class="logout-section">
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- 🔹 MODALI OVERLAY 🔹 -->
+
+  <!-- Modifica informazioni -->
+  <div id="modalInfo" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Modifica informazioni utente</h3>
+      <form id="modificaForm">
+        <label>Username: </label>
+        <input type="text" id="usernameInput" required>
+
+        <label>Email:</label>
+        <input type="text" id="emailInput" disabled>
+
+        <label>Data di nascita:</label>
+        <input type="date" id="birthdateInput" required>
+
+        <label>Punti:</label>
+        <input type="number" id="puntiInput" disabled>
+
+        <button type="submit">Salva modifiche</button>
+        <button type="button" class="btnChiudi" data-close="modalInfo">Chiudi</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modifica banner -->
+  <div id="modalBanner" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Modifica banner</h3>
+      <form id="bannerForm">
+        <input type="file" name="file" accept="image/*" required />
+        <button type="submit">Carica banner</button>
+        <button type="button" class="btnChiudi" data-close="modalBanner">Chiudi</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modifica immagine profilo -->
+  <div id="modalMedia" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Modifica immagine profilo</h3>
+      <form id="uploadForm">
+        <input type="file" name="file" accept="image/*,video/*" required />
+        <button type="submit">Carica</button>
+        <button type="button" class="btnChiudi" data-close="modalMedia">Chiudi</button>
+      </form>
     </div>
   </div>
 
   <script src="../js/profilo.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
+
   <script>
+    // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = 'login.html';
     });
+
+    // Apertura modali
+    document.getElementById("btnModificaInfo").addEventListener("click", () => {
+      document.getElementById("modalInfo").style.display = "flex";
+    });
+    document.getElementById("btnModificaBanner").addEventListener("click", () => {
+      document.getElementById("modalBanner").style.display = "flex";
+    });
+    document.getElementById("btnModificaMedia").addEventListener("click", () => {
+      document.getElementById("modalMedia").style.display = "flex";
+    });
+
+    // Chiusura modali
+    document.querySelectorAll(".btnChiudi").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const target = e.target.getAttribute("data-close");
+        document.getElementById(target).style.display = "none";
+      });
+    });
   </script>
 </body>
 </html>
-
-
-

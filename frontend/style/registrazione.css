@@ -176,24 +176,33 @@ h1 {
   --color-text: #f4eaff;
   --input-bg: rgba(255, 255, 255, 0.1);
   --input-border: #bda8ff;
+  --testobottoni: purple;
+  --form: #d067fd7b;
+  --sfumatura: rgba(0, 0, 255, 0.415);
+  --viola2: rgba(235, 7, 235, 0.616);
 }
 
-/* Contenitore principale */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body, html {
   height: 100%;
-  margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: var(--bg-primary-color);
   color: var(--color-text);
+  min-height: 100vh;
 }
 
 .container {
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-grow: 1;
-  min-height: 100vh;
-  padding: 20px;
+  padding: 24px;
+  background: var(--bg-primary-color);
 }
 
 .box-form {
@@ -202,13 +211,7 @@ body, html {
   border-radius: 18px;
   box-shadow: 0 0 30px var(--color-lilla-chiaro);
   width: 100%;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-container {
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -216,8 +219,14 @@ body, html {
 
 h1 {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
   color: var(--color-lilla-chiaro);
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-controls {
@@ -237,60 +246,71 @@ input[type="date"] {
   padding: 12px 15px;
   border-radius: 10px;
   border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--color-text);
+  background: var(--form);
+  color: var(--bg-primary-color);
   font-size: 1rem;
   transition: all 0.3s ease;
+  box-shadow: 2px 2px var(--testobottoni);
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+  color: var(--bg-primary-color);
 }
 
 input:focus {
+  outline: 2px solid var(--sfumatura);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--testobottoni);
   border-color: var(--color-lilla);
-  box-shadow: 0 0 8px var(--color-lilla-chiaro);
-  outline: none;
 }
 
-/* Checkbox centrata */
-.checkbox-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.checkbox-container input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-lilla);
-  cursor: pointer;
-}
-
-/* Pulsante submit centrato */
 .send-form {
-  padding: 14px 30px;
-  background: var(--color-lilla);
+  margin-top: 20px;
+  padding: 12px 28px;
+  border: none;
+  background: var(--testobottoni);
   color: var(--bg-primary-color);
   font-weight: bold;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
+  box-shadow: 2px 2px var(--viola2);
+  border-radius: 10px;
   font-size: 1rem;
-  transition: 0.3s ease;
+  cursor: pointer;
+  transition: 0.3s;
   display: block;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .send-form:hover {
-  background: var(--color-lilla-chiaro);
-  box-shadow: 0 0 10px var(--color-lilla-chiaro);
+  background: var(--sfumatura);
+  color: var(--bg-primary-color);
+  box-shadow: 2px 2px var(--sfumatura);
 }
 
 .send-form:disabled {
-  background: rgba(128,128,128,0.5);
+  background-color: rgba(181, 181, 181, 0.599);
+  box-shadow: 2px 2px grey;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
-/* Link login centrato */
+.form-checkbox {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--form);
+  margin-right: 8px;
+}
+
+/* Link login */
 .login-link {
   display: block;
   text-align: center;
@@ -298,10 +318,48 @@ input:focus {
   color: var(--color-text);
   font-size: 0.95rem;
   text-decoration: none;
-  transition: 0.3s ease;
+  transition: 0.3s;
 }
 
 .login-link:hover {
   color: var(--color-lilla-chiaro);
   text-decoration: underline;
+}
+
+/* Error input con animazione */
+.error-input {
+  border: 1.5px solid rgb(255, 0, 0) !important;
+  animation: scalePulse 0.4s ease;
+}
+
+@keyframes scalePulse {
+  0% { transform: scale(1);}
+  50% { transform: scale(1.05);}
+  100% { transform: scale(1);}
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .box-form {
+    padding: 30px 10vw;
+    max-width: 95vw;
+  }
+  .container {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .box-form {
+    padding: 18px 2vw;
+    border-radius: 10px;
+    gap: 12px;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+  .send-form {
+    padding: 10px 10px;
+    font-size: 0.95rem;
+  }
 }
