@@ -22,6 +22,7 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || "secret123";
 const upload = multer({ storage });
 
+<<<<<<< Updated upstream
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -74,6 +75,9 @@ io.on("connection", socket => {
 });
 
 // ---------------- sicurezza e utnente ----------------
+=======
+// ---------------- sicurezza e utente ----------------
+>>>>>>> Stashed changes
 
 app.post("/api/register", async (req, res) => {
   const { username, email, password, birthdate } = req.body;
