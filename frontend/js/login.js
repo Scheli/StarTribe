@@ -72,7 +72,7 @@ form.addEventListener("submit", async (e) => {
       showPopup({
         title: "Errore nel login",
         text: data.message || "Credenziali non valide.",
-        duration: 2000
+        duration: 1500
       });
     }
   } catch (error) {
