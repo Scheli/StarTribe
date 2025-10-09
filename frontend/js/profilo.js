@@ -1,4 +1,3 @@
-
 const token = localStorage.getItem("token");
 
 const BORDER_URLS = Object.freeze({
@@ -90,10 +89,18 @@ async function caricaProfilo() {
       return;
     }
 
-    document.getElementById("username").value  = data.utente.username;
-    document.getElementById("email").value     = data.utente.email;
-    document.getElementById("birthdate").value = safeBirthdateStr(data.utente.birthdate);
-    document.getElementById("punti").value     = data.utente.punti;
+    // Visualizzazione
+    document.getElementById("usernameDisplay").textContent = data.utente.username;
+    document.getElementById("emailDisplay").textContent    = data.utente.email;
+    document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(data.utente.birthdate);
+    document.getElementById("puntiDisplay").textContent    = data.utente.punti;
+
+    // Modale
+    document.getElementById("usernameInput").value  = data.utente.username;
+    document.getElementById("emailInput").value     = data.utente.email;
+    document.getElementById("birthdateInput").value = safeBirthdateStr(data.utente.birthdate);
+    document.getElementById("puntiInput").value     = data.utente.punti;
+
 
     CURRENT.avatarBaseUrl  = data.utente.immagineProfilo || "";
     CURRENT.selectedBorder = data.utente.selectedBorder || "none"; 

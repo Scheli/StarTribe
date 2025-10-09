@@ -1,0 +1,72 @@
+/* === popup.css === */
+:root {
+  --popup-bg: rgba(15, 0, 40, 0.8);
+  --popup-box: rgba(50, 0, 80, 0.9);
+  --popup-text: #f4eaff;
+  --popup-lilla: #c79aff;
+  --popup-lilla-chiaro: #d8b6ff;
+}
+
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--popup-bg);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.welcome-popup {
+  background: linear-gradient(135deg, var(--popup-box), var(--popup-lilla-chiaro));
+  border-radius: 18px;
+  box-shadow: 0 0 25px var(--popup-lilla-chiaro);
+  padding: 40px 60px;
+  text-align: center;
+  color: var(--popup-text);
+  max-width: 420px;
+  width: 90%;
+  transform: scale(0.9);
+  animation: popupIn 0.5s ease forwards;
+  position: relative;
+}
+
+.welcome-logo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.loading-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.loading-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--popup-lilla);
+  animation: loading 2.8s ease forwards;
+  border-radius: 5px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popupIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes loading {
+  from { width: 0%; }
+  to { width: 100%; }
+}
