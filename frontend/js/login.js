@@ -58,7 +58,7 @@ form.addEventListener("submit", async (e) => {
     if (response.ok) {
       showPopup({
         title: "Login riuscito!",
-        text: "Accesso effettuato con successo...",
+        text: "Accesso effettuato con successo, Bentornato!",
         duration: 1500
       });
 

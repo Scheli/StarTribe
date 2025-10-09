@@ -30,8 +30,8 @@ async function PaginaPost(){
             div.innerHTML = `
                 <p><strong>Titolo:</strong> ${articolo.titolo}</p>
                 <img src="${articolo.ImmaginePost}">
-                <p><strong>descrizione:</strong> ${articolo.descrizione}</p>
-                <p><strong>Punteggio:</strong> ${articolo.createdAt}</p>
+                <p><strong>Descrizione:</strong> ${articolo.descrizione}</p>
+                <p><strong>Data di pubblicazione:</strong> ${articolo.createdAt}</p>
             `;
 
             postContainer.appendChild(div);
