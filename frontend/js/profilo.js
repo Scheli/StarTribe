@@ -97,9 +97,7 @@ async function caricaProfilo() {
 
     // Modale
     document.getElementById("usernameInput").value  = data.utente.username;
-    document.getElementById("emailInput").value     = data.utente.email;
     document.getElementById("birthdateInput").value = safeBirthdateStr(data.utente.birthdate);
-    document.getElementById("puntiInput").value     = data.utente.punti;
 
 
     CURRENT.avatarBaseUrl  = data.utente.immagineProfilo || "";
