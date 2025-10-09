@@ -1,4 +1,77 @@
+
+
 <!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrazione Utente</title>
+  <link rel="stylesheet" href="/frontend/style/registrazione.css" />
+</head>
+<body>
+
+  <div class="container">
+    <div class="box-form">
+      <h1>Registrazione</h1>
+      <div class="form-container">
+                  <form id="registerForm">
+              <div class="form-controls">
+                <label for="username">Nome utente:</label>
+                <input type="text" id="username" name="username" required />
+              </div>
+
+              <div class="form-controls">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required />
+              </div>
+
+              <div class="form-controls">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required />
+              </div>
+
+              <div class="form-controls">
+                <label for="birthdate">Data di nascita:</label>
+                <input type="date" id="birthdate" name="birthdate" required />
+              </div>
+
+              <div class="checkbox-container">
+                <input type="checkbox" id="terms" required />
+                <label for="terms">Accetto i termini e le condizioni</label>
+              </div>
+
+              <input class="send-form" type="submit" value="Registrati" id="send-form" />
+              <a href="login.html" class="login-link">Se sei già registrato, vai al login</a>
+            </form>
+      </div>
+      <p id="message"></p>
+    </div>
+  </div>
+
+
+  
+ <!--   Popup fluttuante (vuoto, pronto per implementazione futura) 
+  <div id="welcomeOverlay" class="welcome-overlay">
+    <div class="welcome-popup">
+      <img src="/frontend/assets/logo.png" alt="StarTribe Logo" class="welcome-logo">
+      <h2>Benvenuto nella StarTribe!</h2>
+      <p>Preparati a esplorare nuove galassie...</p>
+      <div class="loading-bar">
+        <div class="loading-fill"></div>
+      </div>
+    </div>
+  </div>-->
+
+ 
+
+  <script src="/frontend/js/registrazione.js"></script>
+</body>
+</html>
+
+
+
+
+<!-- <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
@@ -27,4 +100,4 @@
 
   <script src="/frontend/js/registrazione.js"></script>
 </body>
-</html>
+</html>-->

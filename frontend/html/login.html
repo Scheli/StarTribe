@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+
+
+ <!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Utente</title>
+  <link rel="stylesheet" href="../style/login.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="box-form">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <div class="form-controls">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <div class="form-controls">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <input class="send-form" type="submit" value="Accedi" id="send-form" />
+        <a href="registrazione.html" class="register-link">Non sei registrato? Vai alla registrazione</a>
+      </form>
+      <p id="message"></p>
+    </div>
+  </div>
+
+  <script type="module" src="../js/login.js"></script>
+</body>
+</html>
+
+
+
+
+<!-- <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
@@ -21,4 +60,4 @@
 
   <script type="module" src="../js/login.js"></script>
 </body>
-</html>
+</html>-->
