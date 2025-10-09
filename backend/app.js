@@ -586,14 +586,13 @@ const utentiConnessi = new Map();
 
   app.get("/news/all", async (req, res) => {
     try {
-      const [apod, weather, roverPhoto, imageLibrary] = await Promise.all([
+      const [apod, weather, imageLibrary] = await Promise.all([
         getAPOD(),
         getInSightWeather(),
-        getMarsRoverPhoto(),
         searchImageLibrary(),
       ]);
 
-      res.json({ apod, weather, roverPhoto, imageLibrary });
+      res.json({ apod, weather, imageLibrary });
     } catch (error) {
       console.error("Errore nella GET /news/all:", error);
       res.status(500).json({ error: error.message, stack: error.stack });

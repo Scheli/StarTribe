@@ -1,6 +1,5 @@
 import { createEngine } from "./core/engine.js";
 
-// import dinamico con fallback su maiuscole/minuscole
 async function importBackground(name) {
   const base = "./core/backgrounds/";
   const cand = [
