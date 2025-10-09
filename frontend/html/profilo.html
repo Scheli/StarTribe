@@ -26,6 +26,7 @@
         <button id="btnModificaInfo">Modifica informazioni</button>
         <button id="btnModificaBanner">Modifica banner</button>
         <button id="btnModificaMedia">Modifica immagine profilo</button>
+        <button id="logoutBtn">Logout</button>
       </div>
     </div>
   </section>
@@ -141,6 +142,11 @@
         const target = e.target.getAttribute("data-close");
         document.getElementById(target).style.display = "none";
       });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token'); 
+      window.location.href = 'login.html'; 
     });
   </script>
 </body>
