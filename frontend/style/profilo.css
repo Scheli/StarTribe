@@ -59,8 +59,8 @@ h2.titolo-profilo {
 
 .media-profilo img,
 .media-profilo video {
-  width: 220px;
-  height: 260px;
+  width: 250px;
+  height: 250px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--color-lilla);

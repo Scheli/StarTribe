@@ -22,34 +22,36 @@
   const JWT_SECRET = process.env.JWT_SECRET || "secret123";
   const upload = multer({ storage });
 
-  const io = new Server(httpServer, {
-    cors: {
-      origin: "*",
-      method: ["GET", "POST"]
-    }
-  });
-  httpServer.listen(PORT, () => {
-    console.log(`Server avviato su http://localhost:${PORT}`);
-  })
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    method: ["GET", "POST"]
+  }
+});
+httpServer.listen(PORT, () => {
+  console.log(`Server avviato su http://localhost:${PORT}`);
+})
 
-  /*===Autenticazione con JWT===*/
-  io.use((socket, next) => {
-    const token = socket.handshake.auth?.token;
-    if(!token) {
-      return next(new Error("Token mancante"));
-    }
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      socket.user = decoded;
-      return next();
-    } catch (err) {
-      console.error("Errore autenticazione socket: ", err);
-      return next(new Error("Token non valido"));
-    }
-  });
+/*===Autenticazione con JWT===*/
 
-  /*===Server per backend chat===*/
-  const utentiConnessi = new Map();
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if(!token) {
+    return next(new Error("Token mancante"));
+  }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    socket.user = decoded;
+    return next();
+  } catch (err) {
+    console.error("Errore autenticazione socket: ", err);
+    return next(new Error("Token non valido"));
+  }
+});
+
+/*===Server per backend chat===*/
+
+const utentiConnessi = new Map();
 
   io.on("connection", socket => {
     const username = socket.user?.username || "Utente";
@@ -71,7 +73,8 @@
     })
   });
 
-  // ---------------- sicurezza e utnente ----------------
+
+// ---------------- sicurezza e utente ----------------
 
   app.post("/api/register", async (req, res) => {
     const { username, email, password, birthdate } = req.body;
@@ -583,14 +586,13 @@
 
   app.get("/news/all", async (req, res) => {
     try {
-      const [apod, weather, roverPhoto, imageLibrary] = await Promise.all([
+      const [apod, weather, imageLibrary] = await Promise.all([
         getAPOD(),
         getInSightWeather(),
-        getMarsRoverPhoto(),
         searchImageLibrary(),
       ]);
 
-      res.json({ apod, weather, roverPhoto, imageLibrary });
+      res.json({ apod, weather, imageLibrary });
     } catch (error) {
       console.error("Errore nella GET /news/all:", error);
       res.status(500).json({ error: error.message, stack: error.stack });

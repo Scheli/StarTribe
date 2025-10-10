@@ -80,3 +80,12 @@ body {
   box-shadow: 0 0 10px #ffffff30;
   transform: scale(1.05);
 }
+
+.container {
+  background-color: var(--bg-primary-color);
+  flex-grow: 1;
+  display: flex; 
+  color: white;
+  padding-bottom: 80px;
+  margin-top: 80px;
+}

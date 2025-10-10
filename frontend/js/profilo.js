@@ -97,9 +97,7 @@ async function caricaProfilo() {
 
     // Modale
     document.getElementById("usernameInput").value  = data.utente.username;
-    document.getElementById("emailInput").value     = data.utente.email;
     document.getElementById("birthdateInput").value = safeBirthdateStr(data.utente.birthdate);
-    document.getElementById("puntiInput").value     = data.utente.punti;
 
 
     CURRENT.avatarBaseUrl  = data.utente.immagineProfilo || "";
@@ -168,8 +166,9 @@ document.getElementById("bannerForm").addEventListener("submit", async (e) => {
 
 document.getElementById("modificaForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const username = document.getElementById("username").value;
-  const birthdate = document.getElementById("birthdate").value;
+
+  const username = document.getElementById("usernameInput").value;
+  const birthdate = document.getElementById("birthdateInput").value;
 
   const res = await fetch("http://localhost:8080/api/profilo/update", {
     method: "PUT",
@@ -238,4 +237,3 @@ async function handleBorderClick(key) {
 }
 
 caricaProfilo();
-

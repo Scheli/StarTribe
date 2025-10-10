@@ -36,7 +36,6 @@ body {
   z-index: 1000;
 }
 
-
 .nav-search {
   display: flex;
   gap: 10px;
@@ -72,7 +71,6 @@ body {
   padding-bottom: 80px;
   margin-top: 80px;
 }
-
 
 .footer {
   position: fixed;            

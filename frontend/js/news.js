@@ -29,8 +29,6 @@ async function caricaUtentiConsigliati() {
   }
 }
 
-
-
 document.addEventListener('DOMContentLoaded', caricaUtentiConsigliati);
 
 async function fetchAllNews() {
@@ -39,11 +37,8 @@ async function fetchAllNews() {
     if (!res.ok) throw new Error('Errore nella fetch');
 
     const data = await res.json();
-
     mostraAPOD(data.apod);
     mostraWeather(data.weather);
-    mostra10FotoSelezionate(data.roverPhoto);
-    mostraImageLibrary(data.imageLibrary);
   } catch (err) {
     console.error('Errore nel caricamento dati:', err);
   }
@@ -66,43 +61,4 @@ function mostraWeather(weather) {
   <p>Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C</p>`;
 }
 
-function mostraRoverPhoto(photo) {
-  const div = document.getElementById('roverPhoto');
-  div.innerHTML = `<h3>Foto dal rover</h3>
-    <img src="${photo.img_src}" alt="Mars rover photo" style="max-width:100%;">`;
-}
-
-function mostraImageLibrary(image) {
-  const div = document.getElementById('imageLibrary');
-  div.innerHTML = `<h3>Immagine NASA</h3>
-    <img src="${image.url}" alt="${image.title}" style="max-width:100%;">`;
-}
-
-function mostra10FotoSelezionate(data) {
-  const container = document.getElementById('roverPhoto');
-  container.innerHTML = '<h3>Foto dal rover</h3>';
-
-  if (!data.photos || data.photos.length === 0) {
-    container.innerHTML += '<p>Nessuna foto disponibile.</p>';
-    return;
-  }
-
-  const prime5 = data.photos.slice(0, 15);
-  const ultime5 = data.photos.slice(-5);
-  const fotoSelezionate = [...prime5, ...ultime5];
-
-  fotoSelezionate.forEach(photo => {
-    const img = document.createElement('img');
-    img.src = photo.img_src;
-    img.alt = 'Foto da Marte';
-    img.style.width = '100%';
-    img.style.maxWidth = '200px';
-    img.style.margin = '10px';
-    img.style.borderRadius = '8px';
-    container.appendChild(img);
-  });
-}
-
-
 document.addEventListener('DOMContentLoaded', fetchAllNews);
-

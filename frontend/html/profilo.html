@@ -10,7 +10,6 @@
 
   <!-- Banner utente -->
   <div id="bannerProfilo" class="banner-profilo"></div>
-
   <!-- Sezione principale: foto profilo + info utente -->
   <section class="sezione-utente">
     <div id="mediaProfilo" class="media-profilo"></div>
@@ -26,6 +25,7 @@
         <button id="btnModificaInfo">Modifica informazioni</button>
         <button id="btnModificaBanner">Modifica banner</button>
         <button id="btnModificaMedia">Modifica immagine profilo</button>
+        <button id="logoutBtn">Logout</button>
       </div>
     </div>
   </section>
@@ -77,17 +77,12 @@
     <div class="modal-content">
       <h3>Modifica informazioni utente</h3>
       <form id="modificaForm">
-        <label>Username: </label>
-        <input type="text" id="usernameInput" required>
 
-        <label>Email:</label>
-        <input type="text" id="emailInput" disabled>
+        <label>Username: </label>
+        <input type="text" id="usernameInput">
 
         <label>Data di nascita:</label>
-        <input type="date" id="birthdateInput" required>
-
-        <label>Punti:</label>
-        <input type="number" id="puntiInput" disabled>
+        <input type="date" id="birthdateInput">
 
         <button type="submit">Salva modifiche</button>
         <button type="button" class="btnChiudi" data-close="modalInfo">Chiudi</button>
@@ -146,6 +141,11 @@
         const target = e.target.getAttribute("data-close");
         document.getElementById(target).style.display = "none";
       });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token'); 
+      window.location.href = 'login.html'; 
     });
   </script>
 </body>
