@@ -23,15 +23,10 @@ body, html {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--color-text);
   min-height: 100vh;
-  opacity: 1;
-  transition-duration: 0.7s;
-  transition-property: opacity;
   background-image: url("https://images.pexels.com/photos/957061/milky-way-starry-sky-night-sky-star-957061.jpeg?cs=srgb&dl=pexels-umkreisel-app-957061.jpg&fm=jpg");
   background-size: 100%;
 }
-body.fade{
-  opacity: 0;
-}
+
 .container {
   min-height: 100vh;
   display: flex;
