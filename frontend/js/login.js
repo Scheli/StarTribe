@@ -28,7 +28,7 @@ function showPopup({ title, text, duration = 1500 }) {
 // ✅ Popup iniziale all’apertura
 window.addEventListener("load", () => {
   showPopup({
-    title: "Benvenuto in StarTribe!",
+    title: "Bentornato in StarTribe!",
     text: "Preparati a esplorare nuove galassie...",
     duration: 1500
   });
@@ -58,7 +58,7 @@ form.addEventListener("submit", async (e) => {
     if (response.ok) {
       showPopup({
         title: "Login riuscito!",
-        text: "Accesso effettuato con successo, Bentornato!",
+        text: "Accesso effettuato con successo!",
         duration: 1500
       });
 
