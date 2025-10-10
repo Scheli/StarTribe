@@ -82,7 +82,7 @@ input[type="date"] {
   border-radius: 10px;
   border: 1px solid var(--input-border);
   background: var(--form);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-size: 1rem;
   transition: all 0.3s ease;
   box-shadow: 2px 2px var(--testobottoni);
@@ -91,7 +91,7 @@ input[type="date"] {
 input[type="text"]::placeholder,
 input[type="email"]::placeholder,
 input[type="password"]::placeholder {
-  color: var(--bg-primary-color);
+  color: var(--color-text);
 }
 
 input:focus {
@@ -106,7 +106,7 @@ input:focus {
   padding: 12px 28px;
   border: none;
   background: var(--testobottoni);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-weight: bold;
   box-shadow: 2px 2px var(--viola2);
   border-radius: 10px;
@@ -120,7 +120,7 @@ input:focus {
 
 .send-form:hover {
   background: var(--sfumatura);
-  color: var(--bg-primary-color);
+  color: var(--color-lilla-chiaro);
   box-shadow: 2px 2px var(--sfumatura);
 }
 

@@ -43,9 +43,9 @@ form.addEventListener("submit", async (e) => {
     message.style.color = "red";
   }
 });
- */
-/* 
-const form = document.getElementById("registerForm");
+  */
+
+/* const form = document.getElementById("registerForm");
 const message = document.getElementById("message");
 
 form.addEventListener("submit", async (e) => {
@@ -101,8 +101,8 @@ inputs.forEach((input) => {
     inputs.forEach((i) => i.classList.remove("error-input"));
   });
 });
- */
-
+ 
+*/
 const form = document.getElementById("registerForm");
 const message = document.getElementById("message");
 
