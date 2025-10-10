@@ -62,4 +62,3 @@ function mostraWeather(weather) {
 }
 
 document.addEventListener('DOMContentLoaded', fetchAllNews);
-

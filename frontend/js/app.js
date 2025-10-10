@@ -19,7 +19,23 @@ async function importBackground(name) {
 async function boot() {
   const engine = createEngine({ alpha: true, antialias: true });
 
-  const raw = (document.body.dataset.bg || "mars").trim();
+  const sfondiPossibili = [
+    "earth_Moon",
+    "Jupiter",
+    "Mars",
+    "Mercury",
+    "Neptune",
+    "Saturn",
+    "Uranus",
+    "Venus"
+  ];
+
+  let raw = (document.body.dataset.bg || "random").trim();
+
+  if (raw === "random"){
+    const indiceRandom = Math.floor(Math.random() * sfondiPossibili.length)
+    raw = sfondiPossibili[indiceRandom];
+  }
 
   const mod = await importBackground(raw);
   const bg = await mod.initBackground(engine);
