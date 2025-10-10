@@ -21,7 +21,8 @@
 body, html {
   height: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg-primary-color);
+  background-image: url("https://images.pexels.com/photos/957061/milky-way-starry-sky-night-sky-star-957061.jpeg?cs=srgb&dl=pexels-umkreisel-app-957061.jpg&fm=jpg");
+  background-size: 100%;
   color: var(--color-text);
   min-height: 100vh;
 }
@@ -32,7 +33,6 @@ body, html {
   justify-content: center;
   align-items: center;
   padding: 24px;
-  background: var(--bg-primary-color);
 }
 
 .box-form {
