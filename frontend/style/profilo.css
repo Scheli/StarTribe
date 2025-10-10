@@ -100,7 +100,7 @@ h2.titolo-profilo {
   border: none;
   border-radius: 8px;
   background: var(--testobottoni);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-weight: bold;
   cursor: pointer;
   box-shadow: 2px 2px var(--viola2);
@@ -109,7 +109,8 @@ h2.titolo-profilo {
 
 .azioni-utente button:hover {
   background: var(--sfumatura);
-  color: var(--color-text);
+  color: var(--color-lilla-chiaro);
+  box-shadow: 2px 2px var(--sfumatura);
 }
 
 /* Decorazioni */
@@ -176,7 +177,7 @@ h2.titolo-profilo {
   border: none;
   border-radius: 10px;
   background: var(--testobottoni);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
@@ -186,7 +187,8 @@ h2.titolo-profilo {
 
 #logoutBtn:hover {
   background: var(--sfumatura);
-  color: var(--color-text);
+  color: var(--color-lilla-chiaro);
+  box-shadow: 2px 2px var(--sfumatura);
 }
 
 /* ─────────── MODALI ─────────── */
@@ -234,7 +236,7 @@ h2.titolo-profilo {
   border-radius: 10px;
   border: 1px solid var(--input-border);
   background: var(--form);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-size: 1rem;
   box-shadow: 2px 2px var(--testobottoni);
 }
@@ -245,7 +247,7 @@ h2.titolo-profilo {
   border: none;
   border-radius: 10px;
   background: var(--testobottoni);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-weight: bold;
   cursor: pointer;
   transition: 0.3s;
@@ -253,7 +255,8 @@ h2.titolo-profilo {
 
 .modal-content button:hover {
   background: var(--sfumatura);
-  color: var(--color-text);
+  color: var(--color-lilla-chiaro);
+  box-shadow: 2px 2px var(--sfumatura);
 }
 
 .btnChiudi {
@@ -268,6 +271,7 @@ h2.titolo-profilo {
 
 .btnChiudi:hover {
   color: var(--color-lilla);
+   box-shadow: 2px 2px var(--sfumatura);
 }
 
 /* Uniformare input file dentro le modali */
@@ -278,7 +282,7 @@ h2.titolo-profilo {
   border-radius: 10px;
   border: 1px solid var(--input-border);
   background: var(--form);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 2px 2px var(--testobottoni);
@@ -290,7 +294,7 @@ h2.titolo-profilo {
   border-radius: 8px;
   border: none;
   background: var(--testobottoni);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-weight: bold;
   cursor: pointer;
   box-shadow: 2px 2px var(--viola2);
@@ -299,7 +303,7 @@ h2.titolo-profilo {
 
 .modal-content input[type="file"]::-webkit-file-upload-button:hover {
   background: var(--sfumatura);
-  color: var(--color-text);
+  color: var(--color-lilla-chiaro);
 }
 
 .modal-content input[type="file"]::-moz-file-upload-button {
@@ -307,7 +311,7 @@ h2.titolo-profilo {
   border-radius: 8px;
   border: none;
   background: var(--testobottoni);
-  color: var(--bg-primary-color);
+  color: var(--color-text);
   font-weight: bold;
   cursor: pointer;
   box-shadow: 2px 2px var(--viola2);
@@ -316,7 +320,7 @@ h2.titolo-profilo {
 
 .modal-content input[type="file"]::-moz-file-upload-button:hover {
   background: var(--sfumatura);
-  color: var(--color-text);
+  color: var(--color-lilla-chiaro);
 }
 
 

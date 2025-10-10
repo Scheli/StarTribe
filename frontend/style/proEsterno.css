@@ -1,0 +1,152 @@
+:root {
+  --bg-primary-color: #090a21;
+  --bg-primary-color-selected: #290e4d;
+  --color-lilla: #c79aff;
+  --color-lilla-chiaro: #d8b6ff;
+  --color-text: #f4eaff;
+  --testobottoni: #c79aff;
+  --form: #d067fd7b;
+  --sfumatura: rgba(0, 0, 255, 0.415);
+  --viola2: rgba(235, 7, 235, 0.616);
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-primary-color);
+  color: var(--color-text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ───────────── BANNER ───────────── */
+#banner {
+  width: 100%;
+  height: 380px;
+  background-image: url('../assets/banner-default.jpg'); /* fallback */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-bottom: 3px solid var(--color-lilla);
+  box-shadow: 0 0 40px var(--color-lilla-chiaro);
+}
+
+/* sfumatura in basso per evitare lo stacco */
+#banner::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--bg-primary-color));
+}
+
+/* ───────────── PROFILO ESTERNO ───────────── */
+#profiloEsterno {
+  position: relative;
+  margin-top: -100px;
+  background: rgba(15, 10, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 40px 60px;
+  width: 420px;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(199, 154, 255, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+/* ───────────── IMMAGINE PROFILO ───────────── */
+#immagineProfilo {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 4px solid var(--color-lilla);
+  object-fit: cover;
+  box-shadow: 0 0 25px var(--color-lilla-chiaro);
+  margin-top: -120px;
+  background: var(--bg-primary-color);
+}
+
+/* ───────────── TESTO ───────────── */
+#username {
+  margin-top: 20px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-lilla-chiaro);
+  text-shadow: 0 0 8px rgba(199, 154, 255, 0.7);
+}
+
+#profiloEsterno p {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+#profiloEsterno strong {
+  color: var(--color-lilla);
+  font-weight: 600;
+}
+
+/* ───────────── BOTTONE SEGUI ───────────── */
+#btnFollow {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 35px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, #8b5cf6, #c084fc);
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(199, 154, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+#btnFollow:hover {
+  background: linear-gradient(135deg, #c084fc, #8b5cf6);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 25px rgba(216, 182, 255, 0.8);
+}
+
+/* stato "seguito" */
+#btnFollow.seguito {
+  background: transparent;
+  border: 2px solid var(--color-lilla);
+  color: var(--color-lilla-chiaro);
+  box-shadow: none;
+}
+
+#btnFollow.seguito:hover {
+  background: var(--color-lilla);
+  color: var(--bg-primary-color);
+}
+
+/* ───────────── RESPONSIVE ───────────── */
+@media (max-width: 600px) {
+  #profiloEsterno {
+    width: 90%;
+    padding: 30px 20px;
+  }
+
+  #immagineProfilo {
+    width: 140px;
+    height: 140px;
+    margin-top: -100px;
+  }
+
+  #username {
+    font-size: 1.5rem;
+  }
+}

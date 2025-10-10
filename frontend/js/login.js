@@ -168,7 +168,7 @@ window.addEventListener("load", () => {
   showPopup({
     title: "Benvenuto in StarTribe!",
     text: "Preparati a esplorare nuove galassie...",
-    duration: 3000
+    duration: 1000
   });
 });
 
@@ -197,7 +197,7 @@ form.addEventListener("submit", async (e) => {
       showPopup({
         title: "Login riuscito!",
         text: "Accesso effettuato con successo...",
-        duration: 3000
+        duration: 1500
       });
 
       if (data.token) {
