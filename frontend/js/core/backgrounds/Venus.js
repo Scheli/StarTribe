@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { GLTFLoader }      from "three/addons/loaders/GLTFLoader.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { UP_AXIS, prepPlanetMaterials, createOrbitRig, unitRadius } from "../utils.js";
-import { SCALE, TIME, ROT, ORBIT, SUN, ELEMENTS, POSTFX, CAMERA } from "../config.js";
 
+import { UP_AXIS, prepPlanetMaterials, createOrbitRig, smoothFocusAuto, extendOrbitRigWithAuto} from "../utils.js";
+import { SCALE, TIME, ROT, ORBIT, SUN, ELEMENTS, POSTFX, CAMERA } from "../config.js";
 import { createSky } from "../common/sky.js";
 import { createSun } from "../common/sun.js";
 
@@ -12,11 +12,7 @@ const TEX_SKY     = new URL("./textures/stars_milky_way.jpg", import.meta.url).h
 const MODEL_SUN   = new URL("./models/Sun.glb",               import.meta.url).href;
 const MODEL_VENUS = new URL("./models/Venus.glb",             import.meta.url).href;
 
-/* Aliases */
-const SUN_POS          = SUN.POS;
-const SUN_ROT          = SUN.ROT * TIME.SPEED;
-const SUN_ANGULAR_DIAM = SUN.ANGULAR_DIAM;
-
+/* Orbita / assetto */
 const VEN_ECC         = ELEMENTS.VENUS.ecc;
 const VEN_INCL_DEG    = ELEMENTS.VENUS.incl_deg;
 const VEN_RAAN_DEG    = ELEMENTS.VENUS.raan_deg;
@@ -25,41 +21,46 @@ const VEN_OBLQ_DEG    = ELEMENTS.VENUS.obliquity_deg;
 
 const VEN_A     = SCALE.AU * ELEMENTS.VENUS.a_AU;
 const VEN_ORBIT = ORBIT.VENUS * TIME.SPEED;
-const VEN_ROT   = ROT.VENUS   * TIME.SPEED; 
+const VEN_ROT   = ROT.VENUS   * TIME.SPEED;
 
-// Boost visivo se la rotazione reale è impercettibile
 const VEN_ROT_VIS = (Math.abs(VEN_ROT) < 1e-6)
-  ? Math.sign(VEN_ROT || -1) * 2e-5   
+  ? Math.sign(VEN_ROT || -1) * 2e-5
   : VEN_ROT;
 
-/* Helpers */
 function keplerSolve(M, e){
   let E = M;
-  for (let k=0;k<4;k++){ const f=E - e*Math.sin(E) - M, fp=1 - e*Math.cos(E); E -= f/fp; }
-  const cosE=Math.cos(E), sinE=Math.sin(E);
-  return { r:1 - e*cosE, nu:Math.atan2(Math.sqrt(1-e*e)*sinE, cosE - e), E };
+  for (let k=0;k<4;k++){
+    const f  = E - e*Math.sin(E) - M;
+    const fp = 1 - e*Math.cos(E);
+    E -= f/fp;
+  }
+  const cosE = Math.cos(E), sinE = Math.sin(E);
+  return { r: 1 - e*cosE, nu: Math.atan2(Math.sqrt(1-e*e)*sinE, cosE - e) };
 }
-function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2; }
 
-/* Entry */
 export async function initBackground(engine){
-  const { scene, camera, composer, controls, onTick } = engine;
+  const { scene, camera, composer, onTick } = engine;
 
-  // Bloom (da config)
+  // Bloom
+  let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), strength, radius, threshold));
+    bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      strength, radius, threshold
+    );
+    composer.addPass(bloomPass);
   }
 
-  // Sky + Sole condivisi
+  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
-    position: SUN_POS,
-    angularDiameter: SUN_ANGULAR_DIAM,
+    position: SUN.POS,
+    angularDiameter: SUN.ANGULAR_DIAM,
     modelUrl: MODEL_SUN,
     modelTargetSize: 20,
-    spin: SUN_ROT,
+    spin: SUN.ROT * TIME.SPEED,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
   });
 
@@ -69,41 +70,40 @@ export async function initBackground(engine){
   const venPhase   = new THREE.Group();
   const venCarrier = new THREE.Group();
   const venSpin    = new THREE.Group();
-  scene.add(venPivot); venPivot.add(venTilt); venTilt.add(venPhase); venPhase.add(venCarrier); venCarrier.add(venSpin);
+  scene.add(venPivot);
+  venPivot.add(venTilt);
+  venTilt.add(venPhase);
+  venPhase.add(venCarrier);
+  venCarrier.add(venSpin);
 
-  venTilt.rotation.x = THREE.MathUtils.degToRad(VEN_INCL_DEG);
-  venSpin.rotation.z = THREE.MathUtils.degToRad(VEN_OBLQ_DEG);
+  // Rotazioni costanti
+  venTilt.rotation.x  = THREE.MathUtils.degToRad(VEN_INCL_DEG);
+  venSpin.rotation.z  = THREE.MathUtils.degToRad(VEN_OBLQ_DEG);
+  venPivot.rotation.y = THREE.MathUtils.degToRad(VEN_RAAN_DEG);
+  venPhase.rotation.y = THREE.MathUtils.degToRad(VEN_ARGPERI_DEG); 
 
-  // Stato
-  let venus=null, venusClouds=null, M_ven=0;
-
-  // Carica GLB
-  await new Promise((resolve)=> new GLTFLoader().load(MODEL_VENUS,(g)=>{
+  // Mesh + nubi
+  let venus = null, venusClouds = null;
+  await new Promise((res)=> new GLTFLoader().load(MODEL_VENUS,(g)=>{
     venus = g.scene; venus.name = "Venus";
-    venSpin.add(venus);
-
-    // Corpo pianeta
     prepPlanetMaterials(venus, { roughness:0.98, metalness:0.0, normalScale:0.45 });
 
-    // Guscio nuvole (nomi tipici)
+    // guscio nubi (se presente nel GLB)
     venusClouds = venus.getObjectByName("Venus_Clouds")
-             || venus.getObjectByName("Clouds")
-             || venus.getObjectByName("clouds");
-
-    // Fix overlay nuvole: visibili davanti, niente “dietro”
-    if (venusClouds) {
+               || venus.getObjectByName("Clouds")
+               || venus.getObjectByName("clouds");
+    if (venusClouds){
       const mats = Array.isArray(venusClouds.material) ? venusClouds.material : [venusClouds.material];
-      for (const m of mats) {
+      for (const m of mats){
         if (!m) continue;
         m.transparent = true;
-        m.depthWrite  = false;     // non scrive nello z-buffer
-        m.depthTest   = true;      // ma testa contro il globo per occultare il retro
-        m.side        = THREE.FrontSide; // solo faccia esterna
+        m.depthWrite  = false;
+        m.depthTest   = true;
+        m.side        = THREE.FrontSide;
         m.alphaTest   = Math.max(0.0, m.alphaTest || 0.02);
-        m.blending    = THREE.NormalBlending;
         if ('metalness' in m) m.metalness = 0.0;
         if ('roughness' in m) m.roughness = 1.0;
-        if (m.map) {
+        if (m.map){
           m.map.wrapS = THREE.RepeatWrapping;
           m.map.wrapT = THREE.RepeatWrapping;
           m.map.anisotropy = 8;
@@ -111,76 +111,72 @@ export async function initBackground(engine){
         }
         m.needsUpdate = true;
       }
-      venusClouds.renderOrder = 21;        // dopo il globo
+      venusClouds.renderOrder = 21;
       venusClouds.scale.multiplyScalar(1.008);
-      venusClouds.userData._drift = -0.0006; // super-rotazione
+      venusClouds.userData._drift = -0.0006; // rad/ms
     }
 
-    // Scala coerente
+    // normalizzazione dimensione su schermo
     const box = new THREE.Box3().setFromObject(venus);
     const max = box.getSize(new THREE.Vector3()).toArray().reduce((a,b)=>Math.max(a,b),1);
     venus.scale.multiplyScalar(2.4 / max);
-
-    resolve();
+    venSpin.add(venus);
+    res();
   }));
 
-  // Focus iniziale + orbit rig
-  const state={ pending:null };
-  function smoothFocusTo(obj,{ mult=CAMERA.RADIUS_MULT, minDist=CAMERA.MIN_DIST, dur=1.0 }={}){
-    if (!obj) return;
-    obj.updateMatrixWorld(true);
-    const R=unitRadius(obj);
-    let dir=camera.position.clone().sub(controls.target); if (dir.lengthSq()<1e-6) dir.set(0,0,1);
-    dir.setLength(Math.max(minDist, R*mult));
-    const c=obj.getWorldPosition(new THREE.Vector3());
-    state.pending={ fromPos:camera.position.clone(), toPos:c.clone().add(dir), fromTgt:controls.target.clone(), toTgt:c.clone(), t:0, dur };
-  }
-  smoothFocusTo(venus);
+  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
+  const FILL = CAMERA.FRAME_FILL?.VENUS ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
+  const FOCUS_DUR = 1.0;
 
-  const orbit = createOrbitRig(engine);
-  const rInit = THREE.MathUtils.clamp(unitRadius(venus) * CAMERA.RADIUS_MULT, CAMERA.MIN_DIST, CAMERA.MAX_DIST);
-  orbit.setTarget(venus); orbit.setRadius(rInit); orbit.setSpeed(0.14); orbit.setElevation(0.22);
-  let startOrbitAfterFocus = true;
+  smoothFocusAuto(engine, venus, { fill: FILL, dur: FOCUS_DUR });
 
-  // Input
-  const onKey=(e)=>{
-    if (e.key==="0" && venus){
-      const dist=Math.max(CAMERA.MIN_DIST, unitRadius(venus) * CAMERA.RADIUS_MULT);
-      smoothFocusTo(venus, { mult:CAMERA.RADIUS_MULT, minDist:dist, dur:1.0 });
-      startOrbitAfterFocus = true;
+  let orbit = createOrbitRig(engine);
+  orbit = extendOrbitRigWithAuto(orbit, engine);
+  orbit.setTarget(venus);
+  orbit.setRadiusAuto(venus, { fill: FILL });
+  orbit.setSpeed(0.14);
+  orbit.setElevation(0.22);
+
+  let focusActive = true, focusTimer = 0;
+
+  // Input (0 refocus, 1 toggle orbit)
+  const onKey = (e)=>{
+    if (e.key === "0" && venus){
+      smoothFocusAuto(engine, venus, { fill: FILL, dur: FOCUS_DUR });
+      focusActive = true; focusTimer = 0;
+      if (orbit.isRunning()) orbit.stop();
     }
-    if (e.key==="1"){ if (orbit.isRunning()) orbit.stop(); else orbit.start(); }
+    if (e.key === "1"){
+      if (orbit.isRunning()) orbit.stop();
+      else { orbit.matchCameraToCurrent(); orbit.start(); }
+    }
   };
   window.addEventListener("keydown", onKey);
 
   // Tick
+  let M_ven = 0;
   const detach = onTick((dt, now)=>{
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita (Keplero)
+    // Orbita eliocentrica (Keplero)
     venPivot.position.copy(sun.group.position);
     M_ven = (M_ven + VEN_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_ven, VEN_ECC);
-    venPivot.rotation.y = THREE.MathUtils.degToRad(VEN_RAAN_DEG);
-    venTilt.rotation.x  = THREE.MathUtils.degToRad(VEN_INCL_DEG);
     venPhase.rotation.y = THREE.MathUtils.degToRad(VEN_ARGPERI_DEG) + nu;
     venCarrier.position.set(VEN_A * rUnit, 0, 0);
 
-    // Rotazioni: corpo sul nodo inclinato (venSpin), nuvole con drift relativo
+    // Spin globo + drift nubi
     if (venSpin) venSpin.rotateOnAxis(UP_AXIS, VEN_ROT_VIS * dt);
     if (venusClouds) venusClouds.rotateOnAxis(UP_AXIS, (venusClouds.userData._drift ?? -0.0006) * dt);
 
-    // Smooth focus → avvio orbit
-    if (state.pending){
-      state.pending.t += dt/1000;
-      const a = Math.min(1, state.pending.t/state.pending.dur);
-      const k = easeInOutCubic(a);
-      camera.position.lerpVectors(state.pending.fromPos, state.pending.toPos, k);
-      controls.target.lerpVectors(state.pending.fromTgt, state.pending.toTgt, k);
-      if (a >= 1) state.pending = null;
-    } else if (startOrbitAfterFocus){
-      orbit.start(); startOrbitAfterFocus = false;
+    if (focusActive){
+      focusTimer += dt/1000;
+      if (focusTimer >= FOCUS_DUR){
+        focusActive = false;
+        orbit.matchCameraToCurrent();
+        orbit.start();
+      }
     }
   });
 
@@ -192,6 +188,7 @@ export async function initBackground(engine){
       orbit.stop();
       sky.dispose();
       sun.dispose();
+      if (bloomPass && composer) composer.removePass(bloomPass);
       [venPivot].forEach(obj=>{
         if (!obj) return;
         obj.traverse?.(n=>{

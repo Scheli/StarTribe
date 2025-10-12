@@ -27,17 +27,13 @@ function makeRadialTexture({
   return tex;
 }
 
-/**
- * Crea il Sole condiviso (GLB + sprite disco/alone + luce + occluder).
- * Visivamente identico al tuo, con fix “anti-eclisse”.
- */
 export async function createSun({
-  scene, camera,                              // camera è usata come fallback
+  scene, camera,                              
   position = new THREE.Vector3(),
-  angularDiameter,                            // SUN.ANGULAR_DIAM
-  modelUrl,                                   // URL GLB
-  modelTargetSize = 20,                       // scala “20/max”, come prima
-  spin = 0,                                   // rad/ms (es. SUN.ROT * TIME.SPEED)
+  angularDiameter,                            
+  modelUrl,                                   
+  modelTargetSize = 20,                       
+  spin = 0,                                   
   lightIntensity = 1.8,
   lightTint = [1.0, 0.95, 0.85],
   pulse = { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 },
@@ -58,11 +54,10 @@ export async function createSun({
     blending: THREE.AdditiveBlending,
     toneMapped: false
   }));
-  // FIX anti-eclisse: niente depth test/write e renderOrder alto
   discSprite.material.depthTest  = false;
   discSprite.material.depthWrite = false;
   discSprite.renderOrder = 1000;
-  discSprite.position.z = 0.0001; // piccolo offset per sicurezza
+  discSprite.position.z = 0.0001; 
 
   // Sprite alone
   const haloSprite = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -84,7 +79,7 @@ export async function createSun({
     new THREE.MeshBasicMaterial({ colorWrite: false })
   );
   occluder.material.depthWrite = true;
-  occluder.renderOrder = 8; // prima del GLB e molto prima degli sprite
+  occluder.renderOrder = 8; 
   group.add(occluder);
 
   // GLB del Sole
@@ -115,10 +110,8 @@ export async function createSun({
   const UP = new THREE.Vector3(0, 1, 0);
 
   function update(cameraNow, now, dt){
-    // rotazione del gruppo (se richiesta)
     if (spin) group.rotateOnAxis(UP, spin * dt);
 
-    // dimensione angolare costante per sprite + occluder
     group.getWorldPosition(_tmp);
     const cam = cameraNow || camera;
     const d = cam.position.distanceTo(_tmp);
@@ -126,9 +119,8 @@ export async function createSun({
 
     discSprite.scale.set(size, size, 1);
     haloSprite.scale.set(size * 2.2, size * 2.2, 1);
-    occluder.scale.setScalar(size * 0.55); // leggermente > del raggio disco (0.5*size)
+    occluder.scale.setScalar(size * 0.55); 
 
-    // pulsazione lieve (emissivo GLB + alone)
     if (pulse?.enabled){
       const t = now * 0.001;
       const k = 1.0 + pulse.amp * Math.sin(t * pulse.speed);

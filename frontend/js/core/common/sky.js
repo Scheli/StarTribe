@@ -1,4 +1,3 @@
-// frontend/js/core/common/sky.js
 import * as THREE from "three";
 
 function makeMilkyWayDome(path, radius=4000){
@@ -24,9 +23,6 @@ function makeStarsLayer(n,radius,size,opacity){
   return new THREE.Points(geo,mat);
 }
 
-/**
- * Crea cielo + stelle condivisi.
- */
 export function createSky({ scene, camera, textureUrl, radius=4000, twinkle=true }){
   const sky   = makeMilkyWayDome(textureUrl, radius);
   scene.add(sky);

@@ -38,6 +38,11 @@ export const SUN = {
   ANGULAR_DIAM: THREE.MathUtils.degToRad(0.53),
 };
 
+export const MOON = {
+  PERIOD_DAYS: 27.321661, 
+  SPEED_MULT: 1000,       
+};
+
 export const ELEMENTS = {
   MERCURY: { a_AU: 0.3871, ecc: 0.2056,  incl_deg: 7.005,  raan_deg: 48.331,  argperi_deg: 29.124,  obliquity_deg: 0.03 },
   VENUS:   { a_AU: 0.7233, ecc: 0.0068,  incl_deg: 3.395,  raan_deg: 76.680,  argperi_deg: 54.884,  obliquity_deg: 177.36 },
@@ -54,8 +59,14 @@ export const POSTFX = {
 };
 
 export const CAMERA = {
-  RADIUS_MULT: 8,
-  RADIUS_MULT_BIG: { SATURN: 10 },
   MIN_DIST: 3,
   MAX_DIST: 300,
+  FRAME_FILL_DEFAULT: 0.6,  // 60% dell’altezza viewport
+  // opzionale: override per pianeta, se proprio serve
+  FRAME_FILL: {
+    // JUPITER: 0.7,
+    // EARTH:   0.6,
+  }
 };
+
+

@@ -1,36 +1,55 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
 import { createSky } from "../common/sky.js";
 import { createSun } from "../common/sun.js";
-import { SCALE, TIME, ROT, ORBIT, SUN, ELEMENTS, POSTFX, CAMERA } from "../config.js";
 
-// ───────────────────────────────────────────────────────
-// Asset paths (come nel tuo file)
+import { UP_AXIS, createOrbitRig, smoothFocusAuto, extendOrbitRigWithAuto,} from "../utils.js";
+import { SCALE, TIME, ROT, ORBIT, SUN, ELEMENTS, POSTFX, CAMERA, MOON  } from "../config.js";
+
+/* Assets */
 const TEX_SKY     = new URL("./textures/stars_milky_way.jpg", import.meta.url).href;
 const TEX_NIGHT   = new URL("./textures/earth-night.png",     import.meta.url).href;
 const TEX_CLOUDS  = new URL("./textures/earth_clouds.jpg",    import.meta.url).href;
-const MODEL_EARTH = new URL("./models/Ter.glb",              import.meta.url).href;
+const MODEL_EARTH = new URL("./models/Ter.glb",               import.meta.url).href;
 const MODEL_MOON  = new URL("./models/Moon.glb",              import.meta.url).href;
-const MODEL_SUN   = new URL("./models/Sun.glb",               import.meta.url).href; // opzionale nel createSun
+const MODEL_SUN   = new URL("./models/Sun.glb",               import.meta.url).href;
 
-// ───────────────────────────────────────────────────────
-// Parametri animazioni (coerenti col resto)
-const UP_AXIS        = new THREE.Vector3(0,1,0);
-const EARTH_ROT      = (ROT?.EARTH ?? 0.00050) * TIME.SPEED;  
-const CLOUDS_DRIFT   = -0.00012 * TIME.SPEED;                 
-const MOON_ORBIT     =  0.00018 * TIME.SPEED;                 // rad/ms
-const TIDAL_LOCK     = true;
+/* Parametri Terra/Luna */
+const EARTH_ROT    = (ROT?.EARTH ?? 0.00050) * TIME.SPEED; // spin terrestre
+const CLOUDS_DRIFT = -0.00012 * TIME.SPEED;
+const TIDAL_LOCK   = true;
 
-// Blend giorno/notte
-const duskParams = {
-  nightCurve:     1.6,
-  nightIntensity: 1.45,
-  darkStrength:   0.82
-};
+// Orbita eliocentrica (dati da ELEMENTS.EARTH)
+const EAR_ECC         = ELEMENTS.EARTH.ecc;
+const EAR_INCL_DEG    = ELEMENTS.EARTH.incl_deg;
+const EAR_RAAN_DEG    = ELEMENTS.EARTH.raan_deg;
+const EAR_ARGPERI_DEG = ELEMENTS.EARTH.argperi_deg;
+const EAR_A           = SCALE.AU * ELEMENTS.EARTH.a_AU;
+const EAR_ORBIT       = ORBIT.EARTH * TIME.SPEED;
 
-// ───────────────────────────────────────────────────────
-// Helpers
+const LUNAR_PERIOD_DAYS = MOON?.PERIOD_DAYS ?? 27.321661;
+const LUNAR_SPEED_MULT  = MOON?.SPEED_MULT  ?? 1000;
+const MOON_ORBIT_SPEED  = (2 * Math.PI) / (LUNAR_PERIOD_DAYS * 86400 * 1000) 
+                          * TIME.SPEED * LUNAR_SPEED_MULT;
+const MOON_DIST_FACTOR = 8.0;
+
+/* Notte/giorno */
+const duskParams = { nightCurve: 1.6, nightIntensity: 1.45, darkStrength: 0.82 };
+
+/* Helpers */
+function keplerSolve(M, e){
+  let E = M;
+  for (let k=0;k<4;k++){
+    const f  = E - e*Math.sin(E) - M;
+    const fp = 1 - e*Math.cos(E);
+    E -= f/fp;
+  }
+  const cosE = Math.cos(E), sinE = Math.sin(E);
+  return { r: 1 - e*cosE, nu: Math.atan2(Math.sqrt(1-e*e)*sinE, cosE - e), E };
+}
+
 async function buildCloudsTexture(path){
   const bmp = await fetch(path).then(r=>r.blob()).then(createImageBitmap);
   const W=bmp.width, H=bmp.height;
@@ -54,37 +73,27 @@ async function buildCloudsTexture(path){
   return tex;
 }
 
-function focusCamera(camera, controls, obj, mult=4.0, phi=Math.PI/4, theta=0.9){
-  if (!obj) return;
-  const box=new THREE.Box3().setFromObject(obj);
-  const size=box.getSize(new THREE.Vector3()).length();
-  const center=box.getCenter(new THREE.Vector3());
-  const dist=(size*mult)/Math.tan((Math.PI*camera.fov)/360);
-  const offset=new THREE.Vector3().setFromSpherical(new THREE.Spherical(dist, phi, theta));
-  camera.position.copy(center).add(offset);
-  controls?.target.copy(center);
-  controls?.update?.();
-}
-
-// ───────────────────────────────────────────────────────
 export async function initBackground(engine){
-  const { scene, camera, composer, controls, onTick } = engine;
+  const { scene, camera, composer, onTick } = engine;
 
-  // Bloom da config
-  let bloomPass=null;
+  // Bloom
+  let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled && composer){
     const { strength, radius, threshold } = POSTFX.BLOOM;
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), strength, radius, threshold);
+    bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      strength, radius, threshold
+    );
     composer.addPass(bloomPass);
   }
 
-  // Cielo + Sole condivisi
+  // Cielo + Sole
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
     position: SUN.POS,
     angularDiameter: SUN.ANGULAR_DIAM,
-    modelUrl: MODEL_SUN,          // se non ti serve il GLB, togli modelUrl
+    modelUrl: MODEL_SUN,
     modelTargetSize: 20,
     spin: SUN.ROT * TIME.SPEED,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 },
@@ -92,47 +101,47 @@ export async function initBackground(engine){
     lightTint: [1.0, 0.95, 0.85]
   });
 
-  // Terra
+  // Pivot/gerarchie Terra eliocentrica
+  const earthOrbitPivot = new THREE.Group();   // centro sul Sole → traslato dal Sole
+  const earthTilt       = new THREE.Group();   // inclinazione orbitale
+  const earthPhase      = new THREE.Group();   // argomento del perielio + anomalia vera
+  const earthCarrier    = new THREE.Group();   // traslazione su asse X (a*e)
+  const earthSpin       = new THREE.Group();   // rotazione su asse proprio
+  scene.add(earthOrbitPivot);
+  earthOrbitPivot.add(earthTilt);
+  earthTilt.add(earthPhase);
+  earthPhase.add(earthCarrier);
+  earthCarrier.add(earthSpin);
+
+  earthOrbitPivot.rotation.y = THREE.MathUtils.degToRad(EAR_RAAN_DEG);
+  earthTilt.rotation.x       = THREE.MathUtils.degToRad(EAR_INCL_DEG);
+
+  // Terra (mesh + shader blend giorno/notte)
   const nightTex = new THREE.TextureLoader().load(TEX_NIGHT);
   nightTex.colorSpace = THREE.SRGBColorSpace; nightTex.anisotropy=8; nightTex.flipY=false;
 
-  let earthRoot=null, earthMesh=null, cloudsMesh=null;
-
+  let earth=null, cloudsMesh=null;
   await new Promise((resolve)=>{
     new GLTFLoader().load(MODEL_EARTH, async (gltf)=>{
-      earthRoot = gltf.scene;
-      scene.add(earthRoot);
+      earth = gltf.scene;
+      earth.name = "Earth";
+      earthSpin.add(earth);
 
-      // prendi la mesh principale
-      earthRoot.traverse(o=>{
-        if (o.isMesh && (!earthMesh || /earth/i.test(o.name))) earthMesh=o;
-      });
-      if (!earthMesh){
-        earthRoot.traverse(o=>{ if(!earthMesh && o.isMesh) earthMesh=o; });
-      }
-      if (!earthMesh){
-        console.error("Earth mesh non trovata in Ter1.glb");
-        return resolve();
-      }
-
-      // materiale: emissive notturna
-      earthMesh.material.emissive = new THREE.Color(1.0, 0.88, 0.65);
-      earthMesh.material.emissiveMap = nightTex;
-      earthMesh.material.emissiveIntensity = duskParams.nightIntensity;
-      earthMesh.material.needsUpdate = true;
-
-      // hook terminatore + ombra nubi (view-space light dir)
-      earthMesh.material.onBeforeCompile = (shader)=>{
-        shader.uniforms.lightDirView     = { value:new THREE.Vector3(1,0,0) };
-        shader.uniforms.uNightCurve      = { value:duskParams.nightCurve };
-        shader.uniforms.uDarkStrength    = { value:duskParams.darkStrength };
-        shader.uniforms.cloudsMap        = { value:null };
-        shader.uniforms.uCloudsShift     = { value:0.0 };
-        shader.uniforms.uShadowStrength  = { value:0.35 };
-
-        const tfn = (shader.glslVersion===THREE.GLSL3) ? "texture" : "texture2D";
-
-        shader.fragmentShader = shader.fragmentShader
+      // hook shader: terminatore + night + ombra nubi
+      earth.traverse(o=>{
+        if (!o.isMesh || !o.material) return;
+        o.material.emissive = new THREE.Color(1.0, 0.88, 0.65);
+        o.material.emissiveMap = nightTex;
+        o.material.emissiveIntensity = duskParams.nightIntensity;
+        o.material.onBeforeCompile = (shader)=>{
+          shader.uniforms.lightDirView    = { value:new THREE.Vector3(1,0,0) };
+          shader.uniforms.uNightCurve     = { value:duskParams.nightCurve };
+          shader.uniforms.uDarkStrength   = { value:duskParams.darkStrength };
+          shader.uniforms.cloudsMap       = { value:null };
+          shader.uniforms.uCloudsShift    = { value:0.0 };
+          shader.uniforms.uShadowStrength = { value:0.35 };
+          const tfn = (shader.glslVersion===THREE.GLSL3) ? "texture" : "texture2D";
+          shader.fragmentShader = shader.fragmentShader
           .replace("#include <common>", `
             #include <common>
             uniform vec3  lightDirView;
@@ -159,105 +168,166 @@ export async function initBackground(engine){
               #endif
             }
           `);
+          (o.userData ||= {}).shader = shader;
+        };
+        o.material.needsUpdate = true;
+      });
 
-        earthMesh.userData.shader = shader;
-        earthMesh.material.needsUpdate = true;
-      };
-
-      // shell nubi
+      // Shell nubi
       const cloudsTex = await buildCloudsTexture(TEX_CLOUDS);
       const cloudsMat = new THREE.MeshLambertMaterial({
         map: cloudsTex,
         transparent: true,
         depthWrite: false,
-        depthTest:  true,           // test SI
-        side:       THREE.FrontSide, // solo faccia esterna → niente “dietro” visibile
+        depthTest:  true,
+        side:       THREE.FrontSide,
         alphaTest:  0.02,
         color:      0xffffff,
         opacity:    1.0
       });
-      cloudsMesh = new THREE.Mesh(earthMesh.geometry, cloudsMat);
-      cloudsMesh.scale.setScalar(1.003);
-      cloudsMesh.renderOrder = 2;
-      earthMesh.add(cloudsMesh);
+      // riusa la geo del mesh principale (primo mesh trovato)
+      let earthMesh = null;
+      earth.traverse(o=>{ if (!earthMesh && o.isMesh) earthMesh = o; });
+      if (earthMesh){
+        cloudsMesh = new THREE.Mesh(earthMesh.geometry, cloudsMat);
+        cloudsMesh.scale.setScalar(1.003);
+        cloudsMesh.renderOrder = 2;
+        earthMesh.add(cloudsMesh);
 
-      if (earthMesh.userData.shader){
-        earthMesh.userData.shader.uniforms.cloudsMap.value = cloudsTex;
+        const shader = earthMesh.userData?.shader;
+        if (shader) shader.uniforms.cloudsMap.value = cloudsTex;
       }
 
-      // focus iniziale
-      focusCamera(camera, controls, earthMesh, 4.5, Math.PI/4, 0.9);
       resolve();
     });
   });
 
-  // Luna semplice
-  const moonPivot = new THREE.Group(); scene.add(moonPivot);
+  // Luna: pivot figlio della Terra
+  const moonPivot = new THREE.Group(); earthSpin.add(moonPivot);
   let moon=null;
   new GLTFLoader().load(MODEL_MOON, (gltf)=>{
-    moon = gltf.scene;
-    moonPivot.add(moon);
-    // distanza “gradevole”: ~8 raggi della Terra
-    const R = (()=>{ // calcola raggio mondo Terra
-      if (!earthMesh || !earthMesh.geometry) return 1;
-      if (!earthMesh.geometry.boundingSphere) earthMesh.geometry.computeBoundingSphere();
-      const r = earthMesh.geometry.boundingSphere.radius || 1;
-      const s = earthMesh.getWorldScale(new THREE.Vector3());
-      return r * Math.max(s.x,s.y,s.z);
-    })();
-    moon.position.set(8.0 * R, 0, 0);
+    moon = gltf.scene; moonPivot.add(moon);
   });
 
-  // ───────────────────────────────────────────────────────
-  // Tick
+  /* -------------------- Focus + Orbit rig (auto frame-fill) -------------------- */
+  const FILL = CAMERA.FRAME_FILL?.EARTH ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
+  const FOCUS_DUR = 1.0;
+
+  // focus morbido verso la Terra
+  smoothFocusAuto(engine, earthSpin, { fill: FILL, dur: FOCUS_DUR });
+
+  // rig con estensioni (auto raggio + warm-start)
+  let orbit = createOrbitRig(engine);
+  orbit = extendOrbitRigWithAuto(orbit, engine);
+  orbit.setTarget(earthSpin);
+  orbit.setRadiusAuto(earthSpin, { fill: FILL });
+  orbit.setSpeed(0.14);
+  orbit.setElevation(0.22);
+
+  // avvia orbit dopo il focus
+  let focusActive = true, focusTimer = 0;
+
+  // Input opzionali
+  const onKey = (e)=>{
+    if (e.key === "0" && earthSpin){
+      smoothFocusAuto(engine, earthSpin, { fill: FILL, dur: FOCUS_DUR });
+      focusActive = true; focusTimer = 0;
+      if (orbit.isRunning()) orbit.stop();
+    }
+    if (e.key === "1"){
+      if (orbit.isRunning()) orbit.stop();
+      else { orbit.matchCameraToCurrent(); orbit.start(); }
+    }
+  };
+  window.addEventListener("keydown", onKey);
+
+  /* --------------------------------- Tick --------------------------------- */
   const normalMat = new THREE.Matrix3();
   const wSun = new THREE.Vector3();
   const wEarth = new THREE.Vector3();
   const dirWorld = new THREE.Vector3();
   const dirView  = new THREE.Vector3();
 
-  const detach = onTick((dt)=>{
-    // aggiornamenti condivisi
-    sky.update(performance.now());
-    sun.update(camera, performance.now(), dt);
+  // anomalia media Terra
+  let M_earth = 0;
 
-    // Terra
-    if (earthRoot) earthRoot.rotateOnAxis(UP_AXIS, EARTH_ROT * dt);
+  const detach = onTick((dt, now)=>{
+    sky.update(now);
+    sun.update(camera, now, dt);
 
-    // Uniform direzione luce (view space) per il terminatore
-    if (earthMesh && earthMesh.userData?.shader){
+    // Posiziona pivot Terra sul Sole
+    earthOrbitPivot.position.copy(sun.group.position);
+
+    // Keplero: aggiorna orbita eliocentrica Terra
+    M_earth = (M_earth + EAR_ORBIT * dt) % (Math.PI * 2);
+    const { r:rUnit, nu } = keplerSolve(M_earth, EAR_ECC);
+    earthOrbitPivot.rotation.y = THREE.MathUtils.degToRad(EAR_RAAN_DEG);
+    earthTilt.rotation.x       = THREE.MathUtils.degToRad(EAR_INCL_DEG);
+    earthPhase.rotation.y      = THREE.MathUtils.degToRad(EAR_ARGPERI_DEG) + nu;
+    earthCarrier.position.set(EAR_A * rUnit, 0, 0);
+
+    // Rotazione terrestre
+    if (earthSpin) earthSpin.rotateOnAxis(UP_AXIS, EARTH_ROT * dt);
+
+    // Direzione luce (view space) + drift nubi
+    if (earth && earth.children){
       sun.group.getWorldPosition(wSun);
-      earthMesh.getWorldPosition(wEarth);
+      earthSpin.getWorldPosition(wEarth);
       dirWorld.subVectors(wSun, wEarth).normalize();
       normalMat.getNormalMatrix(camera.matrixWorldInverse);
       dirView.copy(dirWorld).applyMatrix3(normalMat).normalize();
-      const U = earthMesh.userData.shader.uniforms;
-      U.lightDirView.value.copy(dirView);
-      // drift nubi come UV shift
-      U.uCloudsShift.value = (U.uCloudsShift.value + (CLOUDS_DRIFT*dt)/(Math.PI*2)) % 1.0;
+
+      // aggiorna uniform su tutti i mesh della Terra
+      earth.traverse(o=>{
+        const shader = o.userData?.shader;
+        if (shader){
+          shader.uniforms.lightDirView.value.copy(dirView);
+          shader.uniforms.uCloudsShift.value =
+            (shader.uniforms.uCloudsShift.value + (CLOUDS_DRIFT*dt)/(Math.PI*2)) % 1.0;
+        }
+      });
     }
 
-    // Nubi (mesh) ruotano piano
+    // Nubi leggere
     if (cloudsMesh) cloudsMesh.rotateOnAxis(UP_AXIS, CLOUDS_DRIFT * dt);
 
-    // Luna: orbita semplice + tidal lock
-    if (moon && earthMesh){
-      earthMesh.getWorldPosition(wEarth);
-      moonPivot.position.copy(wEarth);
-      moonPivot.rotateOnAxis(UP_AXIS, MOON_ORBIT * dt);
-      if (TIDAL_LOCK) moon.lookAt(wEarth);
+    if (moon && earthSpin){
+      const Rvis = (()=>{ 
+        let em=null; earth.traverse(o=>{ if (!em && o.isMesh) em=o; });
+        if (!em) return 1;
+        if (!em.geometry.boundingSphere) em.geometry.computeBoundingSphere();
+        const s = em.getWorldScale(new THREE.Vector3());
+        return (em.geometry.boundingSphere?.radius || 1) * Math.max(s.x,s.y,s.z);
+      })();
+
+      moonPivot.rotateOnAxis(UP_AXIS, MOON_ORBIT_SPEED * dt);
+
+      moon.position.set(MOON_DIST_FACTOR * Rvis, 0, 0);
+
+      if (TIDAL_LOCK) {
+        earthSpin.getWorldPosition(wEarth);
+        moon.lookAt(wEarth);
+      }
+    }
+    if (focusActive){
+      focusTimer += dt/1000;
+      if (focusTimer >= FOCUS_DUR){
+        focusActive = false;
+        orbit.matchCameraToCurrent();
+        orbit.start();
+      }
     }
   });
 
-  // ───────────────────────────────────────────────────────
-  // Cleanup
+  /* ------------------------------- Cleanup ------------------------------- */
   return {
     dispose(){
       detach && detach();
+      window.removeEventListener("keydown", onKey);
+      orbit.stop();
       sky.dispose();
       sun.dispose();
       if (bloomPass && composer) composer.removePass(bloomPass);
-
       [scene].forEach(root=>{
         root.traverse?.(n=>{
           if (n.material){

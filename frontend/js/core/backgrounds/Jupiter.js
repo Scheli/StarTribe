@@ -1,16 +1,16 @@
 import * as THREE from "three";
 import { GLTFLoader }      from "three/addons/loaders/GLTFLoader.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { UP_AXIS, prepPlanetMaterials, createOrbitRig, unitRadius } from "../utils.js";
+import {UP_AXIS, prepPlanetMaterials, createOrbitRig,smoothFocusAuto, extendOrbitRigWithAuto} from "../utils.js";
 import { SCALE, TIME, ROT, ORBIT, SUN, ELEMENTS, POSTFX, CAMERA } from "../config.js";
 
 import { createSky } from "../common/sky.js";
 import { createSun } from "../common/sun.js";
 
 /* Assets */
-const TEX_SKY      = new URL("./textures/stars_milky_way.jpg", import.meta.url).href;
-const MODEL_SUN    = new URL("./models/Sun.glb",               import.meta.url).href;
-const MODEL_JUPITER= new URL("./models/Jupiter.glb",           import.meta.url).href;
+const TEX_SKY       = new URL("./textures/stars_milky_way.jpg", import.meta.url).href;
+const MODEL_SUN     = new URL("./models/Sun.glb",               import.meta.url).href;
+const MODEL_JUPITER = new URL("./models/Jupiter.glb",           import.meta.url).href;
 
 /* Aliases */
 const SUN_POS          = SUN.POS;
@@ -38,22 +38,23 @@ function keplerSolve(M, e){
   const cosE = Math.cos(E), sinE = Math.sin(E);
   return { r: 1 - e*cosE, nu: Math.atan2(Math.sqrt(1-e*e)*sinE, cosE - e), E };
 }
-function easeInOutCubic(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2; }
 
 /* Entry */
 export async function initBackground(engine){
-  const { scene, camera, composer, controls, onTick } = engine;
+  const { scene, camera, composer, onTick } = engine;
 
-  // Bloom (da config)
-  if (POSTFX?.BLOOM?.enabled){
-    const { strength, radius, threshold } = POSTFX.BLOOM;
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), strength, radius, threshold));
-  }
+    let bloomPass = null;
+      if (POSTFX?.BLOOM?.enabled){
+       const { strength, radius, threshold } = POSTFX.BLOOM;
+       bloomPass = new UnrealBloomPass(
+       new THREE.Vector2(window.innerWidth, window.innerHeight),
+       strength, radius, threshold
+     );
+     composer.addPass(bloomPass);
+   }
 
-  // ——— Sky condiviso ———
+  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
-
-  // ——— Sole condiviso ———
   const sun = await createSun({
     scene, camera,
     position: SUN_POS,
@@ -64,7 +65,7 @@ export async function initBackground(engine){
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
   });
 
-  // ——— Giove: gerarchia ———
+  // Gerarchia Giove
   const jupPivot   = new THREE.Group();
   const jupTilt    = new THREE.Group();
   const jupPhase   = new THREE.Group();
@@ -78,15 +79,17 @@ export async function initBackground(engine){
 
   jupTilt.rotation.x = THREE.MathUtils.degToRad(JUP_INCL_DEG);
   jupSpin.rotation.z = THREE.MathUtils.degToRad(JUP_OBLQ_DEG);
+  jupPivot.rotation.y = THREE.MathUtils.degToRad(JUP_RAAN_DEG);
+  jupPhase.rotation.y = THREE.MathUtils.degToRad(JUP_ARGPERI_DEG);
 
   let jupiter = null, M_jup = 0;
   await new Promise((res)=> new GLTFLoader().load(MODEL_JUPITER,(g)=>{
     jupiter = g.scene; jupiter.name = "Jupiter";
 
-    // materiali base (bande opache, riflessioni basse)
+    // materiali base
     prepPlanetMaterials(jupiter, { roughness:0.97, metalness:0.0, normalScale:0.5 });
 
-    // eventuali “ring” nel GLB (raro su Giove, ma safe)
+    // eventuali ring nel GLB
     jupiter.traverse((o)=>{
       if (!o.isMesh || !o.material) return;
       const m  = o.material;
@@ -109,44 +112,45 @@ export async function initBackground(engine){
       }
     });
 
+    // normalizzazione dimensione schermo (facoltativa)
     const box = new THREE.Box3().setFromObject(jupiter);
     const max = box.getSize(new THREE.Vector3()).toArray().reduce((a,b)=>Math.max(a,b),1);
-    jupiter.scale.multiplyScalar(3.5 / max);   // Giove più grande a schermo
+    jupiter.scale.multiplyScalar(3.5 / max);
     jupiter.position.set(0,0,0);
     jupSpin.add(jupiter);
     res();
   }));
 
-  // ——— Focus + Orbit rig ———
-  const state = { pending:null };
-  function smoothFocusTo(obj, { mult=CAMERA.RADIUS_MULT, minDist=CAMERA.MIN_DIST, dur=1.0 }={}){
-    if (!obj) return;
-    obj.updateMatrixWorld(true);
-    const R = unitRadius(obj);
-    let dir = camera.position.clone().sub(controls.target); if (dir.lengthSq() < 1e-6) dir.set(0,0,1);
-    dir.setLength(Math.max(minDist, R * mult));
-    const c = obj.getWorldPosition(new THREE.Vector3());
-    state.pending = { fromPos:camera.position.clone(), toPos:c.clone().add(dir), fromTgt:controls.target.clone(), toTgt:c.clone(), t:0, dur };
-  }
-  smoothFocusTo(jupiter);
+  // -------- Focus + Orbit rig (auto frame-fill) --------
+  const FILL = CAMERA.FRAME_FILL?.JUPITER ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
+  const FOCUS_DUR = 1.0;
 
-  const orbit = createOrbitRig(engine);
-  const rInit = THREE.MathUtils.clamp(unitRadius(jupiter) * CAMERA.RADIUS_MULT, CAMERA.MIN_DIST, CAMERA.MAX_DIST);
-  orbit.setTarget(jupiter); orbit.setRadius(rInit); orbit.setSpeed(0.14); orbit.setElevation(0.22);
-  let startOrbitAfterFocus = true;
+  smoothFocusAuto(engine, jupiter, { fill: FILL, dur: FOCUS_DUR });
 
-  // ——— Input ———
+  let orbit = createOrbitRig(engine);
+  orbit = extendOrbitRigWithAuto(orbit, engine);
+  orbit.setTarget(jupiter);
+  orbit.setRadiusAuto(jupiter, { fill: FILL });
+  orbit.setSpeed(0.14);
+  orbit.setElevation(0.22);
+
+  let focusActive = true;
+  let focusTimer = 0;
+
+  // Input (refocus “0”, toggle orbita “1”)
   const onKey = (e)=>{
     if (e.key === "0" && jupiter){
-      const dist = Math.max(CAMERA.MIN_DIST, unitRadius(jupiter) * CAMERA.RADIUS_MULT);
-      smoothFocusTo(jupiter, { mult:CAMERA.RADIUS_MULT, minDist:dist, dur:1.0 });
-      startOrbitAfterFocus = true;
+      // ri-fai il focus auto e ri-arma l'avvio orbit
+      smoothFocusAuto(engine, jupiter, { fill: FILL, dur: FOCUS_DUR });
+      focusActive = true;
+      focusTimer  = 0;
+      if (orbit.isRunning()) orbit.stop();
     }
-    if (e.key === "1"){ if (orbit.isRunning()) orbit.stop(); else orbit.start(); }
+    if (e.key === "1"){ if (orbit.isRunning()) orbit.stop(); else { orbit.matchCameraToCurrent(); orbit.start(); } }
   };
   window.addEventListener("keydown", onKey);
 
-  // ——— Tick ———
+  // Tick
   const detach = onTick((dt, now)=>{
     sky.update(now);
     sun.update(camera, now, dt);
@@ -156,28 +160,24 @@ export async function initBackground(engine){
     M_jup = (M_jup + JUP_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_jup, JUP_ECC);
 
-    jupPivot.rotation.y = THREE.MathUtils.degToRad(JUP_RAAN_DEG);
-    jupTilt.rotation.x  = THREE.MathUtils.degToRad(JUP_INCL_DEG);
     jupPhase.rotation.y = THREE.MathUtils.degToRad(JUP_ARGPERI_DEG) + nu;
     jupCarrier.position.set(JUP_A * rUnit, 0, 0);
 
-    // Rotazione rapida del pianeta
+    // rotazione del pianeta
     if (jupiter) jupiter.rotateOnAxis(UP_AXIS, JUP_ROT * dt);
 
-    // Smooth focus → avvio orbit
-    if (state.pending){
-      state.pending.t += dt/1000;
-      const a = Math.min(1, state.pending.t / state.pending.dur);
-      const k = easeInOutCubic(a);
-      camera.position.lerpVectors(state.pending.fromPos, state.pending.toPos, k);
-      controls.target.lerpVectors(state.pending.fromTgt, state.pending.toTgt, k);
-      if (a >= 1) state.pending = null;
-    } else if (startOrbitAfterFocus){
-      orbit.start(); startOrbitAfterFocus = false;
+    // quando il focus è finito → allinea e avvia orbit (no secondo scatto)
+    if (focusActive){
+      focusTimer += dt/1000;
+      if (focusTimer >= FOCUS_DUR){
+        focusActive = false;
+        orbit.matchCameraToCurrent();
+        orbit.start();
+      }
     }
   });
 
-  // ——— Cleanup ———
+  // Cleanup
   return {
     dispose(){
       detach && detach();
@@ -185,6 +185,7 @@ export async function initBackground(engine){
       orbit.stop();
       sky.dispose();
       sun.dispose();
+      if (bloomPass && composer) composer.removePass(bloomPass);
       [jupPivot].forEach(obj=>{
         if (!obj) return;
         obj.traverse?.(n=>{

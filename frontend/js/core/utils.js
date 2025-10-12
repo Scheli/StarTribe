@@ -1,35 +1,33 @@
 import * as THREE from "three";
 
-/* ------------------------- numerica / utilità base ------------------------- */
+/* ----------------------------- base numerica ----------------------------- */
 export const UP_AXIS = new THREE.Vector3(0, 1, 0);
-
 export function wrap01(x){ x = x % 1; return x < 0 ? x + 1 : x; }
 
-/** raggio “unitario” di un oggetto (boundingSphere * scala maggiore) */
+/* -------------------------- misure / posizionamento ---------------------- */
 export function unitRadius(obj){
   if (!obj?.isObject3D) return 1;
-  const bs = obj.geometry?.boundingSphere || (obj.geometry && obj.geometry.computeBoundingSphere(), obj.geometry?.boundingSphere);
-  const r  = bs?.radius || 1;
-  const s  = obj.getWorldScale(new THREE.Vector3());
+  const g = obj.geometry;
+  if (g && !g.boundingSphere) g.computeBoundingSphere?.();
+  const r = g?.boundingSphere?.radius || 1;
+  const s = obj.getWorldScale(new THREE.Vector3());
   return r * Math.max(s.x, s.y, s.z);
 }
 
-/** worldPosition rapido con out opzionale */
 export function worldPosOf(obj, out = new THREE.Vector3()){
   obj.updateMatrixWorld(true);
   return obj.getWorldPosition(out);
 }
 
-/* -------------------------- texture & materiali --------------------------- */
+/* --------------------------- texture & materiali ------------------------- */
 export async function loadBitmap(path){
   const r = await fetch(path);
   const b = await r.blob();
   return await createImageBitmap(b, { colorSpaceConversion: "default" });
 }
 
-/** tuning sensato per texture sRGB + mipmap */
 export function tuneTex(tex){
-  tex.colorSpace = THREE.SRGBColorSpace; // (encoding sRGB per compat vecchie)
+  tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.ClampToEdgeWrapping;
@@ -39,7 +37,6 @@ export function tuneTex(tex){
   tex.needsUpdate = true;
 }
 
-/** elimina la cucitura all’estremità X (taglio mezzo texel) */
 export function cropHalfTexelX(tex){
   function go(t){
     if (!t.image || !t.image.width) return;
@@ -52,7 +49,7 @@ export function cropHalfTexelX(tex){
   if (tex.image) go(tex); else tex.onUpdate = (t)=>{ go(t); t.onUpdate = null; };
 }
 
-/** rifinitura materiali “planetari” (no metal, più rough, normalScale uniforme) */
+// rifinitura materiali planetari 
 export function prepPlanetMaterials(root, {
   roughness = 0.96, metalness = 0.0, normalScale = 0.6, anisotropy = 8
 } = {}){
@@ -66,7 +63,7 @@ export function prepPlanetMaterials(root, {
       if (m.map){
         m.map.anisotropy = anisotropy;
         if ('colorSpace' in m.map) m.map.colorSpace = THREE.SRGBColorSpace;
-        if ('encoding' in m.map)   m.map.encoding   = THREE.sRGBEncoding; // three vecchie
+        if ('encoding' in m.map)   m.map.encoding   = THREE.sRGBEncoding; 
         m.map.wrapS = THREE.RepeatWrapping;
         m.map.wrapT = THREE.ClampToEdgeWrapping;
         m.map.needsUpdate = true;
@@ -76,10 +73,7 @@ export function prepPlanetMaterials(root, {
   });
 }
 
-/**
- * “Fix” morbido dei poli: ammorbidisce normal/roughness verso nord/sud
- * usando uno shader hook su onBeforeCompile. Non tocca le UV.
- */
+// ammorbidisce poli (normal/rough) via onBeforeCompile
 export function polarFixPlanetMaterial(
   mat,
   { poleWidth=0.12, normalStrength=1.0, roughStrength=1.0, roughTarget=1.0 } = {}
@@ -87,9 +81,9 @@ export function polarFixPlanetMaterial(
   if (!mat || mat.userData?._polarFix) return;
 
   mat.onBeforeCompile = (shader)=>{
-    shader.uniforms.uPoleW         = { value:poleWidth };
-    shader.uniforms.uPoleNormal    = { value:normalStrength };
-    shader.uniforms.uPoleRough     = { value:roughStrength };
+    shader.uniforms.uPoleW           = { value:poleWidth };
+    shader.uniforms.uPoleNormal      = { value:normalStrength };
+    shader.uniforms.uPoleRough       = { value:roughStrength };
     shader.uniforms.uPoleRoughTarget = { value:roughTarget };
 
     shader.fragmentShader = shader.fragmentShader
@@ -112,8 +106,7 @@ export function polarFixPlanetMaterial(
         #endif
       `);
 
-    mat.userData = mat.userData || {};
-    mat.userData._polarFix = {
+    (mat.userData ||= {})._polarFix = {
       uPoleW: shader.uniforms.uPoleW,
       uPoleNormal: shader.uniforms.uPoleNormal,
       uPoleRough: shader.uniforms.uPoleRough,
@@ -123,8 +116,7 @@ export function polarFixPlanetMaterial(
   mat.needsUpdate = true;
 }
 
-/* --------------------------- ricerca guscio nubi --------------------------- */
-/** Trova un mesh “cloud shell” vicino alla superficie del pianeta */
+// trova mesh “nubi/atmosfera” vicino alla superficie
 export function findCloudShellAroundPlanet(planet){
   if (!planet) return null;
   planet.updateMatrixWorld(true);
@@ -148,12 +140,11 @@ export function findCloudShellAroundPlanet(planet){
   return best;
 }
 
-/** Variante: usa solo la metrica di vicinanza in scala, partendo da un “root” noto */
 export function findCloudShellBySize(root, planetMeshLike){
   if (!root || !planetMeshLike?.geometry) return null;
-  const R = planetMeshLike.geometry.boundingSphere
-      ? planetMeshLike.geometry.boundingSphere.radius
-      : (planetMeshLike.geometry.computeBoundingSphere(), planetMeshLike.geometry.boundingSphere.radius);
+  const g = planetMeshLike.geometry;
+  if (g && !g.boundingSphere) g.computeBoundingSphere();
+  const R = g?.boundingSphere?.radius || 1;
   let best=null, bestScore=Infinity;
   root.traverse(o=>{
     if (!o.isMesh || !o.geometry || o===planetMeshLike) return;
@@ -167,32 +158,32 @@ export function findCloudShellBySize(root, planetMeshLike){
   });
   return best;
 }
-
-/* ---------------------------- scaling planetario --------------------------- */
-/** scala un globo rispetto al raggio terrestre “unitario” del tuo setup */
+// scala un globo in base al rapporto col raggio terrestre
 export function scaleToEarth(object3D, earthRadiusRatio=1){
   if (!object3D) return;
-  const s = earthRadiusRatio; // ratio già normalizzato rispetto alla Terra
-  object3D.scale.multiplyScalar(s);
+  object3D.scale.multiplyScalar(earthRadiusRatio);
 }
 
-// Camera che orbita attorno a un target guardandolo sempre.
-// Uso tipico:
-//   const orbit = createOrbitRig(engine);
-//   orbit.setTarget(planet);
-//   orbit.setRadius(unitRadius(planet) * 8);
-//   orbit.setSpeed(0.12);           // rad/sec
-//   orbit.setElevation(0.2);        // rad (positivo = dall'alto)
-//   orbit.start();
+/* ------------------------------ orbit rig camera --------------------------- */
+/*
+  Camera che orbita attorno a un target guardandolo sempre.
+  Uso:
+    const orbit = createOrbitRig(engine);
+    orbit.setTarget(planet);
+    orbit.setRadius(unitRadius(planet) * 8);
+    orbit.setSpeed(0.12);
+    orbit.setElevation(0.2);
+    orbit.start();
+*/
 export function createOrbitRig(engine){
   const { camera, controls, onTick } = engine;
 
   let enabled = false;
-  let theta = 0;            // angolo azimutale (rad)
+  let theta = 0;            // azimut (rad)
   let speed = 0.12;         // rad/sec
-  let radius = 8;           // distanza dal centro
-  let elev = 0.25;          // rad (0 = piano orizzontale, >0 = vista dall'alto)
-  let targetObj = null;     // Object3D opzionale
+  let radius = 8;           // distanza
+  let elev = 0.25;          // elevazione (rad, >0 = dall'alto)
+  let targetObj = null;     // Object3D (opzionale)
   const target = new THREE.Vector3();
   const sph = new THREE.Spherical(radius, Math.max(1e-3, Math.PI/2 - elev), theta);
   let unbind = null;
@@ -207,7 +198,7 @@ export function createOrbitRig(engine){
     theta += speed * (dt / 1000);
     sph.radius = radius;
     sph.theta  = theta;
-    sph.phi    = Math.max(1e-3, Math.min(Math.PI-1e-3, Math.PI/2 - elev)); // clamp
+    sph.phi    = Math.max(1e-3, Math.min(Math.PI-1e-3, Math.PI/2 - elev));
     const v = new THREE.Vector3().setFromSpherical(sph);
     camera.position.copy(target).add(v);
     camera.lookAt(target);
@@ -215,12 +206,12 @@ export function createOrbitRig(engine){
   }
 
   function start(opts={}){
-    if (opts.speed   != null) speed  = opts.speed;
-    if (opts.radius  != null) radius = opts.radius;
-    if (opts.elev    != null) elev   = opts.elev;
-    if (opts.theta   != null) theta  = opts.theta;
+    if (opts.speed  != null) speed  = opts.speed;
+    if (opts.radius != null) radius = opts.radius;
+    if (opts.elev   != null) elev   = opts.elev;
+    if (opts.theta  != null) theta  = opts.theta;
     enabled = true;
-    controls.enableRotate = false;     // evita conflitti con l’utente
+    controls.enableRotate = false;
     if (!unbind) unbind = onTick(_tick);
   }
 
@@ -238,10 +229,20 @@ export function createOrbitRig(engine){
       targetObj = null;
       target.copy(objOrVec3);
     }
-    // se non hai impostato il raggio, usa la distanza attuale camera->target
     const d = camera.position.distanceTo(target);
     if (isFinite(d) && d > 0.01) radius = d;
   }
+
+  function matchCameraToCurrent(){
+    _updateTarget();
+    const v = new THREE.Vector3().copy(camera.position).sub(target);
+    const sphNow = new THREE.Spherical().setFromVector3(v);
+    radius = sphNow.radius;
+    theta  = sphNow.theta;
+    elev   = Math.PI/2 - sphNow.phi;
+  }
+
+  function getTarget(){ return target.clone(); }
 
   return {
     start, stop, setTarget,
@@ -249,6 +250,78 @@ export function createOrbitRig(engine){
     setSpeed:  (s)=>{ speed  = s; },
     setElevation: (e)=>{ elev = e; },
     setTheta: (t)=>{ theta = t; },
-    isRunning: ()=>enabled
+    isRunning: ()=>enabled,
+    matchCameraToCurrent,
+    getTarget,
   };
+}
+
+export function radiusForFrameFill(camera, object, {
+  fill = 0.6, padding = 1.05, minDist = 0.01, maxDist = 1e6
+} = {}){
+  const R = (typeof object === "number") ? object : unitRadius(object);
+  const halfFov = THREE.MathUtils.degToRad(camera.fov || 50) * 0.5;
+  const alpha = Math.atan( Math.max(0.01, Math.min(0.99, fill)) * Math.tan(halfFov) );
+  let d = (R / Math.sin(alpha)) * padding;
+  if (!Number.isFinite(d) || d <= 0) d = R * 4;
+  return THREE.MathUtils.clamp(d, minDist, maxDist);
+}
+
+// smooth focus automatico 
+export function smoothFocusAuto(engine, object, {
+  fill = 0.6, padding = 1.05, dur = 1.0,
+  ease = (t)=> t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2,
+  minDist = 0.01, maxDist = 1e6,
+} = {}){
+  const { camera, controls, onTick } = engine;
+  if (!object) return ()=>{};
+
+  object.updateMatrixWorld(true);
+  const center = object.getWorldPosition(new THREE.Vector3());
+  const dist   = radiusForFrameFill(camera, object, { fill, padding, minDist, maxDist });
+
+  let dir = camera.position.clone().sub(controls.target);
+  if (dir.lengthSq() < 1e-6) dir.set(0,0,1);
+  dir.setLength(dist);
+
+  const fromPos = camera.position.clone();
+  const toPos   = center.clone().add(dir);
+  const fromTgt = controls.target.clone();
+  const toTgt   = center.clone();
+
+  let t=0;
+  const unbind = onTick((dt)=>{
+    t += dt/1000;
+    const a = Math.min(1, t/dur);
+    const k = ease(a);
+    camera.position.lerpVectors(fromPos, toPos, k);
+    controls.target.lerpVectors(fromTgt, toTgt, k);
+    if (a >= 1) unbind();
+  });
+  return unbind;
+}
+
+export function extendOrbitRigWithAuto(rig, engine){
+  const { camera, controls } = engine;
+
+  rig.matchCameraToCurrent = function(){
+    const tgt = rig.getTarget?.() ?? controls.target;
+    const v = new THREE.Vector3().copy(camera.position).sub(tgt);
+    const sph = new THREE.Spherical().setFromVector3(v);
+    rig.setRadius?.(sph.radius);
+    rig.setTheta?.(sph.theta);
+    rig.setElevation?.(Math.PI/2 - sph.phi);
+  };
+
+  rig.setRadiusAuto = function(object, opts={}){
+    const dist = radiusForFrameFill(
+      camera,
+      object,
+      { fill: opts.fill ?? 0.6, padding: opts.padding ?? 1.05,
+        minDist: opts.minDist ?? 0.01, maxDist: opts.maxDist ?? 1e6 }
+    );
+    rig.setRadius?.(dist);
+  };
+
+  return rig;
 }

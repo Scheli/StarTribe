@@ -3,10 +3,6 @@ import { OrbitControls }  from "three/addons/controls/OrbitControls.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass }     from "three/addons/postprocessing/RenderPass.js";
 
-/**
- * Crea la “macchina” di rendering condivisa.
- * Ritorna { scene, camera, renderer, composer, controls, onTick, start, stop, setInteractive }.
- */
 export function createEngine({
   alpha = true,
   antialias = true,
@@ -49,7 +45,7 @@ export function createEngine({
     alpha,
     antialias,
     powerPreference: "high-performance",
-    logarithmicDepthBuffer: true, // grandi distanze più stabili
+    logarithmicDepthBuffer: true, 
   });
 
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
