@@ -601,31 +601,33 @@ const utentiConnessi = new Map();
 
   // ---------------- altro profilo ----------------
 
-  app.get("/api/utente/:id", async (req, res) => {
-    const id = req.params.id;
+ app.get("/api/utente/:id", async (req, res) => {
+  const id = req.params.id;
 
-    try {
-      const db = await connectToDB();
-      const utente = await db.collection("utenti").findOne({ _id: new ObjectId(id) });
+  try {
+    const db = await connectToDB();
+    const utente = await db.collection("utenti").findOne({ _id: new ObjectId(id) });
 
-      if (!utente) {
-        return res.status(404).json({ success: false, message: "Utente non trovato" });
-      }
-
-      res.json({
-        success: true,
-        utente: {
-          username: utente.username,
-          punti: utente.punti,
-          immagineProfilo: utente.immagineProfilo,
-          bannerProfilo: utente.bannerProfilo || null,
-        },
-      });
-    } catch (err) {
-      console.error("Errore:", err);
-      res.status(500).json({ success: false, message: "Errore del server" });
+    if (!utente) {
+      return res.status(404).json({ success: false, message: "Utente non trovato" });
     }
-  });
+
+    res.json({
+      success: true,
+      utente: {
+        username: utente.username,
+        punti: utente.punti,
+        immagineProfilo: utente.immagineProfilo,
+        bannerProfilo: utente.bannerProfilo || null,
+        selectedBorder: utente.selectedBorder || "none", 
+      },
+    });
+  } catch (err) {
+    console.error("Errore:", err);
+    res.status(500).json({ success: false, message: "Errore del server" });
+  }
+});
+
 
 app.use(express.json());
 
@@ -674,33 +676,6 @@ app.post("/api/pubblicapost", upload.single("file"), async (req, res) => {
 
 
 // -- GET CARICAMENTO PAGINA POST --
-
-// app.get("/api/utente/:id", async (req, res) => {
-//     const id = req.params.id;
-
-//     try {
-//       const db = await connectToDB();
-//       const utente = await db.collection("utenti").findOne({ _id: new ObjectId(id) });
-
-//       if (!utente) {
-//         return res.status(404).json({ success: false, message: "Utente non trovato" });
-//       }
-
-//       res.json({
-//         success: true,
-//         utente: {
-//           username: utente.username,
-//           punti: utente.punti,
-//           immagineProfilo: utente.immagineProfilo,
-//           bannerProfilo: utente.bannerProfilo || null,
-//         },
-//       });
-//     } catch (err) {
-//       console.error("Errore:", err);
-//       res.status(500).json({ success: false, message: "Errore del server" });
-//     }
-//   });
-
 app.get("/api/post", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {

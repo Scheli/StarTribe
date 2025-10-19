@@ -386,3 +386,21 @@ body {
 .chat-input button:hover {
   background: #8376ff;
 }
+
+.trophy-badge {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trophy-badge .trophy-icon {
+  width: 80px !important;
+  height: 80px !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+}
+
+

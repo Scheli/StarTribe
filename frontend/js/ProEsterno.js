@@ -19,6 +19,7 @@ if (!utenteId) {
       document.getElementById("punti").innerText = u.punti;
       document.getElementById("immagineProfilo").src = u.immagineProfilo;
       document.getElementById("immagineProfilo").style.width = "200px";
+      document.getElementById("selectedBorder").src = u.selectedBorder;
 
       if (u.bannerProfilo) {
         document.getElementById("banner").innerHTML = `<img src="${u.bannerProfilo}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;

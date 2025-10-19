@@ -10,9 +10,16 @@
 
   <!-- Banner utente -->
   <div id="bannerProfilo" class="banner-profilo"></div>
+
   <!-- Sezione principale: foto profilo + info utente -->
   <section class="sezione-utente">
     <div id="mediaProfilo" class="media-profilo"></div>
+
+    <!-- ✅ Cornice/trofeo selezionato, mostrato vicino all'immagine utente -->
+    <div id="selectedBorderBox" style="display:none; text-align:center; margin-top:12px;">
+      <img id="selectedBorderImg" alt="Cornice selezionata" style="max-width:160px; height:auto; border-radius:12px;" />
+      <div style="font-size:.9rem; opacity:.8; margin-top:6px;">Cornice selezionata</div>
+    </div>
 
     <div class="info-base">
       <h3>Informazioni Utente</h3>
@@ -76,13 +83,10 @@
     <div class="modal-content">
       <h3>Modifica informazioni utente</h3>
       <form id="modificaForm">
-
         <label>Username: </label>
         <input type="text" id="usernameInput">
-
         <label>Data di nascita:</label>
         <input type="date" id="birthdateInput">
-
         <button type="submit">Salva modifiche</button>
         <button type="button" class="btnChiudi" data-close="modalInfo">Chiudi</button>
       </form>

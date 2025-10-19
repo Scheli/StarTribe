@@ -43,12 +43,12 @@ function isHttpUrl(v) {
 function keyFromBorderUrl(url) {
   if (!url || url === "none") return "none";
   try {
-    const path = new URL(url).pathname;             
-    const fname = path.split("/").pop() || "";      
-    const base  = fname.split(".")[0] || "";        
-    let tail = base.replace(/^border-/i, "");       
-    tail = tail.replace(/^[-_]+/, "");              
-    const pure = tail.split("_")[0];                
+    const path = new URL(url).pathname;
+    const fname = path.split("/").pop() || "";
+    const base  = fname.split(".")[0] || "";
+    let tail = base.replace(/^border-/i, "");
+    tail = tail.replace(/^[-_]+/, "");
+    const pure = tail.split("_")[0];
     return (pure || "none").toLowerCase();
   } catch {
     const m = String(url).match(/(?:^|\/)border-([-_]*)([a-z0-9]+)(?:[_.].+)?\.(?:png|jpg|jpeg|webp)$/i);
@@ -68,9 +68,9 @@ function keyFromAny(v) {
 }
 
 let CURRENT = {
-  avatarBaseUrl: "",      
-  unlocked: [],           
-  selectedBorder: "none", 
+  avatarBaseUrl: "",
+  unlocked: [],
+  selectedBorder: "none",
 };
 
 async function caricaProfilo() {
@@ -89,7 +89,6 @@ async function caricaProfilo() {
       return;
     }
 
-    // Visualizzazione
     document.getElementById("usernameDisplay").textContent = data.utente.username;
     document.getElementById("emailDisplay").textContent    = data.utente.email;
     document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(data.utente.birthdate);
@@ -99,9 +98,8 @@ async function caricaProfilo() {
     document.getElementById("usernameInput").value  = data.utente.username;
     document.getElementById("birthdateInput").value = safeBirthdateStr(data.utente.birthdate);
 
-
     CURRENT.avatarBaseUrl  = data.utente.immagineProfilo || "";
-    CURRENT.selectedBorder = data.utente.selectedBorder || "none"; 
+    CURRENT.selectedBorder = data.utente.selectedBorder || "none";
 
     const media = document.getElementById("mediaProfilo");
     media.innerHTML = "";
@@ -114,6 +112,18 @@ async function caricaProfilo() {
       }
     }
 
+    const selBox = document.getElementById("selectedBorderBox");
+    const selImg = document.getElementById("selectedBorderImg");
+    const selUrl = getBorderUrl(CURRENT.selectedBorder);
+    if (selUrl) {
+      selImg.src = selUrl;
+      selImg.alt = "Cornice selezionata";
+      selBox.style.display = "block";
+    } else {
+      selBox.style.display = "none";
+    }
+
+    // Banner
     const banner = document.getElementById("bannerProfilo");
     banner.innerHTML = "";
     if (data.utente.bannerProfilo) {
@@ -141,7 +151,8 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
-  document.getElementById("messaggio").innerText = data.message || "Upload completato";
+  const msgEl = document.getElementById("messaggio");
+  if (msgEl) msgEl.innerText = data.message || "Upload completato";
   await caricaProfilo();
 });
 
@@ -160,7 +171,8 @@ document.getElementById("bannerForm").addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
-  document.getElementById("messaggio").innerText = data.message || "Banner caricato";
+  const msgEl = document.getElementById("messaggio");
+  if (msgEl) msgEl.innerText = data.message || "Banner caricato";
   await caricaProfilo();
 });
 
@@ -192,7 +204,7 @@ async function setupBordersUI() {
     const data = await res.json();
     if (!data.success) return;
 
-    CURRENT.unlocked = data.unlockedBorders || []; 
+    CURRENT.unlocked = data.unlockedBorders || [];
     const selectedKey = keyFromAny(CURRENT.selectedBorder);
 
     document.querySelectorAll(".pfp-border").forEach(img => {
@@ -229,11 +241,22 @@ async function handleBorderClick(key) {
   }
 
   CURRENT.selectedBorder = url || "none";
+
   document.querySelectorAll(".pfp-border").forEach(i => i.classList.remove("selected"));
   const el = document.querySelector(`.pfp-border[data-border="${key}"]`);
   if (el) el.classList.add("selected");
 
-  document.getElementById("messaggio").innerText = "Cornice selezionata!";
+  const selBox = document.getElementById("selectedBorderBox");
+  const selImg = document.getElementById("selectedBorderImg");
+  if (url) {
+    selImg.src = url;
+    selBox.style.display = "block";
+  } else {
+    selBox.style.display = "none";
+  }
+
+  const msgEl = document.getElementById("messaggio");
+  if (msgEl) msgEl.innerText = "Cornice selezionata!";
 }
 
 caricaProfilo();
