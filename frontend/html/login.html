@@ -6,6 +6,15 @@
   <title>Login Utente</title>
   <link rel="stylesheet" href="../style/login.css" />
    <link rel="stylesheet" href="../style/popup.css" />
+
+     <script type="importmap">
+  {
+    "imports": {
+      "three": "/node_modules/three/build/three.module.js",
+      "three/addons/": "/node_modules/three/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
   <div class="container">
@@ -28,6 +37,11 @@
       <p id="message"></p>
     </div>
   </div>
+
+  <script type="module">
+    import { mountAuthSky } from "../js/auth/sky_bg.js";
+    const cleanup = mountAuthSky(document.body);
+  </script>
 
   <script type="module" src="../js/login.js"></script>
 </body>

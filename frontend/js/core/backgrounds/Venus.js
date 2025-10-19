@@ -41,7 +41,6 @@ function keplerSolve(M, e){
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -52,7 +51,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -62,6 +60,14 @@ export async function initBackground(engine){
     modelTargetSize: 20,
     spin: SUN.ROT * TIME.SPEED,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
+  });
+
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
   });
 
   // Gerarchia Venere
@@ -82,13 +88,11 @@ export async function initBackground(engine){
   venPivot.rotation.y = THREE.MathUtils.degToRad(VEN_RAAN_DEG);
   venPhase.rotation.y = THREE.MathUtils.degToRad(VEN_ARGPERI_DEG); 
 
-  // Mesh + nubi
   let venus = null, venusClouds = null;
   await new Promise((res)=> new GLTFLoader().load(MODEL_VENUS,(g)=>{
     venus = g.scene; venus.name = "Venus";
     prepPlanetMaterials(venus, { roughness:0.98, metalness:0.0, normalScale:0.45 });
 
-    // guscio nubi (se presente nel GLB)
     venusClouds = venus.getObjectByName("Venus_Clouds")
                || venus.getObjectByName("Clouds")
                || venus.getObjectByName("clouds");
@@ -116,7 +120,6 @@ export async function initBackground(engine){
       venusClouds.userData._drift = -0.0006; // rad/ms
     }
 
-    // normalizzazione dimensione su schermo
     const box = new THREE.Box3().setFromObject(venus);
     const max = box.getSize(new THREE.Vector3()).toArray().reduce((a,b)=>Math.max(a,b),1);
     venus.scale.multiplyScalar(2.4 / max);
@@ -124,7 +127,6 @@ export async function initBackground(engine){
     res();
   }));
 
-  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
   const FILL = CAMERA.FRAME_FILL?.VENUS ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 1.0;
 
@@ -159,14 +161,12 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita eliocentrica (Keplero)
     venPivot.position.copy(sun.group.position);
     M_ven = (M_ven + VEN_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_ven, VEN_ECC);
     venPhase.rotation.y = THREE.MathUtils.degToRad(VEN_ARGPERI_DEG) + nu;
     venCarrier.position.set(VEN_A * rUnit, 0, 0);
 
-    // Spin globo + drift nubi
     if (venSpin) venSpin.rotateOnAxis(UP_AXIS, VEN_ROT_VIS * dt);
     if (venusClouds) venusClouds.rotateOnAxis(UP_AXIS, (venusClouds.userData._drift ?? -0.0006) * dt);
 

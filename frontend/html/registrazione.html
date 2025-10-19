@@ -6,6 +6,15 @@
   <title>Registrazione Utente</title>
   <link rel="stylesheet" href="/frontend/style/registrazione.css" />
   <link rel="stylesheet" href="../style/popup.css" />
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "/node_modules/three/build/three.module.js",
+      "three/addons/": "/node_modules/three/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
   <div class="container">
@@ -45,6 +54,11 @@
       <p id="message"></p>
     </div>
   </div>
+
+  <script type="module">
+    import { mountAuthSky } from "../js/auth/sky_bg.js";
+    const cleanup = mountAuthSky(document.body);
+  </script>
 
   <script src="/frontend/js/registrazione.js"></script>
 </body>

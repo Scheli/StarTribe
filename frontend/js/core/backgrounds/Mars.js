@@ -28,7 +28,6 @@ const MARS_A     = SCALE.AU * ELEMENTS.MARS.a_AU;
 const MARS_ORBIT = ORBIT.MARS * TIME.SPEED;
 const MARS_ROT   = ROT.MARS   * TIME.SPEED;
 
-/* Helpers */
 function keplerSolve(M, e){
   let E = M;
   for (let k=0;k<4;k++){
@@ -40,11 +39,9 @@ function keplerSolve(M, e){
   return { r: 1 - e*cosE, nu: Math.atan2(Math.sqrt(1-e*e)*sinE, cosE - e) };
 }
 
-/* Entry */
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -55,7 +52,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -65,6 +61,14 @@ export async function initBackground(engine){
     modelTargetSize: 20,
     spin: SUN_ROT,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
+  });
+
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
   });
 
   // Gerarchia Marte
@@ -79,19 +83,16 @@ export async function initBackground(engine){
   marsPhase.add(marsCarrier);
   marsCarrier.add(marsSpin);
 
-  // rotazioni costanti (fuori dal tick)
   marsTilt.rotation.x   = THREE.MathUtils.degToRad(MARS_INCL_DEG);
   marsSpin.rotation.z   = THREE.MathUtils.degToRad(MARS_OBLQ_DEG);
   marsPivot.rotation.y  = THREE.MathUtils.degToRad(MARS_RAAN_DEG);
   marsPhase.rotation.y  = THREE.MathUtils.degToRad(MARS_ARGPERI_DEG); // + nu nel tick
 
-  // Mesh Marte
   let mars = null;
   await new Promise((res)=> new GLTFLoader().load(MODEL_MARS,(g)=>{
     mars = g.scene; mars.name = "Mars";
     prepPlanetMaterials(mars, { roughness:0.97, metalness:0.0, normalScale:0.55 });
 
-    // normalizzazione schermo (coerente con Giove)
     const box = new THREE.Box3().setFromObject(mars);
     const max = box.getSize(new THREE.Vector3()).toArray().reduce((a,b)=>Math.max(a,b),1);
     mars.scale.multiplyScalar(2.4 / max);
@@ -100,14 +101,11 @@ export async function initBackground(engine){
     res();
   }));
 
-  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
   const FILL = CAMERA.FRAME_FILL?.MARS ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 1.0;
 
-  // focus morbido
   smoothFocusAuto(engine, mars, { fill: FILL, dur: FOCUS_DUR });
 
-  // rig + estensioni
   let orbit = createOrbitRig(engine);
   orbit = extendOrbitRigWithAuto(orbit, engine);
   orbit.setTarget(mars);
@@ -138,17 +136,14 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita eliocentrica (Keplero)
     marsPivot.position.copy(sun.group.position);
     M_mars = (M_mars + MARS_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_mars, MARS_ECC);
     marsPhase.rotation.y = THREE.MathUtils.degToRad(MARS_ARGPERI_DEG) + nu;
     marsCarrier.position.set(MARS_A * rUnit, 0, 0);
 
-    // Spin planetario
     if (mars) mars.rotateOnAxis(UP_AXIS, MARS_ROT * dt);
 
-    // fine focus → warm-start & start orbit
     if (focusActive){
       focusTimer += dt/1000;
       if (focusTimer >= FOCUS_DUR){

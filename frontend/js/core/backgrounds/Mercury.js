@@ -23,13 +23,11 @@ const MER_OBLQ_DEG    = ELEMENTS.MERCURY.obliquity_deg;
 const MER_A     = SCALE.AU * ELEMENTS.MERCURY.a_AU;
 const MER_ORBIT = ORBIT.MERCURY * TIME.SPEED;
 
-// Spin: 3:2 risonante (vero per Mercurio) o valore tabellato ROT.MERCURY
 const USE_RESONANT_3to2 = true;
 const MER_SPIN = USE_RESONANT_3to2
-  ? (1.5 * ORBIT.MERCURY) * TIME.SPEED   // 3:2 della velocità orbitale media
+  ? (1.5 * ORBIT.MERCURY) * TIME.SPEED   
   : ROT.MERCURY * TIME.SPEED;
 
-/* Helpers */
 function keplerSolve(M, e){
   let E = M;
   for (let k=0;k<4;k++){
@@ -41,11 +39,9 @@ function keplerSolve(M, e){
   return { r: 1 - e*cosE, nu: Math.atan2(Math.sqrt(1-e*e)*sinE, cosE - e) };
 }
 
-/* Entry */
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -56,7 +52,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -66,6 +61,14 @@ export async function initBackground(engine){
     modelTargetSize: 20,
     spin: SUN.ROT * TIME.SPEED,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
+  });
+
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
   });
 
   // Gerarchia Mercurio
@@ -80,19 +83,16 @@ export async function initBackground(engine){
   merPhase.add(merCarrier);
   merCarrier.add(merSpin);
 
-  // rotazioni costanti
   merTilt.rotation.x  = THREE.MathUtils.degToRad(MER_INCL_DEG);
   merSpin.rotation.z  = THREE.MathUtils.degToRad(MER_OBLQ_DEG);
   merPivot.rotation.y = THREE.MathUtils.degToRad(MER_RAAN_DEG);
   merPhase.rotation.y = THREE.MathUtils.degToRad(MER_ARGPERI_DEG); // + nu nel tick
 
-  // Mesh Mercurio
   let mercury = null;
   await new Promise((res)=> new GLTFLoader().load(MODEL_MERCURY,(g)=>{
     mercury = g.scene; mercury.name = "Mercury";
     prepPlanetMaterials(mercury, { roughness:0.96, metalness:0.0, normalScale:0.5 });
 
-    // normalizzazione dimensione su schermo
     const box = new THREE.Box3().setFromObject(mercury);
     const max = box.getSize(new THREE.Vector3()).toArray().reduce((a,b)=>Math.max(a,b),1);
     mercury.scale.multiplyScalar(2.0 / max);
@@ -101,14 +101,11 @@ export async function initBackground(engine){
     res();
   }));
 
-  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
   const FILL = CAMERA.FRAME_FILL?.MERCURY ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 0.9;
 
-  // focus morbido
   smoothFocusAuto(engine, mercury, { fill: FILL, dur: FOCUS_DUR });
 
-  // rig + estensioni
   let orbit = createOrbitRig(engine);
   orbit = extendOrbitRigWithAuto(orbit, engine);
   orbit.setTarget(mercury);
@@ -139,17 +136,14 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita eliocentrica (Keplero)
     merPivot.position.copy(sun.group.position);
     M_mer = (M_mer + MER_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_mer, MER_ECC);
     merPhase.rotation.y = THREE.MathUtils.degToRad(MER_ARGPERI_DEG) + nu;
     merCarrier.position.set(MER_A * rUnit, 0, 0);
 
-    // Spin (risonante 3:2 o tabellato)
     if (mercury) mercury.rotateOnAxis(UP_AXIS, MER_SPIN * dt);
 
-    // fine focus → warm-start & start orbit
     if (focusActive){
       focusTimer += dt/1000;
       if (focusTimer >= FOCUS_DUR){

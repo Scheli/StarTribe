@@ -38,7 +38,6 @@ const MOON_DIST_FACTOR = 8.0;
 /* Notte/giorno */
 const duskParams = { nightCurve: 1.6, nightIntensity: 1.45, darkStrength: 0.82 };
 
-/* Helpers */
 function keplerSolve(M, e){
   let E = M;
   for (let k=0;k<4;k++){
@@ -76,7 +75,6 @@ async function buildCloudsTexture(path){
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled && composer){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -87,7 +85,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Cielo + Sole
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -101,12 +98,20 @@ export async function initBackground(engine){
     lightTint: [1.0, 0.95, 0.85]
   });
 
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
+  });
+
   // Pivot/gerarchie Terra eliocentrica
-  const earthOrbitPivot = new THREE.Group();   // centro sul Sole → traslato dal Sole
-  const earthTilt       = new THREE.Group();   // inclinazione orbitale
-  const earthPhase      = new THREE.Group();   // argomento del perielio + anomalia vera
-  const earthCarrier    = new THREE.Group();   // traslazione su asse X (a*e)
-  const earthSpin       = new THREE.Group();   // rotazione su asse proprio
+  const earthOrbitPivot = new THREE.Group();   
+  const earthTilt       = new THREE.Group();   
+  const earthPhase      = new THREE.Group();   
+  const earthCarrier    = new THREE.Group();   
+  const earthSpin       = new THREE.Group();   
   scene.add(earthOrbitPivot);
   earthOrbitPivot.add(earthTilt);
   earthTilt.add(earthPhase);
@@ -116,7 +121,6 @@ export async function initBackground(engine){
   earthOrbitPivot.rotation.y = THREE.MathUtils.degToRad(EAR_RAAN_DEG);
   earthTilt.rotation.x       = THREE.MathUtils.degToRad(EAR_INCL_DEG);
 
-  // Terra (mesh + shader blend giorno/notte)
   const nightTex = new THREE.TextureLoader().load(TEX_NIGHT);
   nightTex.colorSpace = THREE.SRGBColorSpace; nightTex.anisotropy=8; nightTex.flipY=false;
 
@@ -127,7 +131,6 @@ export async function initBackground(engine){
       earth.name = "Earth";
       earthSpin.add(earth);
 
-      // hook shader: terminatore + night + ombra nubi
       earth.traverse(o=>{
         if (!o.isMesh || !o.material) return;
         o.material.emissive = new THREE.Color(1.0, 0.88, 0.65);
@@ -173,7 +176,6 @@ export async function initBackground(engine){
         o.material.needsUpdate = true;
       });
 
-      // Shell nubi
       const cloudsTex = await buildCloudsTexture(TEX_CLOUDS);
       const cloudsMat = new THREE.MeshLambertMaterial({
         map: cloudsTex,
@@ -185,7 +187,7 @@ export async function initBackground(engine){
         color:      0xffffff,
         opacity:    1.0
       });
-      // riusa la geo del mesh principale (primo mesh trovato)
+
       let earthMesh = null;
       earth.traverse(o=>{ if (!earthMesh && o.isMesh) earthMesh = o; });
       if (earthMesh){
@@ -202,21 +204,17 @@ export async function initBackground(engine){
     });
   });
 
-  // Luna: pivot figlio della Terra
   const moonPivot = new THREE.Group(); earthSpin.add(moonPivot);
   let moon=null;
   new GLTFLoader().load(MODEL_MOON, (gltf)=>{
     moon = gltf.scene; moonPivot.add(moon);
   });
 
-  /* -------------------- Focus + Orbit rig (auto frame-fill) -------------------- */
   const FILL = CAMERA.FRAME_FILL?.EARTH ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 1.0;
 
-  // focus morbido verso la Terra
   smoothFocusAuto(engine, earthSpin, { fill: FILL, dur: FOCUS_DUR });
 
-  // rig con estensioni (auto raggio + warm-start)
   let orbit = createOrbitRig(engine);
   orbit = extendOrbitRigWithAuto(orbit, engine);
   orbit.setTarget(earthSpin);
@@ -255,10 +253,8 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Posiziona pivot Terra sul Sole
     earthOrbitPivot.position.copy(sun.group.position);
 
-    // Keplero: aggiorna orbita eliocentrica Terra
     M_earth = (M_earth + EAR_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_earth, EAR_ECC);
     earthOrbitPivot.rotation.y = THREE.MathUtils.degToRad(EAR_RAAN_DEG);
@@ -266,10 +262,8 @@ export async function initBackground(engine){
     earthPhase.rotation.y      = THREE.MathUtils.degToRad(EAR_ARGPERI_DEG) + nu;
     earthCarrier.position.set(EAR_A * rUnit, 0, 0);
 
-    // Rotazione terrestre
     if (earthSpin) earthSpin.rotateOnAxis(UP_AXIS, EARTH_ROT * dt);
 
-    // Direzione luce (view space) + drift nubi
     if (earth && earth.children){
       sun.group.getWorldPosition(wSun);
       earthSpin.getWorldPosition(wEarth);
@@ -277,7 +271,6 @@ export async function initBackground(engine){
       normalMat.getNormalMatrix(camera.matrixWorldInverse);
       dirView.copy(dirWorld).applyMatrix3(normalMat).normalize();
 
-      // aggiorna uniform su tutti i mesh della Terra
       earth.traverse(o=>{
         const shader = o.userData?.shader;
         if (shader){
@@ -288,7 +281,6 @@ export async function initBackground(engine){
       });
     }
 
-    // Nubi leggere
     if (cloudsMesh) cloudsMesh.rotateOnAxis(UP_AXIS, CLOUDS_DRIFT * dt);
 
     if (moon && earthSpin){

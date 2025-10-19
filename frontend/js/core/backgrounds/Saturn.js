@@ -37,7 +37,6 @@ function keplerSolve(M, e){
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -48,7 +47,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -58,6 +56,14 @@ export async function initBackground(engine){
     modelTargetSize: 20,
     spin: SUN.ROT * TIME.SPEED,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
+  });
+
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
   });
 
   // Gerarchia Saturno
@@ -72,19 +78,16 @@ export async function initBackground(engine){
   satPhase.add(satCarrier);
   satCarrier.add(satSpin);
 
-  // rotazioni costanti (fuori dal tick)
   satTilt.rotation.x   = THREE.MathUtils.degToRad(SAT_INCL_DEG);
   satSpin.rotation.z   = THREE.MathUtils.degToRad(SAT_OBLQ_DEG);
   satPivot.rotation.y  = THREE.MathUtils.degToRad(SAT_RAAN_DEG);
   satPhase.rotation.y  = THREE.MathUtils.degToRad(SAT_ARGPERI_DEG); // + nu nel tick
 
-  // Mesh Saturno (+ anelli)
   let saturn = null;
   await new Promise((res)=> new GLTFLoader().load(MODEL_SATURN,(g)=>{
     saturn = g.scene; saturn.name = "Saturn";
     prepPlanetMaterials(saturn, { roughness:0.97, metalness:0.0, normalScale:0.5 });
 
-    // anelli: trasparenza/ordinamento
     saturn.traverse(o=>{
       if (!o.isMesh || !o.material) return;
       const m  = o.material;
@@ -99,7 +102,7 @@ export async function initBackground(engine){
         m.alphaTest   = 0.2;
         m.premultipliedAlpha = true;
         m.blending    = THREE.NormalBlending;
-        o.renderOrder = 20; // dopo il globo
+        o.renderOrder = 20; 
       } else {
         m.transparent = false;
         m.depthWrite  = true;
@@ -108,7 +111,6 @@ export async function initBackground(engine){
       }
     });
 
-    // normalizzazione dimensione schermo
     const box = new THREE.Box3().setFromObject(saturn);
     const max = box.getSize(new THREE.Vector3()).toArray().reduce((a,b)=>Math.max(a,b),1);
     saturn.scale.multiplyScalar(3.2 / max);
@@ -117,14 +119,11 @@ export async function initBackground(engine){
     res();
   }));
 
-  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
   const FILL = CAMERA.FRAME_FILL?.SATURN ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 1.0;
 
-  // focus morbido
   smoothFocusAuto(engine, saturn, { fill: FILL, dur: FOCUS_DUR });
 
-  // rig + estensioni
   let orbit = createOrbitRig(engine);
   orbit = extendOrbitRigWithAuto(orbit, engine);
   orbit.setTarget(saturn);
@@ -155,17 +154,14 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita eliocentrica (Keplero)
     satPivot.position.copy(sun.group.position);
     M_sat = (M_sat + SAT_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_sat, SAT_ECC);
     satPhase.rotation.y = THREE.MathUtils.degToRad(SAT_ARGPERI_DEG) + nu;
     satCarrier.position.set(SAT_A * rUnit, 0, 0);
 
-    // Spin planetario
     if (saturn) saturn.rotateOnAxis(UP_AXIS, SAT_ROT * dt);
 
-    // fine focus → warm-start & start orbit
     if (focusActive){
       focusTimer += dt/1000;
       if (focusTimer >= FOCUS_DUR){

@@ -1,40 +1,129 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Startribe — Homepage</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Sevillana&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="..\style\index.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style/index.css" />
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "/node_modules/three/build/three.module.js",
-    "three/addons/": "/node_modules/three/examples/jsm/"
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/node_modules/three/build/three.module.js",
+      "three/addons/": "/node_modules/three/examples/jsm/"
+    }
   }
-}
-</script>
-
+  </script>
 </head>
-<body data-bg="random"></body>
-<script>
 
-</script>
+<body data-bg="random">
+  <header class="nav-wrapper">
+    <h1 class="Navbar-hp">Startribe</h1>
+    <nav class="Navlinks">
+      <a href="../html/login.html">Login</a>
+      <a href="../html/registrazione.html">Registrati</a>
+      <a href="../html/news.html">News</a>
+    </nav>
+  </header>
 
-<div>
-  <h1 class="Navbar-hp">Startribe</h1>
-  
-  <div class="Navlinks">
-    <a href="..\html\login.html">Login</a>
-    <a href="..\html\registrazione.html">Registrati</a>
-    <a href="..\html\news.html">News</a>
+  <main>
+    <section class="hero hero--window">
+      <div class="hero__inner">
+        <div class="hero__content">
+          <h2 class="hero__title">Esplora. Impara. Vola tra le stelle.</h2>
+          <p class="hero__subtitle">Un viaggio interattivo nel Sistema Solare: pianeti, orbite, e meraviglie cosmiche.</p>
+          <div class="hero__cta">
+            <a class="btn btn--primary" href="../html/registrazione.html">Inizia ora</a>
+            <a class="btn btn--ghost" href="../html/news.html">Leggi le news</a>
+          </div>
+        </div>
+        <div class="hero__void" aria-hidden="true"></div>
+      </div>
+    </section>
 
-  </div>
-</div>
+    <section class="section">
+      <div class="section__head">
+        <h3 class="section__title">Esplora i pianeti</h3>
+        <p class="section__subtitle">Scegli un mondo e tuffati nei dettagli.</p>
+      </div>
+
+      <div class="grid cards">
+        <a class="card" href="/frontend/index.html#mercury">
+          <h4>Mercurio</h4><p>Il più vicino al Sole.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#venus">
+          <h4>Venere</h4><p>Gemme e nubi acide.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#earth">
+          <h4>Terra</h4><p>La nostra casa blu.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#mars">
+          <h4>Marte</h4><p>Il pianeta rosso.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#jupiter">
+          <h4>Giove</h4><p>Il gigante gassoso.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#saturn">
+          <h4>Saturno</h4><p>Anelli iconici.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#uranus">
+          <h4>Urano</h4><p>Asse inclinato.</p>
+        </a>
+        <a class="card" href="/frontend/index.html#neptune">
+          <h4>Nettuno</h4><p>Venti estremi.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section__head">
+        <h3 class="section__title">Ultime novità</h3>
+        <p class="section__subtitle">Aggiornamenti da missioni e scoperte.</p>
+      </div>
+
+      <div class="grid news">
+        <article class="news__item">
+          <span class="badge">Missioni</span>
+          <h4>Nuove immagini da Europa</h4>
+          <p>La sonda ha inviato scatti ravvicinati della superficie ghiacciata.</p>
+          <a class="link" href="../html/news.html">Approfondisci</a>
+        </article>
+        <article class="news__item">
+          <span class="badge">Scienza</span>
+          <h4>Atmosfera di Venere</h4>
+          <p>Nuove ipotesi sulle nubi e la loro composizione chimica.</p>
+          <a class="link" href="../html/news.html">Leggi di più</a>
+        </article>
+        <article class="news__item">
+          <span class="badge">Eventi</span>
+          <h4>Eclissi visibile in Europa</h4>
+          <p>Prepara i tuoi strumenti per l’evento del mese!</p>
+          <a class="link" href="../html/news.html">Scopri quando</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h3>Pronto a partire?</h3>
+      <p>Crea un profilo e sincronizza le tue esplorazioni tra i dispositivi.</p>
+      <div class="cta__actions">
+        <a class="btn btn--primary" href="../html/registrazione.html">Registrati</a>
+        <a class="btn btn--ghost" href="../html/login.html">Accedi</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© <span id="year"></span> Startribe — Tutti i diritti riservati.</p>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
   <script type="module" src="/frontend/js/app.js"></script>
 </body>
 </html>

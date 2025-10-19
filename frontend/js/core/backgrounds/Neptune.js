@@ -27,7 +27,6 @@ const NEP_A     = SCALE.AU * ELEMENTS.NEPTUNE.a_AU;
 const NEP_ORBIT = ORBIT.NEPTUNE * TIME.SPEED;
 const NEP_ROT   = ROT.NEPTUNE   * TIME.SPEED;
 
-/* Keplero helper */
 function keplerSolve(M, e){
   let E = M;
   for (let k=0;k<4;k++){
@@ -42,7 +41,6 @@ function keplerSolve(M, e){
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -53,7 +51,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -63,6 +60,14 @@ export async function initBackground(engine){
     modelTargetSize: 20,
     spin: SUN_ROT,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
+  });
+
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
   });
 
   // Gerarchia Nettuno
@@ -77,13 +82,11 @@ export async function initBackground(engine){
   nepPhase.add(nepCarrier);
   nepCarrier.add(nepSpin);
 
-  // rotazioni costanti (fuori dal tick)
   nepTilt.rotation.x   = THREE.MathUtils.degToRad(NEP_INCL_DEG);
   nepSpin.rotation.z   = THREE.MathUtils.degToRad(NEP_OBLQ_DEG);
   nepPivot.rotation.y  = THREE.MathUtils.degToRad(NEP_RAAN_DEG);
   nepPhase.rotation.y  = THREE.MathUtils.degToRad(NEP_ARGPERI_DEG); // + nu nel tick
 
-  // Mesh Nettuno
   let neptune = null;
   await new Promise((res)=> new GLTFLoader().load(MODEL_NEPTUNE,(g)=>{
     neptune = g.scene; neptune.name = "Neptune";
@@ -97,14 +100,11 @@ export async function initBackground(engine){
     res();
   }));
 
-  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
   const FILL = CAMERA.FRAME_FILL?.NEPTUNE ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 1.0;
 
-  // focus morbido
   smoothFocusAuto(engine, neptune, { fill: FILL, dur: FOCUS_DUR });
 
-  // rig + estensioni
   let orbit = createOrbitRig(engine);
   orbit = extendOrbitRigWithAuto(orbit, engine);
   orbit.setTarget(neptune);
@@ -135,17 +135,14 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita eliocentrica (Keplero)
     nepPivot.position.copy(sun.group.position);
     M_nep = (M_nep + NEP_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_nep, NEP_ECC);
     nepPhase.rotation.y = THREE.MathUtils.degToRad(NEP_ARGPERI_DEG) + nu;
     nepCarrier.position.set(NEP_A * rUnit, 0, 0);
 
-    // Spin planetario
     if (neptune) neptune.rotateOnAxis(UP_AXIS, NEP_ROT * dt);
 
-    // fine focus → warm-start & start orbit
     if (focusActive){
       focusTimer += dt/1000;
       if (focusTimer >= FOCUS_DUR){

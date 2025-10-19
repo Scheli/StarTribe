@@ -23,7 +23,6 @@ const URA_A     = SCALE.AU * ELEMENTS.URANUS.a_AU;
 const URA_ORBIT = ORBIT.URANUS * TIME.SPEED;
 const URA_ROT   = ROT.URANUS   * TIME.SPEED;
 
-/* Keplero helper */
 function keplerSolve(M, e){
   let E = M;
   for (let k=0;k<4;k++){
@@ -38,7 +37,6 @@ function keplerSolve(M, e){
 export async function initBackground(engine){
   const { scene, camera, composer, onTick } = engine;
 
-  // Bloom
   let bloomPass = null;
   if (POSTFX?.BLOOM?.enabled){
     const { strength, radius, threshold } = POSTFX.BLOOM;
@@ -49,7 +47,6 @@ export async function initBackground(engine){
     composer.addPass(bloomPass);
   }
 
-  // Sky + Sun
   const sky = createSky({ scene, camera, textureUrl: TEX_SKY });
   const sun = await createSun({
     scene, camera,
@@ -59,6 +56,14 @@ export async function initBackground(engine){
     modelTargetSize: 20,
     spin: SUN.ROT * TIME.SPEED,
     pulse: { enabled:true, amp:0.12, speed:0.6, haloAmp:0.10 }
+  });
+
+  sun.group.traverse((o)=>{
+    const m = o.material;
+    if (!m) return;
+    m.depthTest = true;          
+    m.depthWrite = false;        
+    o.renderOrder = 0;           
   });
 
   // Gerarchia Urano
@@ -114,7 +119,6 @@ export async function initBackground(engine){
     res();
   }));
 
-  /* -------- Focus + Orbit rig (auto frame-fill) -------- */
   const FILL = CAMERA.FRAME_FILL?.URANUS ?? CAMERA.FRAME_FILL_DEFAULT ?? 0.6;
   const FOCUS_DUR = 1.0;
 
@@ -149,7 +153,6 @@ export async function initBackground(engine){
     sky.update(now);
     sun.update(camera, now, dt);
 
-    // Orbita eliocentrica (Keplero)
     uraPivot.position.copy(sun.group.position);
     M_ura = (M_ura + URA_ORBIT * dt) % (Math.PI * 2);
     const { r:rUnit, nu } = keplerSolve(M_ura, URA_ECC);
