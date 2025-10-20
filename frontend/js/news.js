@@ -66,7 +66,7 @@ function mostraAPOD(apod) {
 
 function mostraWeather(weather) {
   const div = document.getElementById('weather');
-  const sol = weather.sol_keys[0]; // es: "1210"
+  const sol = weather.sol_keys[0]; 
   const tempData = weather[sol].AT;   
   div.innerHTML = `<h3>Meteo su Marte</h3>
   <p>Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C</p>`;
