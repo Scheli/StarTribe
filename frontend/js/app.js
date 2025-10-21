@@ -16,6 +16,23 @@ async function importBackground(name) {
   throw lastErr;
 }
 
+async function setBackground(name, engine) {
+  try {
+    const mod = await importBackground(name);
+    
+    if (window.__bg?.dispose) window.__bg.dispose();
+
+    const bg = await mod.initBackground(engine);
+
+    document.body.dataset.bg = name;
+    localStorage.setItem("selectedBgPlanet", name);
+
+    window.__bg = bg;
+  } catch (e) {
+    console.error("Errore durante il cambio background:", e);
+  }
+}
+
 async function boot() {
   const engine = createEngine({ alpha: true, antialias: true });
 
@@ -32,17 +49,23 @@ async function boot() {
 
   let raw = (document.body.dataset.bg || "random").trim();
 
-  if (raw === "random"){
-    const indiceRandom = Math.floor(Math.random() * sfondiPossibili.length)
+  if (raw === "random") {
+    const indiceRandom = Math.floor(Math.random() * sfondiPossibili.length);
     raw = sfondiPossibili[indiceRandom];
   }
 
-  const mod = await importBackground(raw);
-  const bg = await mod.initBackground(engine);
-
+  await setBackground(raw, engine);
   engine.start();
 
   window.__engine = engine;
-  window.__bg = bg;
+
+  document.querySelectorAll(".card[data-planet]").forEach(card => {
+    card.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const selected = card.dataset.planet;
+      await setBackground(selected, engine);
+    });
+  });
 }
+
 boot();
