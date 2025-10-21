@@ -1,8 +1,6 @@
-// Mostra sotto al bottone il numero di biglietti dell'utente
 const msgEl = document.getElementById("tickets-msg");
 const token = localStorage.getItem("token");
 
-// Usa sempre la stessa base degli altri file
 const API = "http://localhost:8080";
 
 async function getTicketsFromProfilo() {
