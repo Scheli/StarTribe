@@ -416,6 +416,7 @@ const utentiConnessi = new Map();
           selectedBorder: utente.selectedBorder || "none",
           pfpfinal: utente.pfpfinal || "",
           seguiti: (utente.seguiti || []).map(id => id.toString()), 
+        tickets: utente.tickets || 0,
         }
       });
     } catch (err) {

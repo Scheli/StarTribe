@@ -404,3 +404,39 @@ body {
 }
 
 
+.space-cta{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin: 18px 0 28px;
+}
+
+.slot-link{
+  display:inline-block;
+  outline: none;
+}
+
+.slot-img{
+  width: 180px;               
+  max-width: 40vw;
+  height: auto;
+  transition: transform 180ms ease, filter 180ms ease;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+  cursor: pointer;
+  user-select: none;
+}
+
+.slot-link:hover .slot-img{
+  transform: translateY(-4px) scale(1.05);
+  filter: drop-shadow(0 0 12px rgba(155,115,255,0.6));
+}
+
+.slot-link:active .slot-img{
+  transform: translateY(-1px) scale(0.99);
+}
+
+.slot-link:focus-visible .slot-img{
+  outline: 2px solid #9b73ff;
+  outline-offset: 6px;
+  border-radius: 12px;
+}
