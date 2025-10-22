@@ -20,7 +20,7 @@
   </script>
 </head>
 
-<body data-bg="random">
+<body data-bg="random" data-theme>
   <header class="nav-wrapper">
     <h1 class="Navbar-hp">Startribe</h1>
     <nav class="Navlinks">
@@ -29,6 +29,8 @@
       <a href="../html/news.html">News</a>
     </nav>
   </header>
+
+  <button id="theme-toggle" aria-label="Cambia tema">🌙</button>
 
   <main>
     <section class="hero hero--window">
@@ -123,6 +125,27 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    const toggleBtn = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('theme') || 'dark'; // default tema scuro
+
+    // Imposta il tema all'avvio
+    document.body.setAttribute('data-theme', currentTheme);
+    toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+
+    toggleBtn.addEventListener('click', () => {
+      let theme = document.body.getAttribute('data-theme');
+      if (theme === 'dark') {
+        document.body.setAttribute('data-theme', 'light');
+        toggleBtn.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.body.setAttribute('data-theme', 'dark');
+        toggleBtn.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
   </script>
   <script type="module" src="/frontend/js/app.js"></script>
 </body>
