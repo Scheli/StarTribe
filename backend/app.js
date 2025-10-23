@@ -9,15 +9,43 @@
   import multer from "multer";
   import { storage, cloudinary } from "./utils/cloudinary.js";
   import { ObjectId } from "mongodb";
-  import path from "path";
   import { createServer } from "http";
   import {Server} from "socket.io";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const CARDS_DIR = path.resolve(__dirname, "../frontend/assets/card");
+
+
+
+let CARD_FILES = [];
+try {
+  CARD_FILES = fs.readdirSync(CARDS_DIR)
+    .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f));
+  console.log(`[cards] trovate ${CARD_FILES.length} carte in ${CARDS_DIR}`);
+} catch (err) {
+  console.error("[cards] impossibile leggere la cartella:", err);
+}
+
+// Helper per pescare una carta random (ritorna la URL da usare nel frontend)
+function pickRandomCard() {
+  if (!CARD_FILES.length) return null;
+  const i = Math.floor(Math.random() * CARD_FILES.length);
+  return `/frontend/assets/card/${CARD_FILES[i]}`;
+}
+
 
   const app = express();
   const PORT = process.env.PORT || 8080;
   const httpServer = createServer(app);
   app.use(cors());
   app.use(express.json());
+  app.use("/frontend", express.static(path.resolve(__dirname, "../frontend")));
+
 
   const JWT_SECRET = process.env.JWT_SECRET || "secret123";
   const upload = multer({ storage });
@@ -416,7 +444,9 @@ const utentiConnessi = new Map();
           selectedBorder: utente.selectedBorder || "none",
           pfpfinal: utente.pfpfinal || "",
           seguiti: (utente.seguiti || []).map(id => id.toString()), 
-        tickets: utente.tickets || 0,
+          tickets: utente.tickets || 0,
+          cards: utente.cards || [],
+
         }
       });
     } catch (err) {
@@ -712,5 +742,52 @@ app.get("/api/post", async (req, res) => {
   } catch (err) {
     console.error("Errore:", err);
     res.status(500).json({ success: false, message: "Errore del server" });
+  }
+});
+
+// ---------------- operazioni shop e ticket ----------------
+app.post("/api/tickets/use", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
+
+  try {
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const cardUrl = pickRandomCard();
+    if (!cardUrl) {
+      return res.status(500).json({ success: false, message: "Nessuna carta disponibile sul server" });
+    }
+
+    const db = await connectToDB();
+    const utenti = db.collection("utenti");
+
+    const r = await utenti.findOneAndUpdate(
+      { _id: new ObjectId(decoded.userId), tickets: { $gt: 0 } },
+      { $inc: { tickets: -1 }, $addToSet: { cards: cardUrl } },
+      { returnDocument: "after" }
+    );
+
+    if (!r.value) {
+      const exists = await utenti.findOne({ _id: new ObjectId(decoded.userId) });
+      if (!exists) {
+        return res.status(404).json({ success: false, message: "Utente non trovato" });
+      }
+      return res.status(403).json({
+        success: false,
+        message: "Nessun ticket disponibile",
+        tickets: exists.tickets || 0
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Ticket utilizzato, carta ottenuta",
+      tickets: r.value.tickets || 0,
+      card: cardUrl
+    });
+  } catch (err) {
+    console.error("POST /api/tickets/use", err);
+    return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
   }
 });
