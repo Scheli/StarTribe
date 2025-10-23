@@ -4,7 +4,7 @@
   import { connectToDB, aggiungiUtente, GetUtentiConsigliati } from "./db.js";
   import { getAPOD, getInSightWeather, getMarsRoverPhoto, searchImageLibrary } from "./apirequest.js";
   import bcrypt from "bcrypt";
-  import jwt from "json webtoken";
+  import jwt from "jsonwebtoken";
   import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js";
   import multer from "multer";
   import { storage, cloudinary } from "./utils/cloudinary.js";
@@ -31,7 +31,6 @@ try {
   console.error("[cards] impossibile leggere la cartella:", err);
 }
 
-// Helper per pescare una carta random (ritorna la URL da usare nel frontend)
 function pickRandomCard() {
   if (!CARD_FILES.length) return null;
   const i = Math.floor(Math.random() * CARD_FILES.length);
@@ -114,17 +113,17 @@ const utentiConnessi = new Map();
     try {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-      const nuovoUtente = {
-        username,
-        email,
-        password: hashedPassword,
-        birthdate,
-        immagineProfilo: "",
-        tipoMediaProfilo: "",
-        punti: 0,
-      };
-
+        const nuovoUtente = {
+          username,
+          email,
+          password: hashedPassword,
+          birthdate,
+          immagineProfilo: "",
+          tipoMediaProfilo: "",
+          punti: 0,
+          tickets: 0,         
+          cards: []           
+        };
       const id = await aggiungiUtente(nuovoUtente);
       if (!id) {
         return res.status(409).json({ success: false, message: "Email già registrata" });
@@ -745,49 +744,49 @@ app.get("/api/post", async (req, res) => {
   }
 });
 
-// ---------------- operazioni shop e ticket ----------------
-app.post("/api/tickets/use", async (req, res) => {
+app.post("/api/cards/draw", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
 
+  const token = authHeader.split(" ")[1];
   try {
-    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
+    const db = await connectToDB();
+    const utenti = db.collection("utenti");
+
+    const user = await utenti.findOne({ _id: new ObjectId(decoded.userId) });
+    if (!user) return res.status(404).json({ success: false, message: "Utente non trovato" });
+
+    const currentTickets = user.tickets || 0;
+    if (currentTickets <= 0) {
+      return res.status(400).json({ success: false, message: "Non hai biglietti disponibili" });
+    }
 
     const cardUrl = pickRandomCard();
     if (!cardUrl) {
       return res.status(500).json({ success: false, message: "Nessuna carta disponibile sul server" });
     }
 
-    const db = await connectToDB();
-    const utenti = db.collection("utenti");
-
-    const r = await utenti.findOneAndUpdate(
-      { _id: new ObjectId(decoded.userId), tickets: { $gt: 0 } },
-      { $inc: { tickets: -1 }, $addToSet: { cards: cardUrl } },
-      { returnDocument: "after" }
+    const update = await utenti.updateOne(
+      { _id: new ObjectId(decoded.userId) },
+      {
+        $inc: { tickets: -1 },
+        $push: { cards: cardUrl }
+      }
     );
 
-    if (!r.value) {
-      const exists = await utenti.findOne({ _id: new ObjectId(decoded.userId) });
-      if (!exists) {
-        return res.status(404).json({ success: false, message: "Utente non trovato" });
-      }
-      return res.status(403).json({
-        success: false,
-        message: "Nessun ticket disponibile",
-        tickets: exists.tickets || 0
-      });
+    if (update.modifiedCount === 0) {
+      return res.status(500).json({ success: false, message: "Impossibile aggiornare l'utente" });
     }
 
     return res.json({
       success: true,
-      message: "Ticket utilizzato, carta ottenuta",
-      tickets: r.value.tickets || 0,
-      card: cardUrl
+      message: "Carta pescata!",
+      card: cardUrl,
+      tickets: currentTickets - 1
     });
   } catch (err) {
-    console.error("POST /api/tickets/use", err);
+    console.error("POST /api/cards/draw", err);
     return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
   }
 });

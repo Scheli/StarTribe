@@ -1,125 +1,94 @@
-const msgEl = document.getElementById("tickets-msg");
+const btn = document.querySelector(".cta-button");
+const msg = document.getElementById("tickets-msg");
+const stage = document.querySelector(".shenron-stage");
 const token = localStorage.getItem("token");
-const API = "http://localhost:8080";
 
-let lastCardImg = null;
-function showCard(url) {
-  if (!url) return;
-  if (!lastCardImg) {
-    lastCardImg = document.createElement("img");
-    lastCardImg.alt = "Carta ottenuta";
-    lastCardImg.style.display = "block";
-    lastCardImg.style.marginTop = "10px";
-    lastCardImg.style.maxWidth = "180px";
-    lastCardImg.style.borderRadius = "12px";
-    msgEl?.insertAdjacentElement("afterend", lastCardImg);
-  }
-  lastCardImg.src = url;
-}
+const API_BASE = (location.port === "8080") ? "" : "http://localhost:8080";
 
-async function getTicketsFromProfilo() {
-  const res = await fetch(`${API}/api/profilo`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await res.json();
+let drawing = false;
 
-  if (!res.ok || !data?.success || !data?.utente) {
-    throw new Error("profilo: risposta non valida");
-  }
-  const n = Number.parseInt(data.utente.tickets, 10);
-  if (!Number.isFinite(n)) throw new Error("profilo: tickets assente");
-  return n;
-}
+function setMsg(text) { if (msg) msg.textContent = text; }
 
-async function getTicketsFromTrophy() {
-  const res = await fetch(`${API}/api/trophy`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await res.json();
-  if (!res.ok || !data?.success) throw new Error("trophy: risposta non valida");
-  const n = Number.parseInt(data.tickets, 10);
-  return Number.isFinite(n) ? n : 0;
-}
-
-async function caricaBiglietti() {
-  if (!msgEl) return 0;
-  if (!token) {
-    msgEl.textContent = "0";
-    return 0;
-  }
+async function getTickets() {
+  if (!token) { setMsg("Effettua l'accesso per usare i biglietti."); return 0; }
   try {
-    const t = await getTicketsFromProfilo();
-    msgEl.textContent = String(t);
-    return t;
-  } catch {
-    try {
-      const t2 = await getTicketsFromTrophy();
-      msgEl.textContent = String(t2);
+    let r = await fetch(`${API_BASE}/api/profilo`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (r.ok) {
+      const data = await r.json();
+      const t = data?.utente?.tickets ?? 0;
+      setMsg(`Biglietti: ${t}`);
+      return t;
+    }
+  } catch (_) {}
+
+  try {
+    const r2 = await fetch(`${API_BASE}/api/trophy`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (r2.ok) {
+      const data2 = await r2.json();
+      const t2 = data2?.tickets ?? 0;
+      setMsg(`Biglietti: ${t2}`);
       return t2;
-    } catch {
-      msgEl.textContent = "0";
-      return 0;
     }
-  }
+  } catch (_) {}
+
+  setMsg("Biglietti: 0");
+  return 0;
 }
 
-function disableButton(btn, disabled) {
-  if (!btn) return;
-  if (disabled) {
-    btn.setAttribute("aria-disabled", "true");
-    btn.style.pointerEvents = "none";
-    btn.style.opacity = "0.6";
-  } else {
-    btn.removeAttribute("aria-disabled");
-    btn.style.pointerEvents = "";
-    btn.style.opacity = "";
-  }
-}
+function showDrawAnimation(cardUrl) {
+  const img = document.createElement("img");
+  img.src = cardUrl;
+  img.alt = "Carta pescata";
+  img.className = "drawn-card";
+  stage.appendChild(img);
 
-async function usaTicketEPescaCarta() {
-  const res = await fetch(`${API}/api/tickets/use`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` }
+  img.addEventListener("animationend", (e) => {
+    if (e.animationName === "cardFadeOut") {
+      img.remove();
+    } else {
+      img.classList.add("fadeout");
+    }
   });
-  const data = await res.json();
-
-  if (!res.ok || !data?.success) {
-    if (typeof data?.tickets === "number" && msgEl) {
-      msgEl.textContent = String(data.tickets);
-    }
-    throw new Error(data?.message || "Errore nell'uso del ticket");
-  }
-  return { tickets: Number.parseInt(data.tickets, 10) || 0, card: data.card };
 }
 
-(async () => {
-  const btn = document.querySelector(".cta-button");
-  const t = await caricaBiglietti();
-  if (btn && t <= 0) disableButton(btn, true);
+async function drawCard() {
+  if (!token) { setMsg("Devi accedere per pescare."); return; }
+  if (drawing) return;
+  drawing = true;
+  btn.setAttribute("aria-busy", "true");
 
+  try {
+    const r = await fetch(`${API_BASE}/api/cards/draw`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await r.json();
+
+    if (!r.ok || !data.success) {
+      setMsg(data?.message || "Errore durante la pesca.");
+      return;
+    }
+
+    setMsg(`Biglietti: ${data.tickets}`);
+    showDrawAnimation(data.card);
+  } catch {
+    setMsg("Errore di rete.");
+  } finally {
+    drawing = false;
+    btn.removeAttribute("aria-busy");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await getTickets();
   if (btn) {
-    btn.addEventListener("click", async (e) => {
+    btn.addEventListener("click", (e) => {
       e.preventDefault();
-      if (!token) return;
-
-      btn.setAttribute("aria-busy", "true");
-      disableButton(btn, true);
-
-      try {
-        const { tickets: nuovi, card } = await usaTicketEPescaCarta();
-        if (msgEl) msgEl.textContent = String(nuovi);
-        if (card) showCard(card);
-
-        if (nuovi <= 0) {
-          disableButton(btn, true);
-        } else {
-          disableButton(btn, false);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        btn.removeAttribute("aria-busy");
-      }
+      drawCard();
     });
   }
-})();
+});

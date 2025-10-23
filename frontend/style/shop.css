@@ -170,3 +170,41 @@ body.db-theme::before{ content:none !important; }
   color: rgba(255,255,255,.7);
   font-size:.9rem;
 }
+
+.shenron-stage {
+  position: relative;
+}
+
+.drawn-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(38vw, 260px);
+  aspect-ratio: 63 / 88;      
+  transform: translate(-50%, -50%) scale(0.6) rotate(-6deg);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45), 0 6px 14px rgba(0,0,0,.35);
+  z-index: 10;
+  animation: cardPop .7s ease-out forwards;
+}
+
+.drawn-card.fadeout {
+  animation: cardFadeOut .6s ease-in forwards;
+}
+
+@keyframes cardPop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(-10deg); }
+  60% { opacity: 1; transform: translate(-50%, -50%) scale(1.05) rotate(0deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+@keyframes cardFadeOut {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1) }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(0.9) }
+}
+
+.cta-button[aria-busy="true"] {
+  pointer-events: none;
+  opacity: .7;
+  filter: saturate(.6);
+}
