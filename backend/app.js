@@ -4,7 +4,7 @@
   import { connectToDB, aggiungiUtente, GetUtentiConsigliati } from "./db.js";
   import { getAPOD, getInSightWeather, getMarsRoverPhoto, searchImageLibrary } from "./apirequest.js";
   import bcrypt from "bcrypt";
-  import jwt from "jsonwebtoken";
+  import jwt from "json webtoken";
   import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js";
   import multer from "multer";
   import { storage, cloudinary } from "./utils/cloudinary.js";
