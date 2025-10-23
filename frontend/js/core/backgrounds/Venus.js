@@ -136,7 +136,7 @@ export async function initBackground(engine){
   orbit = extendOrbitRigWithAuto(orbit, engine);
   orbit.setTarget(venus);
   orbit.setRadiusAuto(venus, { fill: FILL });
-  orbit.setSpeed(0.14);
+  orbit.setSpeed(0.10);
   orbit.setElevation(0.22);
 
   let focusActive = true, focusTimer = 0;

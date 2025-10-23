@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Tenta la Fortuna</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/frontend/style/shop.css" />
+  
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/node_modules/three/build/three.module.js",
+      "three/addons/": "/node_modules/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="db-theme">
+  <header class="db-header">
+    <h1>tenta la fortuna consuma un biglietto e ottieni una reliquia</h1>
+  </header>
+
+  <main class="db-main">
+    <section class="shenron-section">
+      <div class="shenron-stage">
+        <img class="shenron-img" src="/frontend/assets/shenron.png" alt="Shenron">
+        <img class="ticket t1" src="/frontend/assets/ticket.png" alt="Biglietto">
+        <img class="ticket t2" src="/frontend/assets/ticket.png" alt="Biglietto">
+        <img class="ticket t3" src="/frontend/assets/ticket.png" alt="Biglietto">
+        <img class="ticket t4" src="/frontend/assets/ticket.png" alt="Biglietto">
+        <img class="ticket t5" src="/frontend/assets/ticket.png" alt="Biglietto">
+        <img class="ticket t6" src="/frontend/assets/ticket.png" alt="Biglietto">
+      </div>
+    </section>
+
+    <div class="cta-wrap">
+      <a class="cta-button" href="#" role="button" aria-label="Esprimi desiderio">Esprimi desiderio</a>
+      <p id="tickets-msg" class="tickets-info" aria-live="polite">Caricamento biglietti…</p>
+    </div>
+  </main>
+
+  <footer class="db-footer">
+    <p>Dragon Wish</p>
+  </footer>
+
+  <script type="module">
+    import { mountAuthSky } from "/frontend/js/auth/sky_bg.js";
+    const cleanup = mountAuthSky(document.body);
+  </script>
+
+  <script type="module" src="/frontend/js/shop.js"></script>
+  <script type="module" src="/frontend/js/shop-anim.js"></script>
+
+</body>
+</html>

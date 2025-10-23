@@ -21,7 +21,12 @@ export const TIERS = [
     { id: "ticket-5",      type: "ticket", payload: { amount: 5 },           points: 2000 },
     { id: "tier-diamante", type: "tier",   payload: { borderKey: "diamante" }, points: 2300 },
     { id: "ticket-6",      type: "ticket", payload: { amount: 6 },           points: 3000 },
-    { id: "tier-universo", type: "tier",   payload: { borderKey: "universo" }, points: 3500 }
+    { id: "tier-universo", type: "tier",   payload: { borderKey: "universo" }, points: 3500 },
+    { id: "ticket-7",      type: "ticket", payload: { amount: 10 },           points: 4000 },
+    { id: "ticket-8",      type: "ticket", payload: { amount: 15 },           points: 4500 },
+    { id: "ticket-8",      type: "ticket", payload: { amount: 20 },           points: 4800 },
+
+
   ];
 
   export function unlockedBorders(points) {
