@@ -9,6 +9,23 @@ let drawing = false;
 
 function setMsg(text) { if (msg) msg.textContent = text; }
 
+function lockButton(ms = 2000) {
+  if (!btn) return;
+  if (btn.dataset.locked === "1") return;        
+  btn.dataset.locked = "1";
+  btn.setAttribute("aria-disabled", "true");
+  btn.style.pointerEvents = "none";
+  btn.style.opacity = "0.6";
+  btn.style.cursor = "not-allowed";
+  setTimeout(() => {
+    btn.removeAttribute("aria-disabled");
+    btn.style.pointerEvents = "";
+    btn.style.opacity = "";
+    btn.style.cursor = "";
+    delete btn.dataset.locked;
+  }, ms);
+}
+
 async function getTickets() {
   if (!token) { setMsg("Effettua l'accesso per usare i biglietti."); return 0; }
   try {
@@ -88,6 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (btn) {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
+      lockButton(2000);   
       drawCard();
     });
   }

@@ -1,0 +1,148 @@
+:root{
+  --violet-950:#0e051f;
+  --violet-900:#180b2e;
+  --violet-800:#241043;
+  --violet-700:#392060;
+  --violet-600:#53308f;
+  --violet-500:#7348cf;
+  --violet-400:#9d7cf2;
+  --white:#fff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+
+body.album-theme{
+  color:var(--white);
+  font-family:"Oxanium", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(60% 60% at 50% 35%, rgba(157,124,242,.18), transparent 60%),
+    radial-gradient(55% 55% at 50% 65%, rgba(115,72,207,.14), transparent 70%),
+    linear-gradient(180deg, var(--violet-900), var(--violet-950));
+}
+
+.album-header{
+  text-align:center;
+  padding:36px 16px 8px;
+}
+.album-header h1{
+  margin:0;
+  font-family:"Orbitron", sans-serif;
+  font-weight:700;
+  letter-spacing:.4px;
+  font-size:clamp(1.2rem, 2.2vw + 1rem, 2rem);
+  color:#fff;
+  text-shadow:0 2px 0 rgba(0,0,0,.35), 0 0 22px rgba(157,124,242,.55);
+}
+
+.album-main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:22px 20px 60px;
+}
+
+.album-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap:22px;
+  margin-top:16px;
+}
+
+.album-item{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  padding:12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 0 24px rgba(115,72,207,.12);
+  text-align:center;
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.album-item:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(0,0,0,.45), 0 0 36px rgba(157,124,242,.35);
+  filter: saturate(1.06);
+}
+
+.album-item img{
+  width:100%;
+  aspect-ratio: 63 / 88;
+  object-fit: contain;
+  border-radius:12px;
+  display:block;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+  cursor: zoom-in;
+}
+
+.album-item figcaption{
+  margin-top:10px;
+  font-size:.95rem;
+  opacity:.9;
+}
+
+/* Footer */
+.album-footer{
+  text-align:center;
+  padding: 24px 10px 40px;
+  color: rgba(255,255,255,.8);
+  font-size:.95rem;
+}
+
+.album-status{
+  text-align:center;
+  margin: 6px 0 18px;
+  opacity:.9;
+  font-size: .98rem;
+}
+
+.lightbox-overlay{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(14,5,31,.88), rgba(24,11,46,.88));
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+}
+.lightbox-overlay.open{ display:flex; animation: lbFade .18s ease; }
+
+.lightbox-content{
+  position: relative;
+  max-width: 92vw;
+  max-height: 92vh;
+  border-radius: 16px;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 18px 46px rgba(0,0,0,.55),
+    0 0 40px rgba(157,124,242,.35),
+    inset 0 0 26px rgba(115,72,207,.15);
+  animation: lbPop .18s ease;
+}
+
+.lightbox-img{
+  display:block;
+  max-width: 88vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 16px 30px rgba(0,0,0,.45);
+  cursor: zoom-out;
+}
+
+.lightbox-caption{
+  margin-top: 8px;
+  text-align: center;
+  font-size: .95rem;
+  opacity: .9;
+}
+
+@keyframes lbFade{
+  from{ opacity: 0; } to{ opacity: 1; }
+}
+@keyframes lbPop{
+  from{ transform: scale(.96); opacity: .85; }
+  to{ transform: scale(1); opacity: 1; }
+}

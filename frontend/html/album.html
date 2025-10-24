@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Album – StarTribe</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../style/album.css" />
+</head>
+<body class="album-theme">
+  <header class="album-header">
+    <h1>Prima collezione StarTribe</h1>
+  </header>
+
+  <main class="album-main">
+    <p id="albumStatus" class="album-status">Caricamento…</p>
+    <div class="album-grid" id="albumGrid"></div>
+  </main>
+
+  <footer class="album-footer">
+    <p>StarTribe</p>
+  </footer>
+
+  <div id="lightbox" class="lightbox-overlay" aria-hidden="true">
+    <div class="lightbox-content" role="dialog" aria-modal="true" aria-label="Immagine ingrandita">
+      <img id="lightboxImg" class="lightbox-img" alt="">
+      <div id="lightboxCap" class="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/areaprotetta.js"></script>
+  <script type="module" src="../js/album.js"></script>
+</body>
+</html>

@@ -430,24 +430,25 @@ const utentiConnessi = new Map();
         return res.status(404).json({ success: false, message: "Utente non trovato" });
       }
 
-      res.json({
-        success: true,
-        utente: {
-          _id: utente._id.toString(),                          
-          username: utente.username,
-          email: utente.email,
-          birthdate: utente.birthdate,
-          punti: utente.punti,
-          immagineProfilo: utente.immagineProfilo,
-          bannerProfilo: utente.bannerProfilo || "",
-          selectedBorder: utente.selectedBorder || "none",
-          pfpfinal: utente.pfpfinal || "",
-          seguiti: (utente.seguiti || []).map(id => id.toString()), 
-          tickets: utente.tickets || 0,
-          cards: utente.cards || [],
+     res.json({
+  success: true,
+  utente: {
+    _id: utente._id.toString(),
+    username: utente.username,
+    email: utente.email,
+    birthdate: utente.birthdate,
+    punti: utente.punti,
+    immagineProfilo: utente.immagineProfilo,
+    bannerProfilo: utente.bannerProfilo || "",
+    selectedBorder: utente.selectedBorder || "none",
+    pfpfinal: utente.pfpfinal || "",
+    seguiti: (utente.seguiti || []).map(id => id.toString()),
+    follower: (utente.follower || []).map(id => id.toString()),   // ⬅️ aggiunto
+    tickets: utente.tickets || 0,
+    cards: utente.cards || [],
+  }
+});
 
-        }
-      });
     } catch (err) {
       console.error("Errore profilo:", err);
       return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
@@ -744,6 +745,7 @@ app.get("/api/post", async (req, res) => {
   }
 });
 
+
 app.post("/api/cards/draw", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
@@ -754,7 +756,10 @@ app.post("/api/cards/draw", async (req, res) => {
     const db = await connectToDB();
     const utenti = db.collection("utenti");
 
-    const user = await utenti.findOne({ _id: new ObjectId(decoded.userId) });
+    const user = await utenti.findOne(
+      { _id: new ObjectId(decoded.userId) },
+      { projection: { tickets: 1 } }
+    );
     if (!user) return res.status(404).json({ success: false, message: "Utente non trovato" });
 
     const currentTickets = user.tickets || 0;
@@ -766,12 +771,11 @@ app.post("/api/cards/draw", async (req, res) => {
     if (!cardUrl) {
       return res.status(500).json({ success: false, message: "Nessuna carta disponibile sul server" });
     }
-
     const update = await utenti.updateOne(
       { _id: new ObjectId(decoded.userId) },
       {
         $inc: { tickets: -1 },
-        $push: { cards: cardUrl }
+        $addToSet: { cards: cardUrl }
       }
     );
 
