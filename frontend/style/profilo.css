@@ -347,3 +347,83 @@ h2.titolo-profilo {
 }
 
 
+.album-fab{
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 900; 
+  display: inline-block;
+}
+.album-fab img{
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 0 8px var(--color-lilla-chiaro));
+  transition: transform .2s ease, filter .2s ease;
+  cursor: pointer;
+}
+.album-fab:hover img{
+  transform: scale(1.06);
+}
+@media (max-width: 768px){
+  .album-fab img{ width: 56px; }
+}
+
+.ig-stats{
+  display: flex;
+  margin: 8px 0 18px;
+}
+.ig-stats .stat{
+  text-align: center;
+  min-width: 90px;
+  border-radius: 12px;
+}
+.ig-stats .num{
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-lilla-chiaro);
+}
+.ig-stats .lbl{
+  font-size: .85rem;
+  opacity: .9;
+}
+@media (max-width: 768px){
+  .ig-stats{ justify-content: center; }
+}
+.userlist{
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.userlist .row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  cursor: pointer;
+  transition: background .2s ease, transform .12s ease;
+}
+.userlist .row:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
+.userlist img.avatar{
+  width: 44px; height: 44px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--color-lilla);
+}
+.userlist .name{ font-weight: 700; }
+.userlist .points{ font-size: .85rem; opacity: .85; }
+.ig-stats .stat{ cursor: pointer; user-select: none; }
+
+.modal-content.users{ max-width: 520px; width: 92%; }
+.userlist.scroll{ max-height: 60vh; overflow-y: auto; }
+.userlist-item{
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px; border-radius:12px;
+  background: rgba(255,255,255,.06);
+  cursor:pointer; transition: background .2s, transform .12s;
+}
+.userlist-item:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
+.userlist-item img.avatar{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--color-lilla); }
+.userlist-item .name{ font-weight:700; }
+.userlist-item .points{ font-size:.85rem; opacity:.85; }
