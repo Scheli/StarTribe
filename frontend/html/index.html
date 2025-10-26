@@ -50,7 +50,7 @@
     <section class="section">
       <div class="section__head">
         <h3 class="section__title">Esplora i pianeti</h3>
-        <p class="section__subtitle">Scegli un mondo e tuffati nei dettagli.  AGGIUNGERE DESCRIZIONE PIANETA NELLA HERO QUANDO USER CLICCA O AGUNGERE POP UP</p>
+        <p class="section__subtitle">Scegli un mondo e tuffati nei dettagli.</p>
       </div>
 
       <div class="grid cards">
@@ -84,7 +84,7 @@
     <section class="section">
       <div class="section__head">
         <h3 class="section__title">Ultime novità</h3>
-        <p class="section__subtitle">CAMBIARE CREARE COLLEGAMENTI CON IL TOKEN (Login/REGISTRATI) PRIMA DI ACEDERE AL CHAT ECC</p>
+        <p class="section__subtitle">CAMBIARE CREARE COLLEGAMENTI CON IL TOKEN (Login/REGISTRATI) PRIMA DI ACCEDERE AL CHAT ECC</p>
       </div>
 
       <div class="grid news">
@@ -127,26 +127,67 @@
     document.getElementById("year").textContent = new Date().getFullYear();
 
     const toggleBtn = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('theme') || 'dark'; // default tema scuro
+  const currentTheme = localStorage.getItem('theme') || 'dark';
 
-    // Imposta il tema all'avvio
-    document.body.setAttribute('data-theme', currentTheme);
-    toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+  document.body.setAttribute('data-theme', currentTheme);
+  toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 
-    toggleBtn.addEventListener('click', () => {
-      let theme = document.body.getAttribute('data-theme');
-      if (theme === 'dark') {
-        document.body.setAttribute('data-theme', 'light');
-        toggleBtn.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
-      } else {
-        document.body.setAttribute('data-theme', 'dark');
-        toggleBtn.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
-      }
-    });
+  toggleBtn.addEventListener('click', () => {
+    const theme = document.body.getAttribute('data-theme');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    toggleBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+  });
 
   </script>
+<script>
+  const planets = {
+    mercury:   { title:"Mercurio — Il messaggero del Sole", desc:"Il pianeta più vicino al Sole. Roccioso, arido e pieno di crateri, ma affascinante per la sua velocità orbitale.", btn:["#3c2a4a","#d8b6ff","rgba(80,50,120,.45)"] },
+    venus:     { title:"Venere — La gemella velata", desc:"Nascosta da spesse nubi acide, Venere riflette una luce dorata che la rende la più brillante nel nostro cielo.", btn:["#ffb86b","#ffd89a","rgba(255,184,107,.45)"] },
+    earth_Moon:{ title:"Terra — La nostra casa blu", desc:"Un mondo vivo e unico, con oceani, foreste e una Luna che danza intorno a noi.", btn:["#34c3ff","#7ae2ff","rgba(74,183,255,.45)"] },
+    mars:      { title:"Marte — Il pianeta rosso", desc:"Deserti infiniti e antichi canyon. Un tempo, forse, ospitava acqua e vita.", btn:["#ff6a4d","#ff9a6b","rgba(255,106,77,.45)"] },
+    jupiter:   { title:"Giove — Il gigante gassoso", desc:"Tempeste immense e la Grande Macchia Rossa. Il guardiano del Sistema Solare.", btn:["#7c6bff","#b6a8ff","rgba(124,107,255,.45)"] },
+    saturn:    { title:"Saturno — Il signore degli anelli", desc:"I suoi maestosi anelli lo rendono il gioiello del cielo notturno.", btn:["#f2c078","#ffe3a3","rgba(242,192,120,.45)"] },
+    uranus:    { title:"Urano — Il ribelle inclinato", desc:"Ruota quasi su un fianco, con toni verde-azzurri che lo rendono inconfondibile.", btn:["#4fd1c5","#81e6d9","rgba(79,209,197,.45)"] },
+    neptune:   { title:"Nettuno — Il vento del blu profondo", desc:"Il più lontano, avvolto da tempeste e tonalità di blu ghiacciato.", btn:["#4da3ff","#7fc6ff","rgba(77,163,255,.45)"] }
+  };
+
+  const cards = document.querySelectorAll('.card[data-planet]');
+  const heroTitle = document.querySelector('.hero__title');
+  const heroSubtitle = document.querySelector('.hero__subtitle');
+  const heroBtn = document.querySelector('.hero__cta .btn--primary');
+
+  heroTitle.style.transition ||= 'opacity .25s ease, background .35s ease';
+  heroSubtitle.style.transition ||= 'opacity .25s ease';
+
+  cards.forEach(card => {
+    card.addEventListener('click', e => {
+      e.preventDefault();
+      const p = planets[card.dataset.planet];
+      if (!p) return;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      heroTitle.style.opacity = heroSubtitle.style.opacity = '0';
+      setTimeout(() => {
+        heroTitle.textContent = p.title;
+        heroSubtitle.textContent = p.desc;
+        heroTitle.style.opacity = heroSubtitle.style.opacity = '1';
+      }, 180);
+
+      heroTitle.style.background = `linear-gradient(90deg, ${p.btn[0]}, ${p.btn[1]})`;
+      heroTitle.style.webkitBackgroundClip = 'text';
+      heroTitle.style.backgroundClip = 'text';
+      heroTitle.style.color = 'transparent';
+
+      heroBtn.style.background = `linear-gradient(90deg, ${p.btn[0]}, ${p.btn[1]})`;
+      heroBtn.style.boxShadow = `0 0 22px ${p.btn[2]}`;
+    });
+  });
+  </script>
+
   <script type="module" src="/frontend/js/app.js"></script>
+  <div id="bg-fade-overlay" aria-hidden="true"></div>
 </body>
 </html>

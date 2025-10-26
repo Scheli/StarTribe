@@ -49,7 +49,6 @@ export function cropHalfTexelX(tex){
   if (tex.image) go(tex); else tex.onUpdate = (t)=>{ go(t); t.onUpdate = null; };
 }
 
-// rifinitura materiali planetari 
 export function prepPlanetMaterials(root, {
   roughness = 0.96, metalness = 0.0, normalScale = 0.6, anisotropy = 8
 } = {}){
@@ -73,7 +72,6 @@ export function prepPlanetMaterials(root, {
   });
 }
 
-// ammorbidisce poli (normal/rough) via onBeforeCompile
 export function polarFixPlanetMaterial(
   mat,
   { poleWidth=0.12, normalStrength=1.0, roughStrength=1.0, roughTarget=1.0 } = {}
@@ -116,7 +114,6 @@ export function polarFixPlanetMaterial(
   mat.needsUpdate = true;
 }
 
-// trova mesh “nubi/atmosfera” vicino alla superficie
 export function findCloudShellAroundPlanet(planet){
   if (!planet) return null;
   planet.updateMatrixWorld(true);
@@ -158,23 +155,12 @@ export function findCloudShellBySize(root, planetMeshLike){
   });
   return best;
 }
-// scala un globo in base al rapporto col raggio terrestre
 export function scaleToEarth(object3D, earthRadiusRatio=1){
   if (!object3D) return;
   object3D.scale.multiplyScalar(earthRadiusRatio);
 }
 
 /* ------------------------------ orbit rig camera --------------------------- */
-/*
-  Camera che orbita attorno a un target guardandolo sempre.
-  Uso:
-    const orbit = createOrbitRig(engine);
-    orbit.setTarget(planet);
-    orbit.setRadius(unitRadius(planet) * 8);
-    orbit.setSpeed(0.12);
-    orbit.setElevation(0.2);
-    orbit.start();
-*/
 export function createOrbitRig(engine){
   const { camera, controls, onTick } = engine;
 
@@ -267,12 +253,20 @@ export function radiusForFrameFill(camera, object, {
   return THREE.MathUtils.clamp(d, minDist, maxDist);
 }
 
-// smooth focus automatico 
+export const FocusBus = {
+  _subs: new Set(),
+  on(fn){ this._subs.add(fn); return () => this._subs.delete(fn); },
+  emit(evt){ for (const fn of this._subs) { try { fn(evt); } catch {} } }
+};
+
+
 export function smoothFocusAuto(engine, object, {
-  fill = 0.6, padding = 1.05, dur = 1.0,
+  fill = 0.6,
+  padding = 1.05,
+  dur = 1.0,
   ease = (t)=> t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2,
   minDist = 0.01, maxDist = 1e6,
-} = {}){
+} = {}) {
   const { camera, controls, onTick } = engine;
   if (!object) return ()=>{};
 
@@ -289,15 +283,36 @@ export function smoothFocusAuto(engine, object, {
   const fromTgt = controls.target.clone();
   const toTgt   = center.clone();
 
-  let t=0;
-  const unbind = onTick((dt)=>{
-    t += dt/1000;
-    const a = Math.min(1, t/dur);
+  const startedAt = performance.now();
+  let startedEventSent = false;
+  function emitStartOnce(){
+    if (startedEventSent) return;
+    startedEventSent = true;
+    FocusBus.emit({ type: "focusStart", dur, object, startedAt });
+  }
+
+  let t = 0;
+  const unbind = onTick((dt) => {
+    t += dt / 1000;
+    const a = Math.min(1, t / dur);
     const k = ease(a);
     camera.position.lerpVectors(fromPos, toPos, k);
     controls.target.lerpVectors(fromTgt, toTgt, k);
-    if (a >= 1) unbind();
+
+    if (!startedEventSent) emitStartOnce();
+
+    if (a >= 1) {
+      unbind();
+      FocusBus.emit({
+        type: "focusEnd",
+        dur,
+        object,
+        startedAt,
+        endedAt: performance.now()
+      });
+    }
   });
+
   return unbind;
 }
 
