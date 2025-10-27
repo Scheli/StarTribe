@@ -443,7 +443,7 @@ const utentiConnessi = new Map();
     selectedBorder: utente.selectedBorder || "none",
     pfpfinal: utente.pfpfinal || "",
     seguiti: (utente.seguiti || []).map(id => id.toString()),
-    follower: (utente.follower || []).map(id => id.toString()),   // ⬅️ aggiunto
+    follower: (utente.follower || []).map(id => id.toString()),   
     tickets: utente.tickets || 0,
     cards: utente.cards || [],
   }
@@ -629,14 +629,25 @@ const utentiConnessi = new Map();
 });
 
 
-  // ---------------- altro profilo ----------------
-
- app.get("/api/utente/:id", async (req, res) => {
+app.get("/api/utente/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
     const db = await connectToDB();
-    const utente = await db.collection("utenti").findOne({ _id: new ObjectId(id) });
+    const utente = await db.collection("utenti").findOne(
+      { _id: new ObjectId(id) },
+      {
+        projection: {
+          username: 1,
+          punti: 1,
+          immagineProfilo: 1,
+          bannerProfilo: 1,
+          selectedBorder: 1,
+          seguiti: 1,
+          follower: 1
+        }
+      }
+    );
 
     if (!utente) {
       return res.status(404).json({ success: false, message: "Utente non trovato" });
@@ -645,11 +656,14 @@ const utentiConnessi = new Map();
     res.json({
       success: true,
       utente: {
+        _id: utente._id.toString(),
         username: utente.username,
-        punti: utente.punti,
-        immagineProfilo: utente.immagineProfilo,
+        punti: utente.punti || 0,
+        immagineProfilo: utente.immagineProfilo || "",
         bannerProfilo: utente.bannerProfilo || null,
-        selectedBorder: utente.selectedBorder || "none", 
+        selectedBorder: utente.selectedBorder || "none",
+        seguiti: (utente.seguiti || []).map(v => v.toString()),
+        follower: (utente.follower || []).map(v => v.toString()),
       },
     });
   } catch (err) {
@@ -657,6 +671,7 @@ const utentiConnessi = new Map();
     res.status(500).json({ success: false, message: "Errore del server" });
   }
 });
+
 
 
 app.use(express.json());

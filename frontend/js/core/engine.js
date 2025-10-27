@@ -9,14 +9,12 @@ export function createEngine({
   toneMapping = THREE.ACESFilmicToneMapping,
   exposure = 0.9,
   attachTo = document.body,
-  zIndex = -1,
+  zIndex = 0,                 
   clearColor = null,
   fov = 45,
   near = 0.1,
   far = 20000,
-  // Abilita input mouse/touch sul canvas
-  interactive = true,
-  // Opzioni base per OrbitControls (puoi cambiarle dopo via engine.controls)
+  interactive = false,        
   controlsOptions = {
     enableDamping: true,
     enablePan: false,
@@ -45,29 +43,34 @@ export function createEngine({
     alpha,
     antialias,
     powerPreference: "high-performance",
-    logarithmicDepthBuffer: true, 
+    logarithmicDepthBuffer: true
   });
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  renderer.setPixelRatio(dpr);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearAlpha(0); 
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.physicallyCorrectLights = true;
   renderer.toneMapping = toneMapping ?? THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = exposure ?? 0.9;
-  // Se non usi ombre, lasciale off per risparmiare
-  renderer.shadowMap.enabled = false; // true se ti servono
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = false;
 
   if (clearColor != null) renderer.setClearColor(clearColor, alpha ? 0 : 1);
 
-  // stile canvas fullscreen
-  renderer.domElement.style.cssText = `
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    display:block; pointer-events:${interactive ? "auto" : "none"}; z-index:${zIndex};
+  const el = renderer.domElement;
+  el.setAttribute("data-startribe", "engine");
+  el.style.cssText = `
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: ${interactive ? "auto" : "none"};
+    z-index: ${zIndex};
     touch-action: none;
+    opacity: 0;                           
+    transition: opacity 0.9s ease-in-out; 
   `;
-  attachTo.prepend(renderer.domElement);
+  if (getComputedStyle(attachTo).position === "static") attachTo.style.position = "relative";
+  attachTo.prepend(el);
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
@@ -77,35 +80,58 @@ export function createEngine({
   controls.update();
 
   const tickers = new Set();
-  let raf = null;
-  let last = performance.now();
+  let raf = null, last = performance.now();
 
-  function onTick(cb) { tickers.add(cb); return () => tickers.delete(cb); }
-
-  function frame() {
+  function onTick(cb){ tickers.add(cb); return () => tickers.delete(cb); }
+  function frame(){
     raf = requestAnimationFrame(frame);
-    const now = performance.now();
-    const dt  = Math.min(50, now - last);
+    const now = performance.now(), dt = Math.min(50, now - last);
     last = now;
-
     for (const cb of tickers) cb(dt, now);
     controls.update();
     composer.render();
   }
   function start(){ if (!raf) frame(); }
   function stop(){ if (raf){ cancelAnimationFrame(raf); raf = null; } }
+  function setInteractive(flag){ renderer.domElement.style.pointerEvents = flag ? "auto" : "none"; }
 
-  // attiva/disattiva interazione del canvas
-  function setInteractive(flag){
-    renderer.domElement.style.pointerEvents = flag ? "auto" : "none";
+  function resize(){
+    const w = attachTo.clientWidth  || window.innerWidth;
+    const h = attachTo.clientHeight || window.innerHeight;
+    camera.aspect = w / Math.max(1, h);
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    composer.setSize(w, h);
+  }
+  resize();
+  const onWinResize = () => resize();
+  window.addEventListener("resize", onWinResize, { passive: true });
+
+  function disposeMaterial(m){
+    if (!m) return;
+    ["map","normalMap","roughnessMap","metalnessMap","emissiveMap","aoMap","envMap","alphaMap","displacementMap"]
+      .forEach(k => m[k]?.dispose?.());
+    m.dispose?.();
+  }
+  function deepDispose(root){
+    root.traverse(o => {
+      o.geometry?.dispose?.();
+      if (Array.isArray(o.material)) o.material.forEach(disposeMaterial);
+      else disposeMaterial(o.material);
+    });
   }
 
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-  }, { passive: true });
+  function dispose(){
+    stop();
+    window.removeEventListener("resize", onWinResize);
+    controls.dispose?.();
+    deepDispose(scene);
+    composer?.passes?.splice(0, composer.passes.length);
+    composer?.dispose?.();
+    renderer.renderLists?.dispose?.();
+    renderer.dispose?.();
+    el.remove?.();
+  }
 
-  return { scene, camera, renderer, composer, controls, onTick, start, stop, setInteractive };
+  return { scene, camera, renderer, composer, controls, onTick, start, stop, setInteractive, dispose };
 }

@@ -15,7 +15,7 @@
   <section class="sezione-utente">
     <div id="mediaProfilo" class="media-profilo"></div>
 
-    <!-- ✅ Cornice/trofeo selezionato, mostrato vicino all'immagine utente -->
+    <!-- Cornice/trofeo selezionato -->
     <div id="selectedBorderBox" style="display:none; text-align:center; margin-top:12px;">
       <img id="selectedBorderImg" alt="Cornice selezionata" style="max-width:160px; height:auto; border-radius:12px;" />
       <div style="font-size:.9rem; opacity:.8; margin-top:6px;">Cornice selezionata</div>
@@ -23,6 +23,19 @@
 
     <div class="info-base">
       <h3>Informazioni Utente</h3>
+
+      <!-- Contatori stile Instagram -->
+      <div class="ig-stats" aria-label="Statistiche profilo">
+        <div class="stat" id="openFollower" role="button" tabindex="0" aria-label="Apri follower">
+          <div id="countFollower" class="num">0</div>
+          <div class="lbl">Follower</div>
+        </div>
+        <div class="stat" id="openSeguiti" role="button" tabindex="0" aria-label="Apri seguiti">
+          <div id="countSeguiti" class="num">0</div>
+          <div class="lbl">Seguiti</div>
+        </div>
+      </div>
+
       <p><strong>Username:</strong> <span id="usernameDisplay"></span></p>
       <p><strong>Email:</strong> <span id="emailDisplay"></span></p>
       <p><strong>Data di nascita:</strong> <span id="birthdateDisplay"></span></p>
@@ -76,8 +89,6 @@
     <button id="logoutBtn">Logout</button>
   </div>
 
-  <!-- 🔹 MODALI OVERLAY 🔹 -->
-
   <!-- Modifica informazioni -->
   <div id="modalInfo" class="modal-overlay">
     <div class="modal-content">
@@ -117,8 +128,22 @@
     </div>
   </div>
 
+  <!-- BOX CENTRALE: lista follower/seguiti -->
+  <div id="modalUsers" class="modal-overlay">
+    <div class="modal-content users">
+      <h3 id="modalUsersTitle">Utenti</h3>
+      <div id="userListContainer" class="userlist scroll"></div>
+      <button type="button" class="btnChiudi" data-close="modalUsers">Chiudi</button>
+    </div>
+  </div>
+
   <script src="../js/profilo.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
+
+  <!-- Pulsante Album (in basso a destra) -->
+  <a class="album-fab" href="album.html" aria-label="Apri album">
+    <img src="../assets/album.png" alt="Album">
+  </a>
 
   <script>
     // Logout
@@ -138,18 +163,14 @@
       document.getElementById("modalMedia").style.display = "flex";
     });
 
-    // Chiusura modali
+    // Chiusura modali generica
     document.querySelectorAll(".btnChiudi").forEach(btn => {
       btn.addEventListener("click", e => {
         const target = e.target.getAttribute("data-close");
         document.getElementById(target).style.display = "none";
       });
     });
-
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('token'); 
-      window.location.href = 'login.html'; 
-    });
   </script>
+  <script type="module" src="../js/areaprotetta.js"></script>
 </body>
 </html>
