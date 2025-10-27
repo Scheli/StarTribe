@@ -98,11 +98,9 @@ body {
 
 
 .news-icon-btn {
-  width: 48px;
-  height: 48px;
   background-color: #1f1f3d;
   border: 2px solid #ffffff20;
-  border-radius: 50%;
+  border-radius: 8px;
   font-size: 22px;
   color: white;
   cursor: pointer;
@@ -116,6 +114,12 @@ body {
   background-color: #2a2a50;
   box-shadow: 0 0 10px #ffffff30;
   transform: scale(1.05);
+}
+
+.testoLink {
+  padding: 5px;
+  text-decoration: none;
+  color: white;
 }
 
 .news {
