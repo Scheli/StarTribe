@@ -615,20 +615,19 @@ const utentiConnessi = new Map();
     }
   });
 
-  app.get("/news/all", async (req, res) => {
-    try {
-      const [apod, weather, imageLibrary] = await Promise.all([
-        getAPOD(),
-        getInSightWeather(),
-        searchImageLibrary(),
-      ]);
+ app.get("/news/all", async (req, res) => {
+  try {
+    const apod = await getAPOD();
+    const weather = await getInSightWeather();
+    const imageLibrary = await searchImageLibrary();
 
-      res.json({ apod, weather, imageLibrary });
-    } catch (error) {
-      console.error("Errore nella GET /news/all:", error);
-      res.status(500).json({ error: error.message, stack: error.stack });
-    }
-  });
+    res.json({ apod, weather, imageLibrary });
+  } catch (error) {
+    console.error("Errore nella GET /news/all:", error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
 
   // ---------------- altro profilo ----------------
 
