@@ -24,7 +24,7 @@ export const TIERS = [
     { id: "tier-universo", type: "tier",   payload: { borderKey: "universo" }, points: 3500 },
     { id: "ticket-7",      type: "ticket", payload: { amount: 10 },           points: 4000 },
     { id: "ticket-8",      type: "ticket", payload: { amount: 15 },           points: 4500 },
-    { id: "ticket-8",      type: "ticket", payload: { amount: 20 },           points: 4800 },
+    { id: "ticket-9",      type: "ticket", payload: { amount: 20 },           points: 4800 },
 
 
   ];
