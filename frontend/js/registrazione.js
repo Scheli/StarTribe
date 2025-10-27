@@ -1,5 +1,20 @@
 const form = document.getElementById("registerForm");
 const message = document.getElementById("message");
+// checkbox + submit control
+const termsCheckbox = document.getElementById('terms');
+const submitBtn = document.getElementById('send-form');
+
+// disable submit until checkbox is checked (defensive UX)
+if (submitBtn) submitBtn.disabled = true;
+if (termsCheckbox) {
+  termsCheckbox.addEventListener('change', () => {
+    if (submitBtn) submitBtn.disabled = !termsCheckbox.checked;
+    // clear any previous message
+    if (termsCheckbox.checked && message) {
+      message.textContent = '';
+    }
+  });
+}
 
 // ✅ Popup modale dinamico (riutilizzabile)
 function showPopup({ title, text, duration = 1500 }) {
@@ -43,6 +58,17 @@ form.addEventListener("submit", async (e) => {
   if (!username || !email || !password || !birthdate) {
     message.textContent = "Compila tutti i campi.";
     message.style.color = "red";
+    return;
+  }
+
+  // ensure checkbox accepted (double check on submit)
+  if (termsCheckbox && !termsCheckbox.checked) {
+    message.textContent = 'Devi accettare i termini per registrarti.';
+    message.style.color = 'red';
+    // visual hint
+    if (termsCheckbox) {
+      termsCheckbox.focus();
+    }
     return;
   }
 
