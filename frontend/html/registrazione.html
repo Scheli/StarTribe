@@ -6,6 +6,7 @@
   <title>Registrazione Utente</title>
   <link rel="stylesheet" href="/frontend/style/registrazione.css" />
   <link rel="stylesheet" href="../style/popup.css" />
+  <link rel="stylesheet" href="../style/animations.css" />
 
     <script type="importmap">
   {
@@ -16,7 +17,8 @@
   }
   </script>
 </head>
-<body>
+<body data-no-engine>
+  <button id="theme-toggle"></button>
   <div class="container">
     <div class="box-form">
       <h1>Registrazione</h1>
@@ -60,7 +62,8 @@
     const cleanup = mountAuthSky(document.body);
   </script>
 
-  <script src="/frontend/js/registrazione.js"></script>
+  <script src="../js/utils/sanitize.js"></script>
+  <script src="../js/registrazione.js"></script>
 </body>
 </html>
 

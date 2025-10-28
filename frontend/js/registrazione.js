@@ -1,35 +1,31 @@
 const form = document.getElementById("registerForm");
-const message = document.getElementById("message");
 // checkbox + submit control
 const termsCheckbox = document.getElementById('terms');
 const submitBtn = document.getElementById('send-form');
 
-// disable submit until checkbox is checked (defensive UX)
-if (submitBtn) submitBtn.disabled = true;
-if (termsCheckbox) {
-  termsCheckbox.addEventListener('change', () => {
-    if (submitBtn) submitBtn.disabled = !termsCheckbox.checked;
-    // clear any previous message
-    if (termsCheckbox.checked && message) {
-      message.textContent = '';
-    }
-  });
-}
+// Il pulsante rimane sempre abilitato, la validazione avviene solo nel submit handler
 
 // ✅ Popup modale dinamico (riutilizzabile)
 function showPopup({ title, text, duration = 1500 }) {
-  const overlay = document.createElement("div");
+  const overlay = safeDom.createSafeElement('div', { className: 'welcome-overlay' });
+  
+  const popupDiv = safeDom.createSafeElement('div', { className: 'welcome-popup' });
 
-  overlay.className = "welcome-overlay";
+  const logo = safeDom.createSafeElement('img', {
+    className: 'welcome-logo',
+    src: '/frontend/assets/logo.png'
+  });
+  logo.alt = 'Logo';
 
-  overlay.innerHTML = `
-    <div class="welcome-popup">
-      <img src="/frontend/assets/logo.png" alt="Logo" class="welcome-logo">
-      <h2>${title}</h2>
-      <p>${text}</p>
-      <div class="loading-bar"><div class="loading-fill"></div></div>
-    </div>
-  `;
+  const titleElement = safeDom.createSafeElement('h2', {}, title);
+  const textElement = safeDom.createSafeElement('p', {}, text);
+  
+  const loadingBar = safeDom.createSafeElement('div', { className: 'loading-bar' });
+  const loadingFill = safeDom.createSafeElement('div', { className: 'loading-fill' });
+  
+  loadingBar.appendChild(loadingFill);
+  popupDiv.append(logo, titleElement, textElement, loadingBar);
+  overlay.appendChild(popupDiv);
   document.body.appendChild(overlay);
 
   setTimeout(() => {
@@ -42,7 +38,7 @@ window.addEventListener("load", () => {
   showPopup({
     title: "Benvenuto in StarTribe!",
     text: "Registrati per esplorare nuove galassie...",
-    duration: 1500
+    duration: 1000
   });
 });
 
@@ -56,19 +52,37 @@ form.addEventListener("submit", async (e) => {
   const birthdate = form.birthdate.value;
 
   if (!username || !email || !password || !birthdate) {
-    message.textContent = "Compila tutti i campi.";
-    message.style.color = "red";
+    showPopup({
+      title: "Errore",
+      text: "Compila tutti i campi.",
+      duration: 1500
+    });
     return;
   }
 
   // ensure checkbox accepted (double check on submit)
   if (termsCheckbox && !termsCheckbox.checked) {
-    message.textContent = 'Devi accettare i termini per registrarti.';
-    message.style.color = 'red';
-    // visual hint
-    if (termsCheckbox) {
-      termsCheckbox.focus();
-    }
+    // Prima rimuoviamo la classe per assicurarci che l'animazione possa ripartire
+    const checkboxContainer = document.querySelector('.form-checkbox');
+    checkboxContainer.classList.remove('shake');
+    
+    // Forziamo un reflow per assicurarci che l'animazione si ripeta
+    void checkboxContainer.offsetWidth;
+    
+    // Aggiungiamo la classe per l'animazione
+    checkboxContainer.classList.add('shake');
+    
+    showPopup({
+      title: "Errore",
+      text: "Devi accettare i termini per registrarti.",
+      duration: 1000
+    });
+
+    // Rimuoviamo la classe dopo l'animazione
+    setTimeout(() => checkboxContainer.classList.remove('shake'), 500);
+    
+    // Focus sulla checkbox
+    termsCheckbox.focus();
     return;
   }
 
@@ -82,26 +96,30 @@ form.addEventListener("submit", async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-      message.textContent = "Registrazione avvenuta con successo!";
-      message.style.color = "green";
-
       if (data.token) localStorage.setItem("token", data.token);
-
       form.reset();
 
       // ✅ Popup di benvenuto post-registrazione
       showPopup({
-        title: "Benvenuto in StarTribe!",
-        text: "Registrazione completata con successo.",
-        duration: 3000
+        title: `Benvenuto ${username}!`,
+        text: "La tua avventura spaziale sta per iniziare...",
+        duration: 1500
       });
+      
+      setTimeout(() => (window.location.href = "/frontend/html/profilo.html"), 2000);
     } else {
-      message.textContent = data.message || "Errore nella registrazione.";
-      message.style.color = "red";
+      showPopup({
+        title: "Errore",
+        text: data.message || "Errore nella registrazione.",
+        duration: 1500
+      });
     }
   } catch (error) {
     console.error("Errore di rete:", error);
-    message.textContent = "Errore di connessione al server.";
-    message.style.color = "red";
+    showPopup({
+      title: "Errore",
+      text: "Errore di connessione al server.",
+      duration: 1500
+    });
   }
 });

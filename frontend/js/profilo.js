@@ -50,10 +50,37 @@ let CURRENT = {
   seguitiIds: []
 };
 
+// Funzione popup sicura (riutilizzo quella di login/registrazione)
+function showPopup({ title, text, duration = 1500 }) {
+  const overlay = window.safeDom.createSafeElement('div', { className: 'welcome-overlay' });
+  const popupDiv = window.safeDom.createSafeElement('div', { className: 'welcome-popup' });
+  const logo = window.safeDom.createSafeElement('img', {
+    className: 'welcome-logo',
+    src: '/frontend/assets/logo.png'
+  });
+  logo.alt = 'Logo';
+  const titleElement = window.safeDom.createSafeElement('h2', {}, title);
+  const textElement = window.safeDom.createSafeElement('p', {}, text);
+  const loadingBar = window.safeDom.createSafeElement('div', { className: 'loading-bar' });
+  const loadingFill = window.safeDom.createSafeElement('div', { className: 'loading-fill' });
+  loadingBar.appendChild(loadingFill);
+  popupDiv.append(logo, titleElement, textElement, loadingBar);
+  overlay.appendChild(popupDiv);
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    overlay.style.opacity = "0";
+    overlay.style.transition = "opacity 0.5s ease";
+    setTimeout(() => overlay.remove(), 600);
+  }, duration);
+}
+
 async function caricaProfilo() {
-  const token = localStorage.getItem("token");
   if (!token) {
-    document.body.innerHTML = "<p>Token mancante. Esegui il login.</p>";
+    showPopup({
+      title: "Errore",
+      text: "Token mancante. Esegui il login.",
+      duration: 1500
+    });
     return;
   }
 
@@ -64,7 +91,11 @@ async function caricaProfilo() {
     });
     const data = await res.json();
     if (!data.success) {
-      document.body.innerHTML = "<p>Accesso negato: " + (data.message || "Errore") + "</p>";
+      showPopup({
+        title: "Errore",
+        text: window.safeDom.sanitizeText(data.message || "Accesso negato"),
+        duration: 1500
+      });
       return;
     }
 
@@ -119,6 +150,13 @@ async function caricaProfilo() {
     if (selUrl) { selImg.src = selUrl; selImg.alt = "Cornice selezionata"; selBox.style.display = "block"; }
     else { selBox.style.display = "none"; }
 
+    // Banner
+    const banner1 = document.getElementById("bannerProfilo");
+    banner1.innerHTML = "";
+    if (data.utente.bannerProfilo) {
+      banner1.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+    }
+
     await setupBordersUI();
 
     // --- Fetch dei post dell’utente separatamente ---
@@ -153,13 +191,77 @@ const posts = postsData.success ? postsData.posts : [];
     }
 
   } catch (err) {
-    console.error("Errore in caricaProfilo:", err);
-    document.body.innerHTML += `<p>Errore nel caricamento del profilo</p>`;
+    console.error("caricaProfilo error:", err);
+    showPopup({
+      title: "Errore",
+      text: "Errore caricamento profilo",
+      duration: 1500
+    });
   }
 }
 
+// Upload media profilo
+document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = document.querySelector('#uploadForm input[name="file"]').files[0];
+  if (!file || !token) return;
+  const formData = new FormData(); formData.append("file", file);
 
-// ======= Setup bordi/trofei =======
+  const res = await fetch("http://localhost:8080/api/upload", {
+    method: "POST", headers: { Authorization: "Bearer " + token }, body: formData,
+  });
+
+  const data = await res.json();
+  showPopup({
+    title: data.success ? "Successo" : "Errore",
+    text: window.safeDom.sanitizeText(data.message || (data.success ? "Upload completato" : "Errore upload")),
+    duration: 1500
+  });
+  await caricaProfilo();
+});
+
+// Upload banner
+document.getElementById("bannerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = document.querySelector('#bannerForm input[name="file"]').files[0];
+  if (!file || !token) return;
+  const formData = new FormData(); formData.append("file", file);
+
+  const res = await fetch("http://localhost:8080/api/upload/banner", {
+    method: "POST", headers: { Authorization: "Bearer " + token }, body: formData
+  });
+
+  const data = await res.json();
+  showPopup({
+    title: data.success ? "Successo" : "Errore",
+    text: window.safeDom.sanitizeText(data.message || (data.success ? "Banner caricato" : "Errore upload banner")),
+    duration: 1500
+  });
+  await caricaProfilo();
+});
+
+// Modifica info base
+document.getElementById("modificaForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = document.getElementById("usernameInput").value;
+  const birthdate = document.getElementById("birthdateInput").value;
+
+  const res = await fetch("http://localhost:8080/api/profilo/update", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    body: JSON.stringify({ username, birthdate })
+  });
+
+  const data = await res.json();
+  showPopup({
+    title: data.success ? "Successo" : "Errore",
+    text: window.safeDom.sanitizeText(data.message || (data.success ? "Modifica completata" : "Errore modifica")),
+    duration: 1500
+  });
+  await caricaProfilo();
+});
+
+// Trofei UI
 async function setupBordersUI() {
   try {
     const res = await fetch("http://localhost:8080/api/trophy", {
@@ -193,7 +295,14 @@ async function handleBorderClick(key) {
     body: JSON.stringify({ borderKey: key, borderUrl: url })
   });
   const selData = await resJsonSafe(selRes);
-  if (!selData.success) { alert(selData.message || "Impossibile selezionare la cornice"); return; }
+  if (!selData.success) {
+    showPopup({
+      title: "Errore",
+      text: window.safeDom.sanitizeText(selData.message || "Impossibile selezionare la cornice"),
+      duration: 1500
+    });
+    return;
+  }
 
   CURRENT.selectedBorder = url || "none";
   document.querySelectorAll(".pfp-border").forEach(i => i.classList.remove("selected"));
@@ -204,6 +313,12 @@ async function handleBorderClick(key) {
   const selImg = document.getElementById("selectedBorderImg");
   if (url) { selImg.src = url; selBox.style.display = "block"; }
   else { selBox.style.display = "none"; }
+
+  showPopup({
+    title: "Successo",
+    text: "Cornice selezionata!",
+    duration: 1200
+  });
 }
 
 // ====== Follower/Seguiti ======

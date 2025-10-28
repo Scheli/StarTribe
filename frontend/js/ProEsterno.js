@@ -31,14 +31,46 @@ function resolveTrophy(value) {
   return TROPHY_MAP[val.toLowerCase()] || null;
 }
 
+// Funzione popup sicura (riutilizzo quella di login/registrazione)
+function showPopup({ title, text, duration = 1500 }) {
+  const overlay = window.safeDom.createSafeElement('div', { className: 'welcome-overlay' });
+  const popupDiv = window.safeDom.createSafeElement('div', { className: 'welcome-popup' });
+  const logo = window.safeDom.createSafeElement('img', {
+    className: 'welcome-logo',
+    src: '/frontend/assets/logo.png'
+  });
+  logo.alt = 'Logo';
+  const titleElement = window.safeDom.createSafeElement('h2', {}, title);
+  const textElement = window.safeDom.createSafeElement('p', {}, text);
+  const loadingBar = window.safeDom.createSafeElement('div', { className: 'loading-bar' });
+  const loadingFill = window.safeDom.createSafeElement('div', { className: 'loading-fill' });
+  loadingBar.appendChild(loadingFill);
+  popupDiv.append(logo, titleElement, textElement, loadingBar);
+  overlay.appendChild(popupDiv);
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    overlay.style.opacity = "0";
+    overlay.style.transition = "opacity 0.5s ease";
+    setTimeout(() => overlay.remove(), 600);
+  }, duration);
+}
+
 if (!utenteId) {
-  document.body.innerHTML = "<p>Utente non selezionato</p>";
+  showPopup({
+    title: "Errore",
+    text: "Utente non selezionato",
+    duration: 1500
+  });
 } else {
   fetch(`http://localhost:8080/api/utente/${utenteId}`)
     .then(res => res.json())
     .then(data => {
       if (!data.success || !data.utente) {
-        document.body.innerHTML = `<p>${data.message || "Impossibile caricare il profilo."}</p>`;
+        showPopup({
+          title: "Errore",
+          text: window.safeDom.sanitizeText(data.message || "Impossibile caricare il profilo."),
+          duration: 1500
+        });
         return;
       }
 
@@ -57,7 +89,7 @@ if (!utenteId) {
 
       if (isProvided(u.bannerProfilo)) {
         document.getElementById("banner").innerHTML =
-          `<img src="${u.bannerProfilo}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
+          `<img src="${window.safeDom.sanitizeText(u.bannerProfilo)}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
       }
 
       if (token) {
@@ -98,6 +130,11 @@ if (!utenteId) {
     })
     .catch(err => {
       console.error("Errore caricamento profilo:", err);
+      showPopup({
+        title: "Errore",
+        text: "Errore caricamento profilo",
+        duration: 1500
+      });
     });
 }
 
@@ -116,11 +153,19 @@ async function seguiUtente(idSeguito, bottone) {
     if (data.success) {
       bottone.textContent = "Seguito";
     } else {
-      alert(data.message || "Impossibile seguire l'utente.");
+      showPopup({
+        title: "Errore",
+        text: window.safeDom.sanitizeText(data.message || "Impossibile seguire l'utente."),
+        duration: 1500
+      });
     }
   } catch (err) {
     console.error("Errore durante il follow:", err);
-    alert("Errore durante la richiesta follow");
+    showPopup({
+      title: "Errore",
+      text: "Errore durante la richiesta follow",
+      duration: 1500
+    });
   }
 }
 
@@ -139,10 +184,19 @@ async function unfollowUtente(id, bottone) {
     if (data.success) {
       bottone.textContent = "Segui";
     } else {
-      alert(data.message || "Impossibile smettere di seguire l'utente.");
+      showPopup({
+        title: "Errore",
+        text: window.safeDom.sanitizeText(data.message || "Impossibile smettere di seguire l'utente."),
+        duration: 1500
+      });
     }
   } catch (err) {
     console.error("Errore durante unfollow:", err);
-    alert("Errore durante la richiesta unfollow");
+    showPopup({
+      title: "Errore",
+      text: "Errore durante la richiesta unfollow",
+      duration: 1500
+    });
   }
 }
+

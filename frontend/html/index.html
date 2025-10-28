@@ -125,21 +125,6 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
-
-    const toggleBtn = document.getElementById('theme-toggle');
-  const currentTheme = localStorage.getItem('theme') || 'dark';
-
-  document.body.setAttribute('data-theme', currentTheme);
-  toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
-
-  toggleBtn.addEventListener('click', () => {
-    const theme = document.body.getAttribute('data-theme');
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    toggleBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
-  });
-
   </script>
 <script>
   const planets = {
