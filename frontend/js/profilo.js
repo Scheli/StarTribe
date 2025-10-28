@@ -143,11 +143,11 @@ async function caricaProfilo() {
       banner.innerHTML = `<img src="${utente.bannerProfilo}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
     }
 
-    // --- Cornice selezionata ---
+    // --- Decorazione selezionata ---
     const selBox = document.getElementById("selectedBorderBox");
     const selImg = document.getElementById("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
-    if (selUrl) { selImg.src = selUrl; selImg.alt = "Cornice selezionata"; selBox.style.display = "block"; }
+    if (selUrl) { selImg.src = selUrl; selImg.alt = "Decorazione selezionata"; selBox.style.display = "block"; }
     else { selBox.style.display = "none"; }
 
     // Banner
