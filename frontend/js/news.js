@@ -8,14 +8,16 @@ async function caricaUtentiConsigliati() {
     const utenti = await response.json();
 
     const utentiContainer = document.querySelector('.utenti');
-    const footerContainer = document.querySelector('.footer');
-    const navbarContainer = document.querySelector('.navbar');
 
     if (!token) {
+      const navbarContainer = document.querySelector('.navbar');
+
       utentiContainer.innerHTML=` <h3>Utenti suggeriti:</h3>
       <p>Effettua il login per visualizzare gli utenti</p>`;
 
       navbarContainer.innerHTML=`
+      <img src="/frontend/assets/logo.png" class="logoNavbar"/>
+
       <button class="news-icon-btn">
         <a href="/frontend/html/login.html" class="testoLink">Login</a>
       </button>
@@ -23,7 +25,11 @@ async function caricaUtentiConsigliati() {
         <a href="/frontend/html/registrazione.html" class="testoLink">Registrati</a>
       </button>`
     }
+    
     else {
+
+    const footerContainer = document.querySelector('.footer');
+
     utentiContainer.innerHTML = '<h3>Utenti suggeriti:</h3>';
 
     utenti.forEach(utente => {
@@ -33,17 +39,27 @@ async function caricaUtentiConsigliati() {
       const borderUrl = (utente.selectedBorder && utente.selectedBorder !== 'none')
         ? utente.selectedBorder
         : '';
-
+    
+    if (utente.immagineProfilo){
       div.innerHTML = `
-  <img src="${utente.immagineProfilo}" alt="Immagine profilo">
-  ${borderUrl ? `
-    <div class="trophy-badge">
-      <img class="trophy-icon" src="${borderUrl}" alt="Cornice selezionata">
-    </div>` : ``}
-  <p>${utente.username}</p>
-  <p>Punteggio: ${utente.punti}</p>
-`;
-
+        <img src="${utente.immagineProfilo}" alt="Immagine profilo">
+      <p>${utente.username}</p>
+      <p>Punteggio: ${utente.punti}</p>
+      ${borderUrl ? `
+        <div class="trophy-badge">
+          <img class="trophy-icon" src="${borderUrl}" alt="Cornice selezionata">
+        </div>` : ``}`
+    }
+    else {
+      div.innerHTML = `
+        <img src="/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg" alt="Immagine profilo">
+      <p>${utente.username}</p>
+      <p>Punteggio: ${utente.punti}</p>
+      ${borderUrl ? `
+        <div class="trophy-badge">
+          <img class="trophy-icon" src="${borderUrl}" alt="Cornice selezionata">
+        </div>` : ``}`
+    }
 
       div.addEventListener('click', () => {
         localStorage.setItem('utenteVisualizzato', utente._id);

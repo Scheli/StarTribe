@@ -10,6 +10,7 @@ const endpoints = {
   marsRover: `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
   imageLibrary: `https://images-api.nasa.gov/search`,
   gibs: `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/1.0.0/`,
+
 };
 
 // 1. APOD - Astronomy Picture of the Day
@@ -77,6 +78,10 @@ export function getGIBSExampleURL() {
   const url = `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=${layer}&FORMAT=image/jpeg&WIDTH=1024&HEIGHT=512&CRS=EPSG:4326&BBOX=-90,-180,90,180&TIME=${date}`;
   console.log(`\n GIBS Example URL:\n${url}`);
   return res.data;
+}
+
+export function getStarMap() {
+  
 }
 
 // Esegui tutte le richieste

@@ -27,13 +27,23 @@ body {
   padding: 30px 20px;
   height: 80px;
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   position: fixed;
   top: 0;
   width: 100%;
   overflow: hidden;
   z-index: 1000;
+  gap: 10px;
+}
+
+.logoNavbar {
+  height: 80px;
+  width: 80px;
+}
+
+.testoLink {
+  margin: 8px;
 }
 
 .nav-search {
@@ -184,7 +194,6 @@ body {
 .utenti {
   flex: 0 0 30%;
   padding: 20px;
-  box-sizing: border-box;
   background-color: #111122; 
   border-left: 1px solid #282250; 
   color: #ddd; 
@@ -195,7 +204,8 @@ body {
   right: 0;
   height: 100vh; 
   overflow-y: auto; 
-  z-index: 1000; 
+  z-index: 1000;
+  width: 450px;
 }
 
 
