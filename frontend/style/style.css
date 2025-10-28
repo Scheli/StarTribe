@@ -290,6 +290,8 @@ body {
   position: absolute; width: 48px; height: 48px;
   transform: translate(-50%, -50%) rotate(0deg);
   filter: drop-shadow(0 0 8px #6cf);
+  pointer-events: none;
+  z-index: 9999;
 }
 
 
