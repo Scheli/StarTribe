@@ -96,7 +96,7 @@ async function caricaProfilo() {
 
     const media = document.getElementById("mediaProfilo");
     media.innerHTML = "";
-    const display = CURRENT.avatarBaseUrl;
+    const display = CURRENT.avatarBaseUrl || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
     if (display) {
       if (eVideo(display)) {
         media.innerHTML = `<video width="220" height="260" style="border-radius:50%;object-fit:cover" controls src="${display}"></video>`;

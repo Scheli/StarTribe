@@ -414,7 +414,7 @@ const utentiConnessi = new Map();
 
   // ---------------- profilo ----------------
 
-    app.get("/api/profilo", async (req, res) => {
+  app.get("/api/profilo", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).json({ success: false, message: "Token mancante" });
