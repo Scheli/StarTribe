@@ -138,4 +138,24 @@ async function boot() {
   }, { once: true });
 }
 
-boot();
+if (!document.body.hasAttribute('data-no-engine')) {
+  boot();
+}
+
+/* ===================== TEMA DARK/LIGHT ===================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('theme-toggle');
+  if (!toggleBtn) return; 
+
+  const currentTheme = localStorage.getItem('theme') || 'dark';
+  document.body.setAttribute('data-theme', currentTheme);
+  toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+
+  toggleBtn.addEventListener('click', () => {
+    const theme = document.body.getAttribute('data-theme');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    toggleBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+  });
+});

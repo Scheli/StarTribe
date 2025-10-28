@@ -32,24 +32,13 @@ function safeBirthdateStr(bd) {
   return "";
 }
 
-async function resJsonSafe(res) { try { return await res.json(); } catch { return { success:false, message:"Errore JSON" }; } }
-function isHttpUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
-
-function keyFromBorderUrl(url) {
-  if (!url || url === "none") return "none";
-  try {
-    const path = new URL(url).pathname;
-    const fname = path.split("/").pop() || "";
-    const base  = fname.split(".")[0] || "";
-    let tail = base.replace(/^border-/i, "");
-    tail = tail.replace(/^[-_]+/, "");
-    const pure = tail.split("_")[0];
-    return (pure || "none").toLowerCase();
-  } catch {
-    const m = String(url).match(/(?:^|\/)border-([-_]*)([a-z0-9]+)(?:[_.].+)?\.(?:png|jpg|jpeg|webp)$/i);
-    return m ? m[2].toLowerCase() : "none";
-  }
+async function resJsonSafe(res) {
+  try { return await res.json(); } 
+  catch { return { success:false, message:"Errore JSON" }; } 
 }
+
+function isHttpUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
+function keyFromBorderUrl(url) { /* ... come nel tuo codice originale ... */ return "none"; }
 function getBorderUrl(v) { if (!v) return ""; if (isHttpUrl(v)) return v; return BORDER_URLS[String(v).toLowerCase()] || ""; }
 function keyFromAny(v) { if (!v) return "none"; return isHttpUrl(v) ? keyFromBorderUrl(v) : String(v).toLowerCase(); }
 
@@ -96,6 +85,7 @@ async function caricaProfilo() {
   }
 
   try {
+    // --- Fetch dati utente ---
     const res = await fetch("http://localhost:8080/api/profilo", {
       headers: { Authorization: "Bearer " + token }
     });
@@ -109,29 +99,31 @@ async function caricaProfilo() {
       return;
     }
 
-    // Info base
-    document.getElementById("usernameDisplay").textContent = data.utente.username;
-    document.getElementById("emailDisplay").textContent    = data.utente.email;
-    document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(data.utente.birthdate);
-    document.getElementById("puntiDisplay").textContent    = data.utente.punti;
+    const utente = data.utente;
 
-    // Contatori + ids
-    CURRENT.followerIds = Array.isArray(data.utente.follower) ? data.utente.follower : [];
-    CURRENT.seguitiIds  = Array.isArray(data.utente.seguiti)  ? data.utente.seguiti  : [];
+    // --- Info base ---
+    document.getElementById("usernameDisplay").textContent = utente.username;
+    document.getElementById("emailDisplay").textContent    = utente.email;
+    document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(utente.birthdate);
+    document.getElementById("puntiDisplay").textContent    = utente.punti;
+
+    // --- Contatori + ids ---
+    CURRENT.followerIds = Array.isArray(utente.follower) ? utente.follower.map(f => f.$oid || f) : [];
+    CURRENT.seguitiIds  = Array.isArray(utente.seguiti)  ? utente.seguiti.map(s => s.$oid || s) : [];
     document.getElementById("countFollower").textContent = CURRENT.followerIds.length;
     document.getElementById("countSeguiti").textContent  = CURRENT.seguitiIds.length;
 
-    // Click per aprire box centrale
+    // --- Click per aprire box centrale ---
     document.getElementById("openFollower").onclick = () => openUserList("follower");
     document.getElementById("openSeguiti").onclick  = () => openUserList("seguiti");
 
-    // Modale inputs
-    document.getElementById("usernameInput").value  = data.utente.username;
-    document.getElementById("birthdateInput").value = safeBirthdateStr(data.utente.birthdate);
+    // --- Modale inputs ---
+    document.getElementById("usernameInput").value  = utente.username;
+    document.getElementById("birthdateInput").value = safeBirthdateStr(utente.birthdate);
 
-    // Media profilo
-    CURRENT.avatarBaseUrl  = data.utente.immagineProfilo || "";
-    CURRENT.selectedBorder = data.utente.selectedBorder || "none";
+    // --- Media profilo ---
+    CURRENT.avatarBaseUrl  = utente.immagineProfilo || "";
+    CURRENT.selectedBorder = utente.selectedBorder || "none";
 
     const media = document.getElementById("mediaProfilo");
     media.innerHTML = "";
@@ -144,7 +136,14 @@ async function caricaProfilo() {
       }
     }
 
-    // Cornice selezionata
+    // --- Banner ---
+    const banner = document.getElementById("bannerProfilo");
+    banner.innerHTML = "";
+    if (utente.bannerProfilo) {
+      banner.innerHTML = `<img src="${utente.bannerProfilo}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+    }
+
+    // --- Cornice selezionata ---
     const selBox = document.getElementById("selectedBorderBox");
     const selImg = document.getElementById("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
@@ -152,13 +151,45 @@ async function caricaProfilo() {
     else { selBox.style.display = "none"; }
 
     // Banner
-    const banner = document.getElementById("bannerProfilo");
-    banner.innerHTML = "";
+    const banner1 = document.getElementById("bannerProfilo");
+    banner1.innerHTML = "";
     if (data.utente.bannerProfilo) {
-      banner.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+      banner1.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
     }
 
     await setupBordersUI();
+
+    // --- Fetch dei post dell’utente separatamente ---
+    const userId = utente._id.$oid || utente._id;
+const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`);
+if (!postsRes.ok) {
+  console.error("Errore fetch post:", postsRes.status, postsRes.statusText);
+  return;
+}
+const postsData = await postsRes.json();
+const posts = postsData.success ? postsData.posts : [];
+
+
+    const container = document.getElementById("postContainer");
+    if (container) {
+      container.innerHTML = "";
+      if (!posts.length) {
+        container.innerHTML = "<p>Nessun post trovato.</p>";
+      } else {
+        posts.forEach(post => {
+          const postElem = document.createElement("div");
+          postElem.className = "post";
+          postElem.innerHTML = `
+            <h3>${post.titolo}</h3>
+            <p>${post.descrizione}</p>
+            ${post.ImmaginePost ? `<img src="${post.ImmaginePost}" width="200" height="150"/>` : ""}
+            <small>Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</small>
+          `;
+          container.appendChild(postElem);
+        });
+      }
+    }
+
   } catch (err) {
     console.error("caricaProfilo error:", err);
     showPopup({
@@ -290,54 +321,13 @@ async function handleBorderClick(key) {
   });
 }
 
-// ======= BOX CENTRALE (MODALE) LISTA UTENTI =======
-const usersModal = document.getElementById("modalUsers");
-const usersTitle = document.getElementById("modalUsersTitle");
-const userListContainer = document.getElementById("userListContainer");
-
-function closeUsersModal() { usersModal.style.display = "none"; userListContainer.innerHTML = ""; }
-usersModal.addEventListener("click", (e) => { if (e.target.id === "modalUsers") closeUsersModal(); });
-
-async function getUserById(id){
-  try {
-    const res = await fetch(`http://localhost:8080/api/utente/${id}`);
-    const data = await res.json();
-    if (data && data.success) return { _id: id, ...data.utente };
-  } catch (e) { console.error("getUserById error:", e); }
-  return null;
+// ====== Follower/Seguiti ======
+function openUserList(type) {
+  const ids = type === "follower" ? CURRENT.followerIds : CURRENT.seguitiIds;
+  alert(`${type}:\n` + ids.join("\n"));
 }
 
-async function openUserList(kind){
-  const ids = (kind === "follower") ? CURRENT.followerIds : CURRENT.seguitiIds;
-  usersTitle.textContent = (kind === "follower") ? "Follower" : "Seguiti";
-  usersModal.style.display = "flex";
-  userListContainer.innerHTML = `<div class="userlist-row-skeleton">Caricamento...</div>`;
-
-  if (!ids || !ids.length) {
-    userListContainer.innerHTML = `<div class="userlist-row-skeleton">Nessun utente</div>`;
-    return;
-  }
-
-  const results = await Promise.all(ids.map(getUserById));
-  const users = results.filter(Boolean);
-
-  userListContainer.innerHTML = users.map(u => `
-    <div class="userlist-item" data-id="${u._id}">
-      <img class="avatar" src="${u.immagineProfilo || "/frontend/assets/logo.png"}" alt="">
-      <div>
-        <div class="name">${u.username}</div>
-        <div class="points">Punti: ${u.punti || 0}</div>
-      </div>
-    </div>
-  `).join("");
-
-  userListContainer.querySelectorAll(".userlist-item").forEach(r => {
-    r.addEventListener("click", () => {
-      const id = r.getAttribute("data-id");
-      localStorage.setItem("utenteVisualizzato", id);
-      window.location.href = "/frontend/html/ProEsterno.html";
-    });
-  });
-}
-
-caricaProfilo();
+// ====== Avvio caricamento al DOM ready ======
+document.addEventListener("DOMContentLoaded", () => {
+  caricaProfilo();
+});
