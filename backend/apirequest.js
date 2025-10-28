@@ -4,7 +4,6 @@ import axios from 'axios';
 import { parameter } from 'three/tsl';
 
 const API_KEY = "4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga";
-const KEY_METEOBLUE = "NYtxIfXLD8d6qJZE";
 
 const endpoints = {
   apod: `https://api.nasa.gov/planetary/apod?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
@@ -82,52 +81,14 @@ export function getGIBSExampleURL() {
   return res.data;
 }
 
-export async function getNightSky (city = "Rome ") {
-  try {
-    const geoRes = await axios.get(`https://nominatim.openstreetmap.org/search`, {
-      params: {
-        q: city,
-        format: "json",
-        limit: 1
-      }
-    });
-
-    if(!geoRes.data || geoRes.data.length === 0) {
-      console.log("Città non trovata");
-      return null;
-    }
-
-    const {lat, lon} = geoRes.data[0];
-
-    const res = await axios.get("https://my.meteoblue.com/packages/weather-api", {
-      params: {
-        lat,
-        lon,
-        apikey: KEY_METEOBLUE,
-        format: "json",
-        parameter: "astro, skycover, moonphase"
-      }
-    });
-
-    const imageUrl = `https://www.meteoblue.com/en/weather/widget/image?city=${encodeURIComponent(city)}&lat=${lat}&lon=${lon}&forecast=night&theme=dark&tz=auto&apikey=${KEY_METEOBLUE}&size=${size}`;
-
-    console.log(`URL cielo notturno a ${city}: ${imageUrl}`);
-    return imageUrl;
-  }
-  catch (error) {
-    console.error("Errore Meteoblue:", error.message);
-  }
-}
-
 // Esegui tutte le richieste
 (async () => {
   try {
     await getAPOD();
     await getInSightWeather();
     await getMarsRoverPhoto();
-    await searchImageLibrary('nebula');
+    //await searchImageLibrary();
     getGIBSExampleURL();
-    await getNightSky("Rome");
   } catch (error) {
     console.error('Errore nelle richieste:', error.message);
   }
