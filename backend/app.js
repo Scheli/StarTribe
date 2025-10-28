@@ -808,3 +808,4 @@ app.post("/api/cards/draw", async (req, res) => {
     return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
   }
 });
+    

@@ -121,8 +121,14 @@ input:focus {
 .send-form:disabled {
   background-color: rgba(181, 181, 181, 0.599);
   box-shadow: 2px 2px grey;
-  cursor: not-allowed;
-  opacity: 0.5;
+  cursor: pointer;  /* Cambiato da not-allowed a pointer */
+  opacity: 0.7;    /* Aumentata leggermente l'opacità */
+  position: relative;
+  overflow: hidden;
+}
+
+.send-form:disabled:hover {
+  background-color: rgba(181, 181, 181, 0.7);
 }
 
 .form-checkbox {

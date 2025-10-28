@@ -1,21 +1,29 @@
 const form = document.getElementById("loginForm");
-const message = document.getElementById("message");
 
 // ✅ Popup modale dinamico
 function showPopup({ title, text, duration = 1500 }) {
-  const overlay = document.createElement("div");
-  overlay.className = "welcome-overlay";
-
+  const overlay = safeDom.createSafeElement('div', { className: 'welcome-overlay' });
+  
   const isError = title.toLowerCase().includes("errore");
+  const popupDiv = safeDom.createSafeElement('div', { 
+    className: `welcome-popup ${isError ? "error-popup" : ""}`
+  });
 
-  overlay.innerHTML = `
-    <div class="welcome-popup ${isError ? "error-popup" : ""}">
-      <img src="/frontend/assets/logo.png" alt="Logo" class="welcome-logo">
-      <h2>${title}</h2>
-      <p>${text}</p>
-      <div class="loading-bar"><div class="loading-fill"></div></div>
-    </div>
-  `;
+  const logo = safeDom.createSafeElement('img', {
+    className: 'welcome-logo',
+    src: '/frontend/assets/logo.png'
+  });
+  logo.alt = 'Logo';
+
+  const titleElement = safeDom.createSafeElement('h2', {}, title);
+  const textElement = safeDom.createSafeElement('p', {}, text);
+  
+  const loadingBar = safeDom.createSafeElement('div', { className: 'loading-bar' });
+  const loadingFill = safeDom.createSafeElement('div', { className: 'loading-fill' });
+  
+  loadingBar.appendChild(loadingFill);
+  popupDiv.append(logo, titleElement, textElement, loadingBar);
+  overlay.appendChild(popupDiv);
   document.body.appendChild(overlay);
 
   setTimeout(() => {
@@ -28,9 +36,9 @@ function showPopup({ title, text, duration = 1500 }) {
 // ✅ Popup iniziale all’apertura
 window.addEventListener("load", () => {
   showPopup({
-    title: "Bentornato in StarTribe!",
+    title: "StarTribe Login",
     text: "Preparati a esplorare nuove galassie...",
-    duration: 1500
+    duration: 1000
   });
 });
 
@@ -47,27 +55,38 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
+    console.log('Invio richiesta di login...');
     const response = await fetch("http://localhost:8080/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
+    console.log('Risposta ricevuta:', response.status);
     const data = await response.json();
+    console.log('Dati ricevuti:', data);
 
     if (response.ok) {
-      showPopup({
-        title: "Login riuscito!",
-        text: "Accesso effettuato con successo!",
-        duration: 1500
-      });
-
       if (data.token) {
         localStorage.setItem("token", data.token);
-        setTimeout(() => (window.location.href = "/frontend/html/profilo.html"), 1500);
+        // Decodifica il token per ottenere le informazioni dell'utente
+        const tokenParts = data.token.split('.');
+        const tokenPayload = JSON.parse(atob(tokenParts[1]));
+        console.log('Info dal token:', tokenPayload);
+        
+        const username = tokenPayload.username || "esploratore";
+        
+        showPopup({
+          title: username,
+          text: "Bentornato in StarTribe!",
+          duration: 1000
+        });
+        
+        setTimeout(() => {
+          form.reset();
+          window.location.href = "/frontend/html/profilo.html";
+        }, 1500);
       }
-
-      form.reset();
     } else {
       showPopup({
         title: "Errore nel login",
