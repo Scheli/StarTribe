@@ -414,46 +414,93 @@ const utentiConnessi = new Map();
 
   // ---------------- profilo ----------------
 
-  app.get("/api/profilo", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ success: false, message: "Token mancante" });
+    app.get("/api/profilo", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    // Verifica il token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const dbLocal = await connectToDB();
+
+    // Recupera l'utente
+    const utente = await dbLocal.collection("utenti").findOne({ _id: new ObjectId(decoded.userId) });
+    if (!utente) {
+      return res.status(404).json({ success: false, message: "Utente non trovato" });
     }
 
-    const token = authHeader.split(" ")[1];
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const dbLocal = await connectToDB();
+    // Recupera i post dell'utente
+    const articoli = await dbLocal.collection("articoli")
+      .find({ userId: decoded.userId })  // assicurati che userId sia stringa
+      .sort({ createdAt: -1 })
+      .toArray();
 
-      const utente = await dbLocal.collection("utenti").findOne({ _id: new ObjectId(decoded.userId) });
-      if (!utente) {
-        return res.status(404).json({ success: false, message: "Utente non trovato" });
+    // Format dei post (puoi aggiungere autoreNome/immagine se vuoi)
+    const postsFormatted = articoli.map(post => ({
+      _id: post._id.toString(),
+      titolo: post.titolo,
+      descrizione: post.descrizione,
+      ImmaginePost: post.ImmaginePost || "",
+      TipoImmaginePost: post.TipoImmaginePost || "",
+      createdAt: post.createdAt ? new Date(post.createdAt).toLocaleDateString("it-IT") : "",
+    }));
+
+    // Risposta finale
+    res.json({
+      success: true,
+      utente: {
+        _id: utente._id.toString(),
+        username: utente.username,
+        email: utente.email,
+        birthdate: utente.birthdate,
+        punti: utente.punti,
+        immagineProfilo: utente.immagineProfilo,
+        bannerProfilo: utente.bannerProfilo || "",
+        selectedBorder: utente.selectedBorder || "none",
+        pfpfinal: utente.pfpfinal || "",
+        seguiti: (utente.seguiti || []).map(id => id.toString()),
+        follower: (utente.follower || []).map(id => id.toString()),
+        tickets: utente.tickets || 0,
+        cards: utente.cards || [],
+        posts: postsFormatted // qui aggiungiamo i post
       }
+    });
 
-     res.json({
-  success: true,
-  utente: {
-    _id: utente._id.toString(),
-    username: utente.username,
-    email: utente.email,
-    birthdate: utente.birthdate,
-    punti: utente.punti,
-    immagineProfilo: utente.immagineProfilo,
-    bannerProfilo: utente.bannerProfilo || "",
-    selectedBorder: utente.selectedBorder || "none",
-    pfpfinal: utente.pfpfinal || "",
-    seguiti: (utente.seguiti || []).map(id => id.toString()),
-    follower: (utente.follower || []).map(id => id.toString()),   
-    tickets: utente.tickets || 0,
-    cards: utente.cards || [],
+  } catch (err) {
+    console.error("Errore JWT /api/profilo:", err);
+    res.status(403).json({ success: false, message: "Token non valido" });
   }
 });
 
-    } catch (err) {
-      console.error("Errore profilo:", err);
-      return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
-    }
-  });
+app.get("/api/posts/utente/:id", async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const dbLocal = await connectToDB();
+    const articoli = await dbLocal.collection("articoli")
+      .find({ userId: userId })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const postsFormatted = articoli.map(post => ({
+      _id: post._id.toString(),
+      titolo: post.titolo,
+      descrizione: post.descrizione,
+      ImmaginePost: post.ImmaginePost || "",
+      TipoImmaginePost: post.TipoImmaginePost || "",
+      createdAt: post.createdAt ? new Date(post.createdAt).toLocaleDateString("it-IT") : "",
+    }));
+
+    res.json({ success: true, posts: postsFormatted });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Errore server" });
+  }
+});
+
+
 
 
   app.put("/api/profilo/update", async (req, res) => {
@@ -776,7 +823,7 @@ app.get("/api/post", async (req, res) => {
 
 //recupero post in base all'id dell'utente
 
-app.get("/api/:id/postutente", async (req, res)=>{{
+app.get("/api/postutente", async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -787,22 +834,27 @@ app.get("/api/:id/postutente", async (req, res)=>{{
   if (!token) {
     return res.status(401).json({ success: false, message: "Token mancante" });
   }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET); // usa la stessa chiave del login
+    const userId = decoded.userId; // qui deve corrispondere al payload del token
 
-  const userId = req.params.id;
+    const db = await connectToDB();
+    const articoli = db.collection("articoli");
 
-  try{
-    const posts = await db.collection('posts')
-      .find({ userId: userId })
+    // recupera solo i post dell'utente loggato
+    const posts = await articoli
+      .find({ userId: userId }) 
       .sort({ createdAt: -1 })
       .toArray();
-    
-    res.json(posts);
-  }catch (err) {
-    res.status(500).json({ error: 'Errore nel recuperare i post' });
+
+    res.json({ success: true, posts });
+  } catch (err) {
+    console.error("Errore JWT /api/postutente:", err);
+    res.status(403).json({ success: false, message: "Token non valido" });
   }
+});
 
 
-}})
 
 
 app.post("/api/cards/draw", async (req, res) => {
