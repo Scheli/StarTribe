@@ -129,6 +129,56 @@ async function caricaProfilo() {
   }
 }
 
+//post utente
+
+async function caricaPostUtente() {
+  if (!token) {
+    document.body.innerHTML = "<p>Token mancante. Esegui il login.</p>";
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8080/api/post", {
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error("Errore nel caricamento dei post");
+
+    const posts = await res.json();
+
+    const container = document.getElementById("postContainer");
+    container.innerHTML = "";
+
+    posts.forEach(post => {
+      const postElem = document.createElement("div");
+      postElem.className = "post";
+
+      postElem.innerHTML = `
+        <h3>${post.titolo}</h3>
+        <p>${post.descrizione}</p>
+        <p>Autore: ${post.autoreNome}</p>
+        ${post.autoreImmagine ? `<img src="${post.autoreImmagine}" width="50" height="50"/>` : ""}
+        ${post.ImmaginePost ? `<img src="${post.ImmaginePost}" width="200" height="150"/>` : ""}
+        <small>Creato il: ${post.createdAt || "Data non disponibile"}</small>
+      `;
+
+      container.appendChild(postElem);
+    });
+
+  } catch (err) {
+    console.error("Errore in caricaPostUtente:", err);
+    document.body.innerHTML += `<p>Errore nel caricamento dei post</p>`;
+  }
+}
+
+
+caricaPostUtente(CURRENT.userId);
+
+
+
 // Upload media profilo
 document.getElementById("uploadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -281,3 +331,4 @@ async function openUserList(kind){
 }
 
 caricaProfilo();
+

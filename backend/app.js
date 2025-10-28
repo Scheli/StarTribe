@@ -774,12 +774,35 @@ app.get("/api/post", async (req, res) => {
 });
 
 
+//recupero post in base all'id dell'utente
 
-// recupero post in base all'id dell'utente
+app.get("/api/:id/postutente", async (req, res)=>{{
+  const authHeader = req.headers.authorization;
 
-// app.get("/api/postutente", async (req, res)=>{{
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
 
-// }})
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const userId = req.params.id;
+
+  try{
+    const posts = await db.collection('posts')
+      .find({ userId: userId })
+      .sort({ createdAt: -1 })
+      .toArray();
+    
+    res.json(posts);
+  }catch (err) {
+    res.status(500).json({ error: 'Errore nel recuperare i post' });
+  }
+
+
+}})
 
 
 app.post("/api/cards/draw", async (req, res) => {
