@@ -723,9 +723,11 @@ app.post("/api/pubblicapost", upload.single("file"), async (req, res) => {
 // -- GET CARICAMENTO PAGINA POST --
 app.get("/api/post", async (req, res) => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader) {
     return res.status(401).json({ success: false, message: "Token mancante" });
   }
+
   const token = authHeader.split(" ")[1];
   if (!token) {
     return res.status(401).json({ success: false, message: "Token mancante" });
@@ -736,28 +738,42 @@ app.get("/api/post", async (req, res) => {
     const userId = decoded.userId;
 
     const db = await connectToDB();
-    const collection = db.collection("articoli");
+    const articoli = db.collection("articoli");
+    const utenti = db.collection("utenti");
 
-    // Recupera tutti i post
-    const posts = await collection.find({}).toArray();
+    // recupera tutti i post
+    const posts = await articoli.find({}).toArray();
 
-    // Formatta la data e altri campi
-    const postsFormatted = posts.map(post => ({
-      titolo: post.titolo,
-      descrizione: post.descrizione,
-      ImmaginePost: post.ImmaginePost,
-      TipoImmaginePost: post.TipoImmaginePost,
-      UserId: post.UserId,
-      createdAt: post.createdAt ? new Date(post.createdAt).toLocaleDateString('it-IT') : null
+    // mappa i post aggiungendo nome e immagine autore
+    const postsFormatted = await Promise.all(posts.map(async (post) => {
+      let autore = null;
+
+      try {
+        autore = await utenti.findOne({ _id: new ObjectId(post.userId) });
+      } catch (err) {
+        console.warn("Utente non trovato per userId:", post.userId);
+      }
+
+      return {
+        titolo: post.titolo,
+        descrizione: post.descrizione,
+        ImmaginePost: post.ImmaginePost,
+        TipoImmaginePost: post.TipoImmaginePost,
+        createdAt: post.createdAt ? new Date(post.createdAt).toLocaleDateString("it-IT") : null,
+        autoreNome: autore?.username || "Utente sconosciuto",
+        autoreImmagine: autore?.immagineProfilo || null
+      };
     }));
 
     res.json(postsFormatted);
 
   } catch (err) {
-    console.error("Errore:", err);
+    console.error("Errore nel backend /api/post:", err);
     res.status(500).json({ success: false, message: "Errore del server" });
   }
 });
+
+
 
 // recupero post in base all'id dell'utente
 
