@@ -1,11 +1,29 @@
+const token = localStorage.getItem("token");
+
 async function caricaUtentiConsigliati() {
   try {
     const response = await fetch('http://localhost:8080/news');
     if (!response.ok) throw new Error('Errore nella risposta della fetch');
 
     const utenti = await response.json();
-    const utentiContainer = document.querySelector('.utenti');
 
+    const utentiContainer = document.querySelector('.utenti');
+    const footerContainer = document.querySelector('.footer');
+    const navbarContainer = document.querySelector('.navbar');
+
+    if (!token) {
+      utentiContainer.innerHTML=` <h3>Utenti suggeriti:</h3>
+      <p>Effettua il login per visualizzare gli utenti</p>`;
+
+      navbarContainer.innerHTML=`
+      <button class="news-icon-btn">
+        <a href="/frontend/html/login.html" class="testoLink">Login</a>
+      </button>
+      <button class="news-icon-btn">
+        <a href="/frontend/html/registrazione.html" class="testoLink">Registrati</a>
+      </button>`
+    }
+    else {
     utentiContainer.innerHTML = '<h3>Utenti suggeriti:</h3>';
 
     utenti.forEach(utente => {
@@ -35,7 +53,19 @@ async function caricaUtentiConsigliati() {
       utentiContainer.appendChild(div);
     });
 
-  } catch (error) {
+    footerContainer.innerHTML=`
+    <button class="news-icon-btn">
+      <a href="/frontend/html/chat.html" class="testoLink">💬</a>
+    </button>
+    <button class="news-icon-btn">
+      <a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a>
+    </button>
+    <button class="news-icon-btn">
+      <a href="/frontend/html/visualizzapost.html" class="testoLink">🌍</a>
+    </button>`
+  }
+}
+  catch (error) {
     console.error('Errore nel caricamento utenti:', error);
   }
 }

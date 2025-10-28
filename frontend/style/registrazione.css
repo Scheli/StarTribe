@@ -127,27 +127,38 @@ input:focus {
 
 .form-checkbox {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 18px; /* increased spacing above checkbox */
+  justify-content: center; /* center the checkbox group horizontally */
 }
 
 .form-checkbox input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
-  accent-color: var(--form);
+  width: 26px;
+  height: 26px;
+  accent-color: var(--color-lilla);
   margin-right: 8px;
+  cursor: pointer;
+}
+
+.form-checkbox label {
+  font-size: 0.98rem;
+  line-height: 1.2;
+  cursor: pointer;
 }
 
 /* Link login */
 .login-link {
   display: block;
   text-align: center;
-  margin-top: 15px;
   color: var(--color-text);
   font-size: 0.95rem;
   text-decoration: none;
   transition: 0.3s;
+}
+
+.margine-top-20 {
+  margin-top: 20px;
 }
 
 .login-link:hover {
