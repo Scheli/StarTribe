@@ -759,6 +759,12 @@ app.get("/api/post", async (req, res) => {
   }
 });
 
+// recupero post in base all'id dell'utente
+
+// app.get("/api/postutente", async (req, res)=>{{
+
+// }})
+
 
 app.post("/api/cards/draw", async (req, res) => {
   const authHeader = req.headers.authorization;
