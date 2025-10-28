@@ -58,6 +58,7 @@ body {
   background: linear-gradient(180deg, var(--nav-from), var(--nav-to));
   box-shadow: 0 0 18px rgba(199, 154, 255, 0.15);
   border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 0 30px var(--color-lilla-chiaro);
 }
 
 .Navbar-hp {
@@ -101,7 +102,7 @@ body {
   right: calc(12px + env(safe-area-inset-right));
   z-index: 20;
   background: var(--card);
-  border: 1px solid rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 50%;
   width: 42px;
   height: 42px;
@@ -110,21 +111,37 @@ body {
   color: var(--primary);
   box-shadow: 0 0 12px rgba(199,154,255,0.2);
   backdrop-filter: blur(8px);
-  transition: background .25s ease, color .25s ease, transform .15s ease;
+  transition: background .25s ease, color .25s ease, transform .15s ease, box-shadow .25s ease;
 }
+
 #theme-toggle:hover {
   background: var(--primary);
   color: #0b142c;
   transform: translateY(-1px);
+  box-shadow: 0 0 10px var(--primary);
 }
+
+body[data-theme="light"] #theme-toggle {
+  background: var(--card);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--color-lilla);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+body[data-theme="light"] #theme-toggle:hover {
+  background: var(--color-lilla);
+  color: white;
+  box-shadow: 0 0 10px var(--color-lilla);
+}
+
 
 body[data-theme="light"] {
   --bg-primary-color: #48bff2d3;
   --bg-primary-color-selected: #eaf3ff;
   --color-text: #0f1b2d;
-  --muted: #4a5a75;
+  --muted: #4772bb;
 
-  --primary: #34c3ff;
+  --primary: #a17eff;
   --primary-2: #7ae2ff;
 
   --color-lilla: #8f60ff;
