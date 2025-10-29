@@ -5,9 +5,14 @@
   <title>Profilo Utente</title>
   <link rel="stylesheet" href="../style/profilo.css" />
   <link rel="stylesheet" href="../style/popup.css" />
+  <link rel="stylesheet" href="../style/post-cards.css" />
+  <link rel="stylesheet" href="../style/decorations.css" />
 </head>
 <body>
-  <h2 class="titolo-profilo">Profilo Utente</h2>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="username" id="navUsername"></div>
+  </nav>
 
   <!-- Banner utente -->
   <div id="bannerProfilo" class="banner-profilo"></div>
@@ -47,6 +52,27 @@
         <button id="btnModificaBanner">Modifica banner</button>
         <button id="btnModificaMedia">Modifica immagine profilo</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Sezione Post -->
+  <section class="posts-section">
+    <!-- Decorazioni lato sinistro -->
+    <div class="side-decorations left">
+      <img src="../assets/nebula1.jpg" alt="Decorative nebula">
+      <img src="../assets/planet1.jpg" alt="Decorative planet">
+    </div>
+
+    <!-- Colonna centrale con i post -->
+    <div class="post-container" id="postContainer">
+      <h2 class="posts-title">Post di <span id="postUsername"></span></h2>
+      <!-- I post verranno generati dinamicamente qui -->
+    </div>
+
+    <!-- Decorazioni lato destro -->
+    <div class="side-decorations right">
+      <img src="../assets/nebula2.jpg" alt="Decorative nebula">
+      <img src="../assets/planet2.jpg" alt="Decorative planet">
     </div>
   </section>
 

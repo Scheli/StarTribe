@@ -106,6 +106,7 @@ async function caricaProfilo() {
     document.getElementById("emailDisplay").textContent    = utente.email;
     document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(utente.birthdate);
     document.getElementById("puntiDisplay").textContent    = utente.punti;
+    document.getElementById("navUsername").textContent = utente.username;
 
     // --- Contatori + ids ---
     CURRENT.followerIds = Array.isArray(utente.follower) ? utente.follower.map(f => f.$oid || f) : [];
@@ -155,6 +156,66 @@ async function caricaProfilo() {
     banner1.innerHTML = "";
     if (data.utente.bannerProfilo) {
       banner1.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+    }
+
+    // Aggiorna il nome utente nel titolo dei post
+    document.getElementById("postUsername").textContent = window.safeDom.sanitizeText(data.utente.username);
+
+    // Generazione post di esempio (da sostituire con i veri post quando il backend sarà pronto)
+    const postContainer = document.getElementById("postContainer");
+    if (postContainer) {
+      const examplePosts = [
+        {
+          title: "Scoperta di una nuova galassia! 🌌",
+          text: "Ho appena scoperto una nuova galassia! Le stelle qui brillano di una luce mai vista prima. La loro luminosità è qualcosa di straordinario, mai visto nulla di simile nei miei viaggi spaziali. #Esplorazione #StarTribe",
+          image: "../assets/nebula1.jpg",
+          date: "28 Ottobre 2025",
+          likes: 15
+        },
+        {
+          title: "Nebulosa arcobaleno ✨",
+          text: "Una meravigliosa nebulosa si staglia all'orizzonte. I colori sono incredibili! Ho passato ore ad osservare questo spettacolo naturale. La varietà di colori e forme mi ha lasciato senza parole. 🌌 #SpaceExploration #CosmicBeauty",
+          image: "../assets/planet2.jpg",
+          date: "27 Ottobre 2025",
+          likes: 23
+        }
+      ];
+
+      postContainer.innerHTML = examplePosts.map(post => {
+        const sanitizedTitle = window.safeDom.sanitizeText(post.title);
+        const sanitizedText = window.safeDom.sanitizeText(post.text);
+        const sanitizedDate = window.safeDom.sanitizeText(post.date);
+        const sanitizedUsername = window.safeDom.sanitizeText(data.utente.username);
+        return `
+          <article class="post-card">
+            <header class="post-header">
+              <img src="${data.utente.immagineProfilo || '../assets/default-pfp.jpg'}" alt="${sanitizedUsername}">
+              <div class="username">${sanitizedUsername}</div>
+            </header>
+
+            ${post.image ? `
+              <div class="post-image-container">
+                <img src="${post.image}" alt="${sanitizedTitle}" class="post-image">
+              </div>
+            ` : ''}
+
+            <div class="post-details">
+              <h3 class="post-title">${sanitizedTitle}</h3>
+              <p class="post-text">${sanitizedText}</p>
+            </div>
+
+            <footer class="post-footer">
+              <div class="post-actions">
+                <button class="like-button" data-likes="${post.likes}">
+                  <span class="like-icon">❤️</span>
+                  <span class="like-count">${post.likes}</span>
+                </button>
+              </div>
+              <time class="post-date">${sanitizedDate}</time>
+            </footer>
+          </article>
+        `;
+      }).join('');
     }
 
     await setupBordersUI();
