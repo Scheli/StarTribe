@@ -10,15 +10,29 @@ const BORDER_URLS = Object.freeze({
   universo: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211489/trophy-universo_xleqpr.png",
 });
 
+let CURRENT = {
+  avatarBaseUrl: "",
+  unlocked: [],
+  selectedBorder: "none",
+  followerIds: [],
+  seguitiIds: []
+};
+
+// Funzioni ausiliarie
 function eVideo(url) {
   if (!url || typeof url !== "string") return false;
   try {
     const u = new URL(url, window.location.origin);
-    const p = u.pathname.toLowerCase();
-    return p.endsWith(".mp4") || p.endsWith(".webm") || p.endsWith(".mov");
+    return /\.(mp4|webm|mov)$/i.test(u.pathname);
   } catch {
     return /\.(mp4|webm|mov)$/i.test(url);
   }
+}
+
+function safeText(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 function safeBirthdateStr(bd) {
@@ -32,41 +46,41 @@ function safeBirthdateStr(bd) {
   return "";
 }
 
-async function resJsonSafe(res) {
-  try { return await res.json(); } 
-  catch { return { success:false, message:"Errore JSON" }; } 
+function getBorderUrl(v) {
+  if (!v) return "";
+  if (/^https?:\/\//i.test(v)) return v;
+  return BORDER_URLS[String(v).toLowerCase()] || "";
 }
 
-function isHttpUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
-function keyFromBorderUrl(url) { /* ... come nel tuo codice originale ... */ return "none"; }
-function getBorderUrl(v) { if (!v) return ""; if (isHttpUrl(v)) return v; return BORDER_URLS[String(v).toLowerCase()] || ""; }
-function keyFromAny(v) { if (!v) return "none"; return isHttpUrl(v) ? keyFromBorderUrl(v) : String(v).toLowerCase(); }
-
-let CURRENT = {
-  avatarBaseUrl: "",
-  unlocked: [],
-  selectedBorder: "none",
-  followerIds: [],
-  seguitiIds: []
-};
-
-// Funzione popup sicura (riutilizzo quella di login/registrazione)
+// --- Popup sicuro ---
 function showPopup({ title, text, duration = 1500 }) {
-  const overlay = window.safeDom.createSafeElement('div', { className: 'welcome-overlay' });
-  const popupDiv = window.safeDom.createSafeElement('div', { className: 'welcome-popup' });
-  const logo = window.safeDom.createSafeElement('img', {
-    className: 'welcome-logo',
-    src: '/frontend/assets/logo.png'
-  });
-  logo.alt = 'Logo';
-  const titleElement = window.safeDom.createSafeElement('h2', {}, title);
-  const textElement = window.safeDom.createSafeElement('p', {}, text);
-  const loadingBar = window.safeDom.createSafeElement('div', { className: 'loading-bar' });
-  const loadingFill = window.safeDom.createSafeElement('div', { className: 'loading-fill' });
+  const overlay = document.createElement("div");
+  overlay.className = "welcome-overlay";
+
+  const popup = document.createElement("div");
+  popup.className = "welcome-popup";
+
+  const logo = document.createElement("img");
+  logo.className = "welcome-logo";
+  logo.src = "/frontend/assets/logo.png";
+  logo.alt = "Logo";
+
+  const titleElem = document.createElement("h2");
+  titleElem.innerHTML = safeText(title);
+
+  const textElem = document.createElement("p");
+  textElem.innerHTML = safeText(text);
+
+  const loadingBar = document.createElement("div");
+  loadingBar.className = "loading-bar";
+  const loadingFill = document.createElement("div");
+  loadingFill.className = "loading-fill";
   loadingBar.appendChild(loadingFill);
-  popupDiv.append(logo, titleElement, textElement, loadingBar);
-  overlay.appendChild(popupDiv);
+
+  popup.append(logo, titleElem, textElem, loadingBar);
+  overlay.appendChild(popup);
   document.body.appendChild(overlay);
+
   setTimeout(() => {
     overlay.style.opacity = "0";
     overlay.style.transition = "opacity 0.5s ease";
@@ -74,365 +88,169 @@ function showPopup({ title, text, duration = 1500 }) {
   }, duration);
 }
 
+// --- Caricamento profilo ---
 async function caricaProfilo() {
   if (!token) {
-    showPopup({
-      title: "Errore",
-      text: "Token mancante. Esegui il login.",
-      duration: 1500
-    });
+    showPopup({ title: "Errore", text: "Token mancante. Esegui il login." });
     return;
   }
 
   try {
-    // --- Fetch dati utente ---
     const res = await fetch("http://localhost:8080/api/profilo", {
       headers: { Authorization: "Bearer " + token }
     });
     const data = await res.json();
     if (!data.success) {
-      showPopup({
-        title: "Errore",
-        text: window.safeDom.sanitizeText(data.message || "Accesso negato"),
-        duration: 1500
-      });
+      showPopup({ title: "Errore", text: safeText(data.message || "Accesso negato") });
       return;
     }
 
     const utente = data.utente;
-
-    // --- Info base ---
-    document.getElementById("usernameDisplay").textContent = utente.username;
-    document.getElementById("emailDisplay").textContent    = utente.email;
-    document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(utente.birthdate);
-    document.getElementById("puntiDisplay").textContent    = utente.punti;
     document.getElementById("navUsername").textContent = utente.username;
+    document.getElementById("usernameDisplay").textContent = utente.username;
+    document.getElementById("emailDisplay").textContent = utente.email;
+    document.getElementById("birthdateDisplay").textContent = safeBirthdateStr(utente.birthdate);
+    document.getElementById("puntiDisplay").textContent = utente.punti;
 
-    // --- Contatori + ids ---
     CURRENT.followerIds = Array.isArray(utente.follower) ? utente.follower.map(f => f.$oid || f) : [];
     CURRENT.seguitiIds  = Array.isArray(utente.seguiti)  ? utente.seguiti.map(s => s.$oid || s) : [];
     document.getElementById("countFollower").textContent = CURRENT.followerIds.length;
-    document.getElementById("countSeguiti").textContent  = CURRENT.seguitiIds.length;
+    document.getElementById("countSeguiti").textContent = CURRENT.seguitiIds.length;
 
-    // --- Click per aprire box centrale ---
     document.getElementById("openFollower").onclick = () => openUserList("follower");
-    document.getElementById("openSeguiti").onclick  = () => openUserList("seguiti");
+    document.getElementById("openSeguiti").onclick = () => openUserList("seguiti");
 
-    // --- Modale inputs ---
-    document.getElementById("usernameInput").value  = utente.username;
-    document.getElementById("birthdateInput").value = safeBirthdateStr(utente.birthdate);
-
-    // --- Media profilo ---
+    // Media profilo
     CURRENT.avatarBaseUrl  = utente.immagineProfilo || "";
     CURRENT.selectedBorder = utente.selectedBorder || "none";
-
     const media = document.getElementById("mediaProfilo");
     media.innerHTML = "";
     const display = CURRENT.avatarBaseUrl || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
     if (display) {
-      if (eVideo(display)) {
-        media.innerHTML = `<video width="220" height="260" style="border-radius:50%;object-fit:cover" controls src="${display}"></video>`;
-      } else {
-        media.innerHTML = `<img src="${display}" alt="Immagine profilo" width="220" height="260" style="border-radius:50%;object-fit:cover"/>`;
-      }
+      if (eVideo(display)) media.innerHTML = `<video src="${display}" controls></video>`;
+      else media.innerHTML = `<img src="${display}" alt="Immagine profilo"/>`;
     }
 
-    // --- Banner ---
+    // Banner
     const banner = document.getElementById("bannerProfilo");
     banner.innerHTML = "";
     if (utente.bannerProfilo) {
-      banner.innerHTML = `<img src="${utente.bannerProfilo}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+      banner.innerHTML = `<img src="${utente.bannerProfilo}" alt="Banner"/>`;
     }
 
-    // --- Decorazione selezionata ---
+    // Cornice selezionata
     const selBox = document.getElementById("selectedBorderBox");
     const selImg = document.getElementById("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
-    if (selUrl) { selImg.src = selUrl; selImg.alt = "Decorazione selezionata"; selBox.style.display = "block"; }
-    else { selBox.style.display = "none"; }
+    if (selUrl) { selImg.src = selUrl; selBox.style.display = "block"; }
+    else selBox.style.display = "none";
 
-    // Banner
-    const banner1 = document.getElementById("bannerProfilo");
-    banner1.innerHTML = "";
-    if (data.utente.bannerProfilo) {
-      banner1.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
-    }
+   // --- Post dinamici solo dell'utente ---
+const postContainer = document.getElementById("postContainer");
+document.getElementById("postUsername").textContent = utente.username;
+postContainer.innerHTML = "";
 
-    // Aggiorna il nome utente nel titolo dei post
-    document.getElementById("postUsername").textContent = window.safeDom.sanitizeText(data.utente.username);
+try {
+  const userId = utente._id.$oid || utente._id;
+  const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`, {
+    headers: { Authorization: "Bearer " + token }
+  });
 
-    // Generazione post di esempio (da sostituire con i veri post quando il backend sarà pronto)
-    const postContainer = document.getElementById("postContainer");
-    if (postContainer) {
-      const examplePosts = [
-        {
-          title: "Scoperta di una nuova galassia! 🌌",
-          text: "Ho appena scoperto una nuova galassia! Le stelle qui brillano di una luce mai vista prima. La loro luminosità è qualcosa di straordinario, mai visto nulla di simile nei miei viaggi spaziali. #Esplorazione #StarTribe",
-          image: "../assets/nebula1.jpg",
-          date: "28 Ottobre 2025",
-          likes: 15
-        },
-        {
-          title: "Nebulosa arcobaleno ✨",
-          text: "Una meravigliosa nebulosa si staglia all'orizzonte. I colori sono incredibili! Ho passato ore ad osservare questo spettacolo naturale. La varietà di colori e forme mi ha lasciato senza parole. 🌌 #SpaceExploration #CosmicBeauty",
-          image: "../assets/planet2.jpg",
-          date: "27 Ottobre 2025",
-          likes: 23
-        }
-      ];
+  if (!postsRes.ok) throw new Error("Errore fetch post");
 
-      postContainer.innerHTML = examplePosts.map(post => {
-        const sanitizedTitle = window.safeDom.sanitizeText(post.title);
-        const sanitizedText = window.safeDom.sanitizeText(post.text);
-        const sanitizedDate = window.safeDom.sanitizeText(post.date);
-        const sanitizedUsername = window.safeDom.sanitizeText(data.utente.username);
-        return `
-          <article class="post-card">
-            <header class="post-header">
-              <img src="${data.utente.immagineProfilo || '../assets/default-pfp.jpg'}" alt="${sanitizedUsername}">
-              <div class="username">${sanitizedUsername}</div>
-            </header>
+  const postsData = await postsRes.json();
+  const posts = postsData.success ? postsData.posts : [];
 
-            ${post.image ? `
-              <div class="post-image-container">
-                <img src="${post.image}" alt="${sanitizedTitle}" class="post-image">
-              </div>
-            ` : ''}
+  if (!posts.length) {
+    postContainer.innerHTML = "<p class='no-posts'>Nessun post trovato.</p>";
+    return;
+  }
 
-            <div class="post-details">
-              <h3 class="post-title">${sanitizedTitle}</h3>
-              <p class="post-text">${sanitizedText}</p>
-            </div>
+  posts.forEach(post => {
+    const article = document.createElement("article");
+    article.className = "post-card";
+    
+    // Costruzione struttura post
+    article.innerHTML = `
+      <header class="post-header">
+        <img src="${utente.immagineProfilo || '../assets/default-pfp.jpg'}" alt="Avatar di ${safeText(utente.username)}">
+        <div class="post-author-info">
+          <div class="post-author-name">${safeText(utente.username)}</div>
+          <time class="post-date">${safeText(post.createdAt ? new Date(post.createdAt).toLocaleDateString("it-IT") : "")}</time>
+        </div>
+      </header>
+      
+      <div class="post-details">
+        <h3 class="post-title">${safeText(post.titolo)}</h3>
+        <p class="post-text">${safeText(post.descrizione)}</p>
+      </div>
+      
+      ${post.ImmaginePost ? `
+        <div class="post-image-container">
+          <img src="${post.ImmaginePost}" class="post-image" alt="Immagine del post ${safeText(post.titolo)}">
+        </div>
+      ` : ""}
+      
+      <footer class="post-footer">
+        <div class="post-actions">
+          <button class="like-button ${post.isLiked ? 'liked' : ''}" data-post-id="${post._id.$oid || post._id}">
+            <i class="fas fa-star"></i>
+            <span class="like-count">${post.likes || 0}</span>
+          </button>
+        </div>
+      </footer>
+    `;
 
-            <footer class="post-footer">
-              <div class="post-actions">
-                <button class="like-button" data-likes="${post.likes}">
-                  <span class="like-icon">❤️</span>
-                  <span class="like-count">${post.likes}</span>
-                </button>
-              </div>
-              <time class="post-date">${sanitizedDate}</time>
-            </footer>
-          </article>
-        `;
-      }).join('');
-    }
-
-    await setupBordersUI();
-
-    // --- Fetch dei post dell’utente separatamente ---
-    const userId = utente._id.$oid || utente._id;
-const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`);
-if (!postsRes.ok) {
-  console.error("Errore fetch post:", postsRes.status, postsRes.statusText);
-  return;
-}
-const postsData = await postsRes.json();
-const posts = postsData.success ? postsData.posts : [];
-
-
-    const container = document.getElementById("postContainer");
-    if (container) {
-      container.innerHTML = "";
-      if (!posts.length) {
-        return;
-      } else {
-        posts.forEach(post => {
-          const postElem = document.createElement("div");
-          postElem.className = "post";
-          postElem.innerHTML = `
-            <h3>${post.titolo}</h3>
-            <p>${post.descrizione}</p>
-            ${post.ImmaginePost ? `<img src="${post.ImmaginePost}" width="200" height="150"/>` : ""}
-            <small>Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</small>
-          `;
-          container.appendChild(postElem);
+    // Aggiunta al container
+    postContainer.appendChild(article);
+    
+    // Event listener per il like
+    const likeBtn = article.querySelector(".like-button");
+    likeBtn.addEventListener("click", async function() {
+      try {
+        const postId = this.dataset.postId;
+        const res = await fetch(`http://localhost:8080/api/posts/${postId}/like`, {
+          method: "POST",
+          headers: { 
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json"
+          }
         });
+        
+        if (!res.ok) throw new Error("Errore nell'aggiornamento del like");
+        
+        const data = await res.json();
+        if (data.success) {
+          this.classList.toggle("liked");
+          const countSpan = this.querySelector(".like-count");
+          const currentLikes = parseInt(countSpan.textContent);
+          countSpan.textContent = this.classList.contains("liked") ? currentLikes + 1 : currentLikes - 1;
+        }
+      } catch (err) {
+        console.error("Errore like:", err);
+        showPopup({ title: "Errore", text: "Impossibile aggiornare il like" });
       }
-    }
+    });
+  });
+
+} catch (err) {
+  console.error("Errore caricamento post:", err);
+  postContainer.innerHTML = "<p class='no-posts'>Errore caricamento post.</p>";
+}
 
   } catch (err) {
-    console.error("caricaProfilo error:", err);
-    showPopup({
-      title: "Errore",
-      text: "Errore caricamento profilo",
-      duration: 1500
-    });
+    console.error(err);
+    showPopup({ title: "Errore", text: "Errore caricamento profilo" });
   }
 }
 
-// Upload media profilo
-document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const file = document.querySelector('#uploadForm input[name="file"]').files[0];
-  if (!file || !token) return;
-  const formData = new FormData(); formData.append("file", file);
-
-  const res = await fetch("http://localhost:8080/api/upload", {
-    method: "POST", headers: { Authorization: "Bearer " + token }, body: formData,
-  });
-
-  const data = await res.json();
-  showPopup({
-    title: data.success ? "Successo" : "Errore",
-    text: window.safeDom.sanitizeText(data.message || (data.success ? "Upload completato" : "Errore upload")),
-    duration: 1500
-  });
-  await caricaProfilo();
-});
-
-// Upload banner
-document.getElementById("bannerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const file = document.querySelector('#bannerForm input[name="file"]').files[0];
-  if (!file || !token) return;
-  const formData = new FormData(); formData.append("file", file);
-
-  const res = await fetch("http://localhost:8080/api/upload/banner", {
-    method: "POST", headers: { Authorization: "Bearer " + token }, body: formData
-  });
-
-  const data = await res.json();
-  showPopup({
-    title: data.success ? "Successo" : "Errore",
-    text: window.safeDom.sanitizeText(data.message || (data.success ? "Banner caricato" : "Errore upload banner")),
-    duration: 1500
-  });
-  await caricaProfilo();
-});
-
-// Modifica info base
-document.getElementById("modificaForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const username = document.getElementById("usernameInput").value;
-  const birthdate = document.getElementById("birthdateInput").value;
-
-  const res = await fetch("http://localhost:8080/api/profilo/update", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-    body: JSON.stringify({ username, birthdate })
-  });
-
-  const data = await res.json();
-  showPopup({
-    title: data.success ? "Successo" : "Errore",
-    text: window.safeDom.sanitizeText(data.message || (data.success ? "Modifica completata" : "Errore modifica")),
-    duration: 1500
-  });
-  await caricaProfilo();
-});
-
-// Trofei UI
-async function setupBordersUI() {
-  try {
-    const res = await fetch("http://localhost:8080/api/trophy", {
-      headers: { Authorization: "Bearer " + token }
-    });
-    const data = await res.json();
-    if (!data.success) return;
-
-    CURRENT.unlocked = data.unlockedBorders || [];
-    const selectedKey = keyFromAny(CURRENT.selectedBorder);
-
-    document.querySelectorAll(".pfp-border").forEach(img => {
-      const key = img.dataset.border;
-      img.classList.remove("locked", "selected");
-      img.onclick = null;
-
-      const isUnlocked = CURRENT.unlocked.includes(key);
-      if (!isUnlocked) { img.classList.add("locked"); return; }
-
-      img.onclick = () => handleBorderClick(key);
-      if (key === selectedKey) img.classList.add("selected");
-    });
-  } catch (err) { console.error("setupBordersUI error:", err); }
+// --- Popup follower/seguiti ---
+function openUserList(type) {
+  const ids = type === "follower" ? CURRENT.followerIds : CURRENT.seguitiIds;
+  alert(`${type}:\n` + ids.join("\n"));
 }
 
-async function handleBorderClick(key) {
-  const url = getBorderUrl(key);
-  const selRes = await fetch("http://localhost:8080/api/trophy/select", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-    body: JSON.stringify({ borderKey: key, borderUrl: url })
-  });
-  const selData = await resJsonSafe(selRes);
-  if (!selData.success) {
-    showPopup({
-      title: "Errore",
-      text: window.safeDom.sanitizeText(selData.message || "Impossibile selezionare la cornice"),
-      duration: 1500
-    });
-    return;
-  }
-
-  CURRENT.selectedBorder = url || "none";
-  document.querySelectorAll(".pfp-border").forEach(i => i.classList.remove("selected"));
-  const el = document.querySelector(`.pfp-border[data-border="${key}"]`);
-  if (el) el.classList.add("selected");
-
-  const selBox = document.getElementById("selectedBorderBox");
-  const selImg = document.getElementById("selectedBorderImg");
-  if (url) { selImg.src = url; selBox.style.display = "block"; }
-  else { selBox.style.display = "none"; }
-
-  showPopup({
-    title: "Successo",
-    text: "Cornice selezionata!",
-    duration: 1200
-  });
-}
-
-// ======= BOX CENTRALE (MODALE) LISTA UTENTI =======
-const usersModal = document.getElementById("modalUsers");
-const usersTitle = document.getElementById("modalUsersTitle");
-const userListContainer = document.getElementById("userListContainer");
-
-function closeUsersModal() { usersModal.style.display = "none"; userListContainer.innerHTML = ""; }
-usersModal.addEventListener("click", (e) => { if (e.target.id === "modalUsers") closeUsersModal(); });
-
-async function getUserById(id){
-  try {
-    const res = await fetch(`http://localhost:8080/api/utente/${id}`);
-    const data = await res.json();
-    if (data && data.success) return { _id: id, ...data.utente };
-  } catch (e) { console.error("getUserById error:", e); }
-  return null;
-}
-
-async function openUserList(kind){
-  const ids = (kind === "follower") ? CURRENT.followerIds : CURRENT.seguitiIds;
-  usersTitle.textContent = (kind === "follower") ? "Follower" : "Seguiti";
-  usersModal.style.display = "flex";
-  userListContainer.innerHTML = `<div class="userlist-row-skeleton">Caricamento...</div>`;
-
-  if (!ids || !ids.length) {
-    userListContainer.innerHTML = `<div class="userlist-row-skeleton">Nessun utente</div>`;
-    return;
-  }
-
-  const results = await Promise.all(ids.map(getUserById));
-  const users = results.filter(Boolean);
-
-  userListContainer.innerHTML = users.map(u => `
-    <div class="userlist-item" data-id="${u._id}">
-      <img class="avatar" src="${u.immagineProfilo || "/frontend/assets/logo.png"}" alt="">
-      <div>
-        <div class="name">${u.username}</div>
-        <div class="points">Punti: ${u.punti || 0}</div>
-      </div>
-    </div>
-  `).join("");
-
-  userListContainer.querySelectorAll(".userlist-item").forEach(r => {
-    r.addEventListener("click", () => {
-      const id = r.getAttribute("data-id");
-      localStorage.setItem("utenteVisualizzato", id);
-      window.location.href = "/frontend/html/ProEsterno.html";
-    });
-  });
-}
-
-// ====== Avvio caricamento al DOM ready ======
+// --- Avvio ---
 document.addEventListener("DOMContentLoaded", () => {
   caricaProfilo();
 });

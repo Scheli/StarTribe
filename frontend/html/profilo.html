@@ -16,24 +16,7 @@
 
   <!-- Banner utente -->
   <div id="bannerProfilo" class="banner-profilo"></div>
-
-  <div class="navbar">
-    <button class="btn-navbar">
-      <a href="/frontend/html/news.html" class="navLink">📰</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/pubblicapost.html" class="navLink">➕</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/visualizzapost.html" class="navLink">🌍</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/chat.html" class="navLink">💬</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/space_road.html" class="navLink">🚀</a>
-    </button>
-  </div>
+  <hr class="separator"/>
 
   <!-- Sezione principale: foto profilo + info utente -->
   <section class="sezione-utente">
@@ -75,19 +58,16 @@
 
   <!-- Sezione Post -->
   <section class="posts-section">
-    <!-- Decorazioni lato sinistro -->
     <div class="side-decorations left">
       <img src="../assets/nebula1.jpg" alt="Decorative nebula">
       <img src="../assets/planet1.jpg" alt="Decorative planet">
     </div>
 
-    <!-- Colonna centrale con i post -->
     <div class="post-container" id="postContainer">
       <h2 class="posts-title">Post di <span id="postUsername"></span></h2>
       <!-- I post verranno generati dinamicamente qui -->
     </div>
 
-    <!-- Decorazioni lato destro -->
     <div class="side-decorations right">
       <img src="../assets/nebula2.jpg" alt="Decorative nebula">
       <img src="../assets/planet2.jpg" alt="Decorative planet">
@@ -134,7 +114,7 @@
     <button id="logoutBtn">Logout</button>
   </div>
 
-  <!-- Modifica informazioni -->
+  <!-- Modali -->
   <div id="modalInfo" class="modal-overlay">
     <div class="modal-content">
       <h3>Modifica informazioni utente</h3>
@@ -149,7 +129,6 @@
     </div>
   </div>
 
-  <!-- Modifica banner -->
   <div id="modalBanner" class="modal-overlay">
     <div class="modal-content">
       <h3>Modifica banner</h3>
@@ -161,7 +140,6 @@
     </div>
   </div>
 
-  <!-- Modifica immagine profilo -->
   <div id="modalMedia" class="modal-overlay">
     <div class="modal-content">
       <h3>Modifica immagine profilo</h3>
@@ -173,30 +151,16 @@
     </div>
   </div>
 
-  <section class="post-wrapper">
-  <h3>I tuoi post</h3>
-  <div id="postContainer" class="post-container">
-    <!-- I post verranno inseriti qui tramite JS -->
-  </div>
-</section>
-
-  <!-- BOX CENTRALE: lista follower/seguiti -->
-  <div id="modalUsers" class="modal-overlay">
-    <div class="modal-content users">
-      <h3 id="modalUsersTitle">Utenti</h3>
-      <div id="userListContainer" class="userlist scroll"></div>
-      <button type="button" class="btnChiudi" data-close="modalUsers">Chiudi</button>
-    </div>
+  <!-- Popup di benvenuto e decorazioni -->
+  <div class="space-decorations">
+    <img src="../assets/star1.png" alt="Star decoration">
+    <img src="../assets/star2.png" alt="Star decoration">
+    <img src="../assets/star3.png" alt="Star decoration">
   </div>
 
   <script src="../js/utils/sanitize.js"></script>
   <script src="../js/profilo.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
-
-  <!-- Pulsante Album (in basso a destra) -->
-  <a class="album-fab" href="album.html" aria-label="Apri album">
-    <img src="../assets/album.png" alt="Album">
-  </a>
 
   <script>
     // Logout

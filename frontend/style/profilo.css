@@ -75,7 +75,6 @@ h2.titolo-profilo {
   text-decoration: none;
 }
 
-
 /* Banner */
 #bannerProfilo {
   width: 100%;
@@ -314,7 +313,7 @@ h2.titolo-profilo {
 
 .btnChiudi:hover {
   color: var(--color-lilla);
-   box-shadow: 2px 2px var(--sfumatura);
+  box-shadow: 2px 2px var(--sfumatura);
 }
 
 /* Uniformare input file dentro le modali */
@@ -332,23 +331,7 @@ h2.titolo-profilo {
   transition: all 0.3s ease;
 }
 
-.modal-content input[type="file"]::-webkit-file-upload-button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  border: none;
-  background: var(--testobottoni);
-  color: var(--color-text);
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px var(--viola2);
-  transition: 0.3s;
-}
-
-.modal-content input[type="file"]::-webkit-file-upload-button:hover {
-  background: var(--sfumatura);
-  color: var(--color-lilla-chiaro);
-}
-
+.modal-content input[type="file"]::-webkit-file-upload-button,
 .modal-content input[type="file"]::-moz-file-upload-button {
   padding: 8px 15px;
   border-radius: 8px;
@@ -361,11 +344,11 @@ h2.titolo-profilo {
   transition: 0.3s;
 }
 
+.modal-content input[type="file"]::-webkit-file-upload-button:hover,
 .modal-content input[type="file"]::-moz-file-upload-button:hover {
   background: var(--sfumatura);
   color: var(--color-lilla-chiaro);
 }
-
 
 /* Animazioni modali */
 @keyframes fadeIn {
@@ -389,57 +372,57 @@ h2.titolo-profilo {
   }
 }
 
-
-.album-fab{
+.album-fab {
   position: fixed;
   right: 20px;
   bottom: 20px;
   z-index: 900; 
   display: inline-block;
 }
-.album-fab img{
+.album-fab img {
   width: 120px;
   height: auto;
   filter: drop-shadow(0 0 8px var(--color-lilla-chiaro));
   transition: transform .2s ease, filter .2s ease;
   cursor: pointer;
 }
-.album-fab:hover img{
+.album-fab:hover img {
   transform: scale(1.06);
 }
-@media (max-width: 768px){
-  .album-fab img{ width: 56px; }
+@media (max-width: 768px) {
+  .album-fab img { width: 56px; }
 }
 
-.ig-stats{
+.ig-stats {
   display: flex;
   margin: 8px 0 18px;
 }
-.ig-stats .stat{
+.ig-stats .stat {
   text-align: center;
   min-width: 90px;
   border-radius: 12px;
 }
-.ig-stats .num{
+.ig-stats .num {
   font-size: 1.7rem;
   font-weight: 800;
   line-height: 1;
   color: var(--color-lilla-chiaro);
 }
-.ig-stats .lbl{
+.ig-stats .lbl {
   font-size: .85rem;
   opacity: .9;
 }
 @media (max-width: 768px){
-  .ig-stats{ justify-content: center; }
+  .ig-stats { justify-content: center; }
 }
-.userlist{
+
+.userlist {
   margin-top: 12px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
-.userlist .row{
+.userlist .row {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -449,24 +432,24 @@ h2.titolo-profilo {
   cursor: pointer;
   transition: background .2s ease, transform .12s ease;
 }
-.userlist .row:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
-.userlist img.avatar{
+.userlist .row:hover { background: rgba(255,255,255,.10); transform: translateY(-1px); }
+.userlist img.avatar {
   width: 44px; height: 44px; border-radius: 50%;
   object-fit: cover; border: 2px solid var(--color-lilla);
 }
-.userlist .name{ font-weight: 700; }
-.userlist .points{ font-size: .85rem; opacity: .85; }
-.ig-stats .stat{ cursor: pointer; user-select: none; }
+.userlist .name { font-weight: 700; }
+.userlist .points { font-size: .85rem; opacity: .85; }
+.ig-stats .stat { cursor: pointer; user-select: none; }
 
-.modal-content.users{ max-width: 520px; width: 92%; }
-.userlist.scroll{ max-height: 60vh; overflow-y: auto; }
-.userlist-item{
+.modal-content.users { max-width: 520px; width: 92%; }
+.userlist.scroll { max-height: 60vh; overflow-y: auto; }
+.userlist-item {
   display:flex; align-items:center; gap:12px;
   padding:10px 12px; border-radius:12px;
   background: rgba(255,255,255,.06);
   cursor:pointer; transition: background .2s, transform .12s;
 }
-.userlist-item:hover{ background: rgba(255,255,255,.10); transform: translateY(-1px); }
-.userlist-item img.avatar{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--color-lilla); }
-.userlist-item .name{ font-weight:700; }
-.userlist-item .points{ font-size:.85rem; opacity:.85; }
+.userlist-item:hover { background: rgba(255,255,255,.10); transform: translateY(-1px); }
+.userlist-item img.avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--color-lilla); }
+.userlist-item .name { font-weight:700; }
+.userlist-item .points { font-size:.85rem; opacity:.85; }

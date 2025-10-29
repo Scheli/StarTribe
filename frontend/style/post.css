@@ -1,0 +1,108 @@
+:root {
+  --bg-primary-color: #090a21;
+  --bg-primary-color-selected: #290e4d;
+  --color-lilla: #c79aff;
+  --color-lilla-chiaro: #d8b6ff;
+  --color-text: #f4eaff;
+  --testobottoni: purple;
+  --sfumatura: rgba(0, 0, 255, 0.415);
+}
+
+.post-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.post-card {
+  background: linear-gradient(135deg, var(--bg-primary-color-selected), var(--bg-primary-color));
+  border: 2px solid var(--color-lilla);
+  border-radius: 20px;
+  padding: 20px;
+  color: var(--color-text);
+  box-shadow: 0 0 25px var(--color-lilla-chiaro);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px var(--color-lilla-chiaro);
+}
+
+.post-card img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 15px;
+  border: 1px solid var(--color-lilla);
+}
+
+.post-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-lilla-chiaro);
+}
+
+.post-text {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--color-lilla);
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.like-btn:hover {
+  color: var(--color-lilla-chiaro);
+  transform: scale(1.1);
+}
+
+.like-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-lilla);
+  transition: fill 0.2s ease;
+}
+
+.like-btn.liked svg {
+  fill: gold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .post-card {
+    padding: 15px;
+  }
+
+  .post-title {
+    font-size: 1.3rem;
+  }
+
+  .like-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}

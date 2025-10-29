@@ -1,4 +1,3 @@
-/* === popup.css === */
 :root {
   --popup-bg: rgba(15, 0, 40, 0.8);
   --popup-box: rgba(50, 0, 80, 0.9);
@@ -38,10 +37,6 @@
   margin-bottom: 15px;
   color: var(--popup-lilla-chiaro);
   text-shadow: 0 0 10px var(--popup-lilla);
-}
-
-.error-popup .loading-bar{
-  display: none;
 }
 
 .welcome-logo {
