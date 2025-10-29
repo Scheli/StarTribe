@@ -144,11 +144,11 @@ async function caricaProfilo() {
       banner.innerHTML = `<img src="${utente.bannerProfilo}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
     }
 
-    // --- Cornice selezionata ---
+    // --- Decorazione selezionata ---
     const selBox = document.getElementById("selectedBorderBox");
     const selImg = document.getElementById("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
-    if (selUrl) { selImg.src = selUrl; selImg.alt = "Cornice selezionata"; selBox.style.display = "block"; }
+    if (selUrl) { selImg.src = selUrl; selImg.alt = "Decorazione selezionata"; selBox.style.display = "block"; }
     else { selBox.style.display = "none"; }
 
     // Banner
@@ -235,7 +235,7 @@ const posts = postsData.success ? postsData.posts : [];
     if (container) {
       container.innerHTML = "";
       if (!posts.length) {
-        container.innerHTML = "<p>Nessun post trovato.</p>";
+        return;
       } else {
         posts.forEach(post => {
           const postElem = document.createElement("div");
@@ -382,10 +382,54 @@ async function handleBorderClick(key) {
   });
 }
 
-// ====== Follower/Seguiti ======
-function openUserList(type) {
-  const ids = type === "follower" ? CURRENT.followerIds : CURRENT.seguitiIds;
-  alert(`${type}:\n` + ids.join("\n"));
+// ======= BOX CENTRALE (MODALE) LISTA UTENTI =======
+const usersModal = document.getElementById("modalUsers");
+const usersTitle = document.getElementById("modalUsersTitle");
+const userListContainer = document.getElementById("userListContainer");
+
+function closeUsersModal() { usersModal.style.display = "none"; userListContainer.innerHTML = ""; }
+usersModal.addEventListener("click", (e) => { if (e.target.id === "modalUsers") closeUsersModal(); });
+
+async function getUserById(id){
+  try {
+    const res = await fetch(`http://localhost:8080/api/utente/${id}`);
+    const data = await res.json();
+    if (data && data.success) return { _id: id, ...data.utente };
+  } catch (e) { console.error("getUserById error:", e); }
+  return null;
+}
+
+async function openUserList(kind){
+  const ids = (kind === "follower") ? CURRENT.followerIds : CURRENT.seguitiIds;
+  usersTitle.textContent = (kind === "follower") ? "Follower" : "Seguiti";
+  usersModal.style.display = "flex";
+  userListContainer.innerHTML = `<div class="userlist-row-skeleton">Caricamento...</div>`;
+
+  if (!ids || !ids.length) {
+    userListContainer.innerHTML = `<div class="userlist-row-skeleton">Nessun utente</div>`;
+    return;
+  }
+
+  const results = await Promise.all(ids.map(getUserById));
+  const users = results.filter(Boolean);
+
+  userListContainer.innerHTML = users.map(u => `
+    <div class="userlist-item" data-id="${u._id}">
+      <img class="avatar" src="${u.immagineProfilo || "/frontend/assets/logo.png"}" alt="">
+      <div>
+        <div class="name">${u.username}</div>
+        <div class="points">Punti: ${u.punti || 0}</div>
+      </div>
+    </div>
+  `).join("");
+
+  userListContainer.querySelectorAll(".userlist-item").forEach(r => {
+    r.addEventListener("click", () => {
+      const id = r.getAttribute("data-id");
+      localStorage.setItem("utenteVisualizzato", id);
+      window.location.href = "/frontend/html/ProEsterno.html";
+    });
+  });
 }
 
 // ====== Avvio caricamento al DOM ready ======

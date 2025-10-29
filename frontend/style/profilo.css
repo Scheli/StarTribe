@@ -33,6 +33,49 @@ h2.titolo-profilo {
   padding: 30px 0 10px;
 }
 
+.navbar {
+  position: fixed;            
+  bottom: 0;                 
+  width: 100%;              
+  background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
+  padding: 20px;
+  height: 80px;
+  color: white;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #ffffff33;
+  z-index: 1000;             
+  box-sizing: border-box;
+}
+
+.btn-navbar{
+  background-color: #1f1f3d;
+  border: 2px solid #ffffff20;
+  border-radius: 8px;
+  margin: 5px;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-navbar:hover {
+  background-color: #2a2a50;
+  box-shadow: 0 0 10px #ffffff30;
+  transform: scale(1.05);
+}
+
+.navLink {
+  margin: 8px;
+  text-decoration: none;
+}
+
+
 /* Banner */
 #bannerProfilo {
   width: 100%;

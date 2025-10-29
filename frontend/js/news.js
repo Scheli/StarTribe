@@ -82,6 +82,9 @@ async function caricaUtentiConsigliati() {
     </button>
     <button class="news-icon-btn">
       <a href="/frontend/html/space_road.html" class="testoLink">🚀</a>
+    </button>
+    <button class="news-icon-btn">
+      <a href="/frontend/html/profilo.html" class="testoLink">👤</a>
     </button>`
   }
 }

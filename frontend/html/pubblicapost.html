@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="/frontend/style/pubblicapost.css">
         <title>Document</title>
         <script type="importmap">
@@ -15,11 +16,26 @@
     </script>
     </head>
     <body>
-        <section class="navbar">
-            <div class="logo">
-                <h1>Pubblica post</h1>
-            </div>
-        </section>
+
+    <h1 class="titolo">Pubblica Post</h1>
+
+    <div class="navbar">
+      <button class="btn-navbar">
+        <a href="/frontend/html/news.html" class="navLink">📰</a>
+      </button>
+      <button class="btn-navbar">
+        <a href="/frontend/html/pubblicapost.html" class="navLink">➕</a> 
+      </button>
+      <button class="btn-navbar">
+        <a href="/frontend/html/visualizzapost.html" class="navLink">🌍</a>
+      </button>
+      <button class="btn-navbar">
+        <a href="/frontend/html/chat.html" class="navLink">💬</a>
+      </button>
+      <button class="btn-navbar">
+        <a href="/frontend/html/space_road.html" class="navLink">🚀</a>
+      </button>
+    </div>
 
         <div class="container">
             <div class="post">
@@ -35,23 +51,7 @@
                 <input type="button" value="submit" onclick="Creapost()">
             </div>
         </div>
-
-        <div class="footer">
-            <div class="foot-buttons">
-                <button class="news-icon-btn">
-                    📰
-                </button>
-                <button class="news-icon-btn">
-                    ✚
-                </button>
-                <button class="news-icon-btn">
-                    💬
-                </button>
-                <button class="news-icon-btn">
-                    
-                </button>
-            </div>
-        </div>
+  </div>
 
         <script src="/frontend/js/creapost.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
