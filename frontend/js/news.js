@@ -70,22 +70,12 @@ async function caricaUtentiConsigliati() {
     });
 
     footerContainer.innerHTML=`
-
-    <button class="news-icon-btn">
-      <a href="/frontend/html/chat.html" class="testoLink">💬</a>
-    </button>
-    <button class="news-icon-btn">
-      <a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a>
-    </button>
-    <button class="news-icon-btn">
-      <a href="/frontend/html/visualizzapost.html" class="testoLink">🌍</a>
-    </button>
-    <button class="news-icon-btn">
-      <a href="/frontend/html/space_road.html" class="testoLink">🚀</a>
-    </button>
-    <button class="news-icon-btn">
-      <a href="/frontend/html/profilo.html" class="testoLink">👤</a>
-    </button>`
+    <button class="news-icon-btn"><a href="/frontend/html/chat.html" class="testoLink">💬</a></button>
+    <button class="news-icon-btn"><a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a></button>
+    <button class="news-icon-btn"><a href="/frontend/html/visualizzapost.html" class="testoLink">🌍</a></button>
+    <button class="news-icon-btn"><a href="/frontend/html/space_road.html" class="testoLink">🚀</a></button>
+    <button class="news-icon-btn"><a href="/frontend/html/profilo.html" class="testoLink">👤</a></button>
+    <button class="news-icon-btn"><a href="/frontend/html/index.html" class="testoLink">🏠</a></button>`
   }
 }
   catch (error) {
