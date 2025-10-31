@@ -32,7 +32,6 @@ html, body {
   box-shadow: 0 1px 6px #0008;
 }
 
-/* Contenitore interno con titolo e pulsanti */
 .header-content {
   display: flex;
   justify-content: space-between;
