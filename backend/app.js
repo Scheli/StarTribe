@@ -723,7 +723,6 @@ app.get("/api/utente/:id", async (req, res) => {
 
 app.use(express.json());
 
-// rotta con multer (upload singolo file)
 app.post("/api/pubblicapost", upload.single("file"), async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -738,7 +737,7 @@ app.post("/api/pubblicapost", upload.single("file"), async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
 
-    const { titolo, descrizione } = req.body; // multer processa i campi testo e serve per gestire upload di file inviati tramite form, quando invii un form come file il browser non lo invia come json ma come un pacchetto speciale, quindi express non lo sa interpretare.
+    const { titolo, descrizione } = req.body;
     if (!req.file || !titolo || !descrizione) {
       return res.status(400).json({ success: false, message: "Tutti i campi sono obbligatori" });
     }
@@ -788,10 +787,8 @@ app.get("/api/post", async (req, res) => {
     const articoli = db.collection("articoli");
     const utenti = db.collection("utenti");
 
-    // recupera tutti i post
     const posts = await articoli.find({}).toArray();
 
-    // mappa i post aggiungendo nome e immagine autore
     const postsFormatted = await Promise.all(posts.map(async (post) => {
       let autore = null;
 
@@ -820,9 +817,6 @@ app.get("/api/post", async (req, res) => {
   }
 });
 
-
-//recupero post in base all'id dell'utente
-
 app.get("/api/postutente", async (req, res) => {
   const authHeader = req.headers.authorization;
 
@@ -835,13 +829,12 @@ app.get("/api/postutente", async (req, res) => {
     return res.status(401).json({ success: false, message: "Token mancante" });
   }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET); // usa la stessa chiave del login
-    const userId = decoded.userId; // qui deve corrispondere al payload del token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
 
     const db = await connectToDB();
     const articoli = db.collection("articoli");
 
-    // recupera solo i post dell'utente loggato
     const posts = await articoli
       .find({ userId: userId }) 
       .sort({ createdAt: -1 })

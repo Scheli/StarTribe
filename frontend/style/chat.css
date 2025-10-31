@@ -1,29 +1,102 @@
-.chat-container {
-  position: fixed;
-  top: 1;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, #0c0c20, #090a21);
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
-  color: white;
-  overflow: hidden;
+/* ====== RESET BASE ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  background: #0c0c20;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* ====== CHAT HEADER ====== */
 .chat-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
   background: linear-gradient(to right, #2e1550, #3b1c60);
-  padding: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  color: #d3d0ff;
   font-size: 1.2rem;
   font-weight: bold;
-  color: #d3d0ff;
-  border-bottom: 1px solid #444;
-  text-align: center;
+  font-family: "orbitron", sans-serif;
   letter-spacing: 0.03em;
+  z-index: 2000;
   box-shadow: 0 1px 6px #0008;
 }
 
+/* Contenitore interno con titolo e pulsanti */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Titolo a sinistra */
+.header-center {
+  white-space: nowrap;
+  font-size: 4vh;
+  color: white;
+}
+
+/* Pulsanti a destra */
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Pulsanti */
+.btn-navbar {
+  background-color: #1f1f3d;
+  border: 2px solid #ffffff20;
+  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-navbar:hover {
+  background-color: #2a2a50;
+  box-shadow: 0 0 10px #ffffff30;
+  transform: scale(1.05);
+}
+
+.navLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ====== CHAT CONTAINER ====== */
+.chat-container {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 80px);
+  display: flex;
+  flex-direction: column;
+  color: white;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #0c0c20, #090a21);
+  z-index: 1000;
+}
+
+/* ====== AREA MESSAGGI ====== */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -73,6 +146,7 @@
   text-align: right;
 }
 
+/* ====== INPUT MESSAGGI ====== */
 .chat-input {
   display: flex;
   padding: 10px;
@@ -105,44 +179,8 @@
   background: #8376ff;
 }
 
-.navbar {
-  position: fixed;            
-  top: 0;                 
-  width: 100%;              
-  background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
-  padding: 20px;
-  height: 80px;
-  color: white;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top: 1px solid #ffffff33;
-  z-index: 1000;             
-  box-sizing: border-box;
-}
-
-.btn-navbar{
-  background-color: #1f1f3d;
-  border: 2px solid #ffffff20;
-  border-radius: 8px;
-  margin: 5px;
-  font-size: 22px;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-navbar:hover {
-  background-color: #2a2a50;
-  box-shadow: 0 0 10px #ffffff30;
-  transform: scale(1.05);
-}
-
-.navLink {
-  margin: 8px;
-  text-decoration: none;
+/* ====== ANIMAZIONE MESSAGGI ====== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
