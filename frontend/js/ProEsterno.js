@@ -87,9 +87,14 @@ if (!utenteId) {
       const trophySrc = resolveTrophy(u.selectedBorder);
       borderImg.src = trophySrc || DEFAULT_LOGO;
 
-      if (isProvided(u.bannerProfilo)) {
-        document.getElementById("banner").innerHTML =
-          `<img src="${window.safeDom.sanitizeText(u.bannerProfilo)}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
+      if (isProvided(u.bannerProfilo) && (/^https?:\/\//i.test(u.bannerProfilo) || u.bannerProfilo.startsWith('/'))) {
+        const bannerEl = document.getElementById('banner');
+        while (bannerEl.firstChild) bannerEl.removeChild(bannerEl.firstChild);
+        const b = document.createElement('img');
+        b.src = u.bannerProfilo;
+        b.style.width = '100%'; b.style.maxHeight = '500px'; b.style.objectFit = 'cover'; b.style.objectPosition = 'top';
+        b.alt = 'Banner';
+        bannerEl.appendChild(b);
       }
 
       if (token) {

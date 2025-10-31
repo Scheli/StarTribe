@@ -126,22 +126,34 @@ async function caricaProfilo() {
     CURRENT.avatarBaseUrl  = utente.immagineProfilo || "";
     CURRENT.selectedBorder = utente.selectedBorder || "none";
 
-    const media = document.getElementById("mediaProfilo");
-    media.innerHTML = "";
+  const media = document.getElementById("mediaProfilo");
+  while (media.firstChild) media.removeChild(media.firstChild);
     const display = CURRENT.avatarBaseUrl || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
     if (display) {
       if (eVideo(display)) {
-        media.innerHTML = `<video width="220" height="260" style="border-radius:50%;object-fit:cover" controls src="${display}"></video>`;
+        const video = document.createElement('video');
+        video.width = 220; video.height = 260; video.controls = true;
+        video.style.borderRadius = '50%'; video.style.objectFit = 'cover';
+        // only set src if it looks like an http(s) URL or a safe local path
+        if (/^https?:\/\//i.test(display) || display.startsWith('/')) video.src = display;
+        media.appendChild(video);
       } else {
-        media.innerHTML = `<img src="${display}" alt="Immagine profilo" width="220" height="260" style="border-radius:50%;object-fit:cover"/>`;
+        const img = document.createElement('img');
+        img.width = 220; img.height = 260; img.alt = 'Immagine profilo';
+        img.style.borderRadius = '50%'; img.style.objectFit = 'cover';
+        if (/^https?:\/\//i.test(display) || display.startsWith('/')) img.src = display;
+        media.appendChild(img);
       }
     }
 
     // --- Banner ---
-    const banner = document.getElementById("bannerProfilo");
-    banner.innerHTML = "";
-    if (utente.bannerProfilo) {
-      banner.innerHTML = `<img src="${utente.bannerProfilo}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+  const banner = document.getElementById("bannerProfilo");
+  while (banner.firstChild) banner.removeChild(banner.firstChild);
+    if (utente.bannerProfilo && (/^https?:\/\//i.test(utente.bannerProfilo) || utente.bannerProfilo.startsWith('/'))) {
+      const bimg = document.createElement('img');
+      bimg.src = utente.bannerProfilo;
+      bimg.alt = 'Banner'; bimg.style.maxHeight = '200px'; bimg.style.objectFit = 'cover'; bimg.style.width = '100%';
+      banner.appendChild(bimg);
     }
 
     // --- Decorazione selezionata ---
@@ -152,103 +164,145 @@ async function caricaProfilo() {
     else { selBox.style.display = "none"; }
 
     // Banner
-    const banner1 = document.getElementById("bannerProfilo");
-    banner1.innerHTML = "";
-    if (data.utente.bannerProfilo) {
-      banner1.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+  const banner1 = document.getElementById("bannerProfilo");
+  while (banner1.firstChild) banner1.removeChild(banner1.firstChild);
+    if (data.utente.bannerProfilo && (/^https?:\/\//i.test(data.utente.bannerProfilo) || data.utente.bannerProfilo.startsWith('/'))) {
+      const bimg = document.createElement('img');
+      bimg.src = data.utente.bannerProfilo;
+      bimg.alt = 'Banner'; bimg.style.maxHeight = '200px'; bimg.style.objectFit = 'cover'; bimg.style.width = '100%';
+      banner1.appendChild(bimg);
     }
 
     // Aggiorna il nome utente nel titolo dei post
     document.getElementById("postUsername").textContent = window.safeDom.sanitizeText(data.utente.username);
 
-    // Generazione post di esempio (da sostituire con i veri post quando il backend sarà pronto)
+    // Container principale per i post
     const postContainer = document.getElementById("postContainer");
-    if (postContainer) {
-      const examplePosts = [
-        {
-          title: "Scoperta di una nuova galassia! 🌌",
-          text: "Ho appena scoperto una nuova galassia! Le stelle qui brillano di una luce mai vista prima. La loro luminosità è qualcosa di straordinario, mai visto nulla di simile nei miei viaggi spaziali. #Esplorazione #StarTribe",
-          image: "../assets/nebula1.jpg",
-          date: "28 Ottobre 2025",
-          likes: 15
-        },
-        {
-          title: "Nebulosa arcobaleno ✨",
-          text: "Una meravigliosa nebulosa si staglia all'orizzonte. I colori sono incredibili! Ho passato ore ad osservare questo spettacolo naturale. La varietà di colori e forme mi ha lasciato senza parole. 🌌 #SpaceExploration #CosmicBeauty",
-          image: "../assets/planet2.jpg",
-          date: "27 Ottobre 2025",
-          likes: 23
+    if (!postContainer) return;
+  while (postContainer.firstChild) postContainer.removeChild(postContainer.firstChild);
+
+    // Funzione che costruisce e inserisce un singolo post usando DOM (sicuro)
+    function renderPost(post, author) {
+      const article = document.createElement('article');
+      article.className = 'post-card';
+
+      // Header
+      const header = document.createElement('header'); header.className = 'post-header';
+      const avatar = document.createElement('img');
+      avatar.src = author.immagineProfilo || '../assets/default-pfp.jpg';
+      avatar.alt = window.safeDom.sanitizeText(author.username || '');
+      const authorInfo = document.createElement('div'); authorInfo.className = 'post-author-info';
+      const authorName = document.createElement('div'); authorName.className = 'post-author-name'; authorName.textContent = window.safeDom.sanitizeText(author.username || '');
+      const timeEl = document.createElement('time'); timeEl.className = 'post-date'; timeEl.textContent = post.createdAt ? new Date(post.createdAt).toLocaleDateString('it-IT') : '';
+      authorInfo.append(authorName, timeEl);
+      header.append(avatar, authorInfo);
+      article.appendChild(header);
+
+      // Image (se presente)
+      if (post.ImmaginePost) {
+        const imgWrap = document.createElement('div'); imgWrap.className = 'post-image-container';
+        const pimg = document.createElement('img'); pimg.className = 'post-image'; pimg.src = post.ImmaginePost; pimg.alt = window.safeDom.sanitizeText(post.titolo || '');
+        imgWrap.appendChild(pimg);
+        article.appendChild(imgWrap);
+      }
+
+      // Details
+      const details = document.createElement('div'); details.className = 'post-details';
+      const title = document.createElement('h3'); title.className = 'post-title'; title.textContent = window.safeDom.sanitizeText(post.titolo || '');
+      const txt = document.createElement('p'); txt.className = 'post-text'; txt.textContent = window.safeDom.sanitizeText(post.descrizione || '');
+      details.append(title, txt);
+      article.appendChild(details);
+
+      // Footer / Actions
+      const footer = document.createElement('footer'); footer.className = 'post-footer';
+      const actions = document.createElement('div'); actions.className = 'post-actions';
+      const likeBtn = document.createElement('button'); likeBtn.className = 'like-button';
+      likeBtn.dataset.postId = post._id && post._id.$oid ? post._id.$oid : (post._id || '');
+  const star = document.createElement('span'); star.className = 'like-icon';
+  // create SVG star icon via DOM (safer)
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svgEl = document.createElementNS(svgNS, 'svg');
+  svgEl.setAttribute('aria-hidden', 'true');
+  svgEl.setAttribute('width', '18');
+  svgEl.setAttribute('height', '18');
+  svgEl.setAttribute('viewBox', '0 0 24 24');
+  svgEl.setAttribute('fill', 'currentColor');
+  const path = document.createElementNS(svgNS, 'path');
+  path.setAttribute('d', 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z');
+  svgEl.appendChild(path);
+  star.appendChild(svgEl);
+      const count = document.createElement('span'); count.className = 'like-count'; count.textContent = post.likes || 0;
+      likeBtn.append(star, count);
+      actions.appendChild(likeBtn);
+      footer.appendChild(actions);
+      article.appendChild(footer);
+
+      // Like listener (UI + chiamata API)
+      likeBtn.addEventListener('click', async function () {
+        try {
+          const postId = this.dataset.postId;
+          if (!postId) return;
+          const res = await fetch(`http://localhost:8080/api/posts/${postId}/like`, {
+            method: 'POST', headers: { Authorization: 'Bearer ' + token }
+          });
+          const rjson = await resJsonSafe(res);
+          if (rjson && rjson.success) {
+            this.classList.toggle('liked');
+            const c = this.querySelector('.like-count');
+            const n = parseInt(c.textContent) || 0;
+            c.textContent = this.classList.contains('liked') ? n + 1 : Math.max(0, n - 1);
+            // micro-interaction: pop animation
+            this.classList.add('pop');
+            setTimeout(() => this.classList.remove('pop'), 420);
+          } else {
+            showPopup({ title: 'Errore', text: window.safeDom.sanitizeText(rjson.message || 'Impossibile aggiornare il like') });
+          }
+        } catch (e) {
+          console.error('like error', e);
+          showPopup({ title: 'Errore', text: 'Impossibile aggiornare il like' });
         }
-      ];
+      });
 
-      postContainer.innerHTML = examplePosts.map(post => {
-        const sanitizedTitle = window.safeDom.sanitizeText(post.title);
-        const sanitizedText = window.safeDom.sanitizeText(post.text);
-        const sanitizedDate = window.safeDom.sanitizeText(post.date);
-        const sanitizedUsername = window.safeDom.sanitizeText(data.utente.username);
-        return `
-          <article class="post-card">
-            <header class="post-header">
-              <img src="${data.utente.immagineProfilo || '../assets/default-pfp.jpg'}" alt="${sanitizedUsername}">
-              <div class="username">${sanitizedUsername}</div>
-            </header>
-
-            ${post.image ? `
-              <div class="post-image-container">
-                <img src="${post.image}" alt="${sanitizedTitle}" class="post-image">
-              </div>
-            ` : ''}
-
-            <div class="post-details">
-              <h3 class="post-title">${sanitizedTitle}</h3>
-              <p class="post-text">${sanitizedText}</p>
-            </div>
-
-            <footer class="post-footer">
-              <div class="post-actions">
-                <button class="like-button" data-likes="${post.likes}">
-                  <span class="like-icon">❤️</span>
-                  <span class="like-count">${post.likes}</span>
-                </button>
-              </div>
-              <time class="post-date">${sanitizedDate}</time>
-            </footer>
-          </article>
-        `;
-      }).join('');
+      postContainer.appendChild(article);
     }
 
+    // Esempi fallback (sviluppo) - saranno usati se il fetch reale fallisce o non ritorna post
+    const examplePosts = [
+      {
+        titolo: 'Scoperta di una nuova galassia! 🌌',
+        descrizione: "Ho appena scoperto una nuova galassia! Le stelle qui brillano di una luce mai vista prima.",
+        ImmaginePost: '../assets/nebula1.jpg',
+        createdAt: '2025-10-28',
+        likes: 15
+      },
+      {
+        titolo: 'Nebulosa arcobaleno ✨',
+        descrizione: 'Una meravigliosa nebulosa si staglia all\'orizzonte. I colori sono incredibili!',
+        ImmaginePost: '../assets/planet2.jpg',
+        createdAt: '2025-10-27',
+        likes: 23
+      }
+    ];
+
+    // Prima carichiamo l'interfaccia dei trofei (può cambiare classi selezionate)
     await setupBordersUI();
 
-    // --- Fetch dei post dell’utente separatamente ---
-    const userId = utente._id.$oid || utente._id;
-const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`);
-if (!postsRes.ok) {
-  console.error("Errore fetch post:", postsRes.status, postsRes.statusText);
-  return;
-}
-const postsData = await postsRes.json();
-const posts = postsData.success ? postsData.posts : [];
-
-
-    const container = document.getElementById("postContainer");
-    if (container) {
-      container.innerHTML = "";
-      if (!posts.length) {
-        return;
+    // Fetch dei post reali; se fallisce o non ne trova, uso fallback examplePosts
+    try {
+      const userId = utente._id && utente._id.$oid ? utente._id.$oid : (utente._id || '');
+      const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`, { headers: { Authorization: 'Bearer ' + token } });
+      if (!postsRes.ok) throw new Error('fetch posts failed');
+      const postsData = await postsRes.json();
+      const posts = postsData && postsData.success ? postsData.posts : [];
+      if (!posts || !posts.length) {
+        // fallback
+        examplePosts.forEach(p => renderPost(p, data.utente));
       } else {
-        posts.forEach(post => {
-          const postElem = document.createElement("div");
-          postElem.className = "post";
-          postElem.innerHTML = `
-            <h3>${post.titolo}</h3>
-            <p>${post.descrizione}</p>
-            ${post.ImmaginePost ? `<img src="${post.ImmaginePost}" width="200" height="150"/>` : ""}
-            <small>Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</small>
-          `;
-          container.appendChild(postElem);
-        });
+        posts.forEach(p => renderPost(p, data.utente));
       }
+    } catch (e) {
+      console.warn('Caricamento post reali fallito, uso fallback examplePosts', e);
+      examplePosts.forEach(p => renderPost(p, data.utente));
     }
 
   } catch (err) {
@@ -387,7 +441,7 @@ const usersModal = document.getElementById("modalUsers");
 const usersTitle = document.getElementById("modalUsersTitle");
 const userListContainer = document.getElementById("userListContainer");
 
-function closeUsersModal() { usersModal.style.display = "none"; userListContainer.innerHTML = ""; }
+function closeUsersModal() { usersModal.style.display = "none"; while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild); }
 usersModal.addEventListener("click", (e) => { if (e.target.id === "modalUsers") closeUsersModal(); });
 
 async function getUserById(id){
@@ -403,32 +457,48 @@ async function openUserList(kind){
   const ids = (kind === "follower") ? CURRENT.followerIds : CURRENT.seguitiIds;
   usersTitle.textContent = (kind === "follower") ? "Follower" : "Seguiti";
   usersModal.style.display = "flex";
-  userListContainer.innerHTML = `<div class="userlist-row-skeleton">Caricamento...</div>`;
+  // show skeleton via DOM
+  while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild);
+  const skeleton = document.createElement('div'); skeleton.className = 'userlist-row-skeleton'; skeleton.textContent = 'Caricamento...';
+  userListContainer.appendChild(skeleton);
 
   if (!ids || !ids.length) {
-    userListContainer.innerHTML = `<div class="userlist-row-skeleton">Nessun utente</div>`;
+  while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild);
+  const noneEl = document.createElement('div'); noneEl.className = 'userlist-row-skeleton'; noneEl.textContent = 'Nessun utente';
+  userListContainer.appendChild(noneEl);
     return;
   }
 
   const results = await Promise.all(ids.map(getUserById));
   const users = results.filter(Boolean);
 
-  userListContainer.innerHTML = users.map(u => `
-    <div class="userlist-item" data-id="${u._id}">
-      <img class="avatar" src="${u.immagineProfilo || "/frontend/assets/logo.png"}" alt="">
-      <div>
-        <div class="name">${u.username}</div>
-        <div class="points">Punti: ${u.punti || 0}</div>
-      </div>
-    </div>
-  `).join("");
+  while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild);
+  users.forEach(u => {
+    const item = document.createElement('div');
+    item.className = 'userlist-item';
+    item.dataset.id = u._id || '';
 
-  userListContainer.querySelectorAll(".userlist-item").forEach(r => {
-    r.addEventListener("click", () => {
-      const id = r.getAttribute("data-id");
-      localStorage.setItem("utenteVisualizzato", id);
-      window.location.href = "/frontend/html/ProEsterno.html";
+    const avatar = document.createElement('img');
+    avatar.className = 'avatar';
+    avatar.src = (u.immagineProfilo && (/^https?:\/\//i.test(u.immagineProfilo) || u.immagineProfilo.startsWith('/'))) ? u.immagineProfilo : '/frontend/assets/logo.png';
+    avatar.alt = '';
+
+    const info = document.createElement('div');
+    const name = document.createElement('div'); name.className = 'name';
+    name.textContent = (window.safeDom && window.safeDom.sanitizeText) ? window.safeDom.sanitizeText(u.username || '') : (u.username || '');
+    const pts = document.createElement('div'); pts.className = 'points';
+    pts.textContent = 'Punti: ' + (u.punti || 0);
+
+    info.appendChild(name); info.appendChild(pts);
+    item.appendChild(avatar); item.appendChild(info);
+
+    item.addEventListener('click', () => {
+      const id = item.getAttribute('data-id');
+      localStorage.setItem('utenteVisualizzato', id);
+      window.location.href = '/frontend/html/ProEsterno.html';
     });
+
+    userListContainer.appendChild(item);
   });
 }
 

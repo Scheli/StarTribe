@@ -51,7 +51,7 @@ function bindLightboxHandlers() {
 }
 
 function renderCards(cards) {
-  grid.innerHTML = "";
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
   if (!cards || !cards.length) {
     setStatus("Nessuna carta ancora. Prova a pescare nella pagina Tenta la Fortuna.");
     return;

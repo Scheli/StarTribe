@@ -41,7 +41,7 @@ function svgPointAt(t) {
 
 function placeMilestones(milestones) {
   const layer = document.getElementById("milestonesLayer");
-  layer.innerHTML = "";
+  while (layer.firstChild) layer.removeChild(layer.firstChild);
   const lastPts = milestones[milestones.length - 1].points;
 
   milestones.forEach(m => {

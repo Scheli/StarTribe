@@ -22,8 +22,12 @@ html, body {
   height: 100%;
   background: var(--bg-primary-color);
   color: var(--color-text);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden;
+  /* leave space for top navbar */
+  padding-top: 72px;
+  /* leave extra space at bottom so fixed bottom navbar doesn't cover actions */
+  padding-bottom: 110px;
 }
 
 h2.titolo-profilo {
@@ -33,10 +37,11 @@ h2.titolo-profilo {
   padding: 30px 0 10px;
 }
 
+/* Bottom navigation bar used for quick actions (kept as .navbar) */
 .navbar {
-  position: fixed;            
-  bottom: 0;                 
-  width: 100%;              
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   background: linear-gradient(to top, var(--bg-primary-color-selected), var(--bg-primary-color));
   padding: 20px;
   height: 80px;
@@ -46,9 +51,35 @@ h2.titolo-profilo {
   align-items: center;
   justify-content: center;
   border-top: 1px solid #ffffff33;
-  z-index: 1000;             
+  z-index: 1000;
   box-sizing: border-box;
 }
+
+/* Top navbar (profile title / username) */
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  background: linear-gradient(90deg, rgba(10,6,30,0.85), rgba(16,10,45,0.6));
+  border-bottom: 1px solid rgba(199,154,255,0.06);
+  backdrop-filter: blur(6px);
+}
+.top-navbar .username {
+  font-family: 'Orbitron', 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: var(--color-lilla-chiaro);
+  font-size: 1.4rem;
+  letter-spacing: 0.6px;
+}
+
+/* Type sample for glyph preview */
+/* removed glyph preview - user requested removal */
 
 .btn-navbar{
   background-color: #1f1f3d;
@@ -394,7 +425,7 @@ h2.titolo-profilo {
   position: fixed;
   right: 20px;
   bottom: 20px;
-  z-index: 900; 
+  z-index: 1100; 
   display: inline-block;
 }
 .album-fab img{

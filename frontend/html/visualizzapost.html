@@ -3,41 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/frontend/style/visualizzapost.css">
+            <link rel="stylesheet" href="/frontend/style/post-cards.css">
+            <link rel="stylesheet" href="/frontend/style/visualizzapost.css">
+            <link rel="stylesheet" href="/frontend/style/popup.css">
     <title>Document</title>
 </head>
 <body>
-    <section class="navbar">
-            <div class="logo">
-                <h1>Post</h1>
+        <section class="navbar">
+            <div class="username">Post</div>
+        </section>
+
+        <main class="posts-section">
+                    <div class="side-decorations ">
+                        <img src="/frontend/assets/nebula1.png" alt="nebula-top">
+                        <img src="/frontend/assets/rocket (2).png" alt="rocket-center">
+                        <img src="/frontend/assets/planet1.png" alt="planet-bottom">
+                    </div>
+
+            <div class="post-container">
+                <div class="posts-title">Post suggeriti</div>
+                <!-- posts will be appended here -->
             </div>
-    </section>
 
-    <div class="container">
-        <div class="post">
-            <div class="post-utenti"></div>
-        </div>
-    </div>
+                    <div class="side-decorations ">
+                        <img src="/frontend/assets/nebula1.png" alt="nebula-top">
+                        <img src="/frontend/assets/ufo.png" alt="ufo-center">
+                        <img src="/frontend/assets/planet2.png" alt="planet-bottom">
+                    </div>
+        </main>
+
+                <div class="footer">
+                    <div class="foot-buttons">
+                        <button class="news-icon-btn"><a href="/frontend/html/news.html">📰</a></button>
+                        <button class="news-icon-btn"><a href="/frontend/html/pubblicapost.html">✚</a></button>
+                        <button class="news-icon-btn"><a href="/frontend/html/chat.html">💬</a></button>
+                        <button class="news-icon-btn"><a href="/frontend/html/space_road.html">🚀</a></button>
+                        <button class="news-icon-btn"><a href="/frontend/html/profilo.html">👤</a></button>
+                    </div>
+                </div>
 
 
 
-    <div class="footer">
-        <div class="foot-buttons">
-            <button class="news-icon-btn">
-                <a href="/frontend/html/news.html">📰</a>
-            </button>
-
-            <button class="news-icon-btn">
-                <a href="/frontend/html/pubblicapost.html">✚</a>
-            </button>
-            <button class="news-icon-btn">
-                <a href="/frontend/html/chat.html">💬</a>
-            </button>
-            <button class="news-icon-btn">
-                    
-            </button>
-        </div>
-    </div>
+    
   <script type="module" src="../js/areaprotetta.js"></script>
 
     <script src="/frontend/js/visualizzapost.js"></script>

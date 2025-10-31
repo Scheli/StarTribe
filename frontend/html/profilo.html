@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Profilo Utente</title>
+  <!-- Theme fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style/profilo.css" />
   <link rel="stylesheet" href="../style/popup.css" />
   <link rel="stylesheet" href="../style/post-cards.css" />
@@ -10,12 +12,14 @@
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar">
+  <nav class="top-navbar">
     <div class="username" id="navUsername"></div>
   </nav>
 
   <!-- Banner utente -->
   <div id="bannerProfilo" class="banner-profilo"></div>
+
+  
 
   <div class="navbar">
     <button class="btn-navbar">
@@ -76,9 +80,9 @@
   <!-- Sezione Post -->
   <section class="posts-section">
     <!-- Decorazioni lato sinistro -->
-    <div class="side-decorations left">
-      <img src="../assets/nebula1.jpg" alt="Decorative nebula">
-      <img src="../assets/planet1.jpg" alt="Decorative planet">
+  <div class="side-decorations ">
+      <img src="../assets/planet1.png" alt="Pianeta decorativo">
+      <img src="../assets/rocket (2).png" alt="Razzo decorativo">
     </div>
 
     <!-- Colonna centrale con i post -->
@@ -88,9 +92,9 @@
     </div>
 
     <!-- Decorazioni lato destro -->
-    <div class="side-decorations right">
-      <img src="../assets/nebula2.jpg" alt="Decorative nebula">
-      <img src="../assets/planet2.jpg" alt="Decorative planet">
+    <div class="side-decorations ">
+      <img src="../assets/nebula1.png" alt="Nebulosa decorativa">
+      <img src="../assets/ufo.png" alt="UFO decorativo">
     </div>
   </section>
 
@@ -173,12 +177,7 @@
     </div>
   </div>
 
-  <section class="post-wrapper">
-  <h3>I tuoi post</h3>
-  <div id="postContainer" class="post-container">
-    <!-- I post verranno inseriti qui tramite JS -->
-  </div>
-</section>
+  <!-- Sezione post: il container è già presente nella `.posts-section` sopra. Rimosso duplicato qui. -->
 
   <!-- BOX CENTRALE: lista follower/seguiti -->
   <div id="modalUsers" class="modal-overlay">
