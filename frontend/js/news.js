@@ -2,83 +2,80 @@ const token = localStorage.getItem("token");
 
 async function caricaUtentiConsigliati() {
   try {
+
     const response = await fetch('http://localhost:8080/news');
     if (!response.ok) throw new Error('Errore nella risposta della fetch');
 
     const utenti = await response.json();
 
     const utentiContainer = document.querySelector('.utenti');
+    const navbarContainer = document.querySelector('.navbar');
+
+    navbarContainer.innerHTML = `
+      <div class="navbar-content">
+        <div class="navbar-left">
+          <h1 class="navbar-title">News</h1>
+        </div>
+        <div class="navbar-right" id="navbar-buttons"></div>
+      </div>
+      `;
+
+    const navbarButtons = document.getElementById('navbar-buttons');
 
     if (!token) {
-      const navbarContainer = document.querySelector('.navbar');
+      utentiContainer.innerHTML = `
+        <h3>Utenti suggeriti:</h3>
+        <p>Effettua il login per visualizzare gli utenti</p>`
 
-      utentiContainer.innerHTML=` <h3>Utenti suggeriti:</h3>
-      <p>Effettua il login per visualizzare gli utenti</p>`;
-
-      navbarContainer.innerHTML=`
-      <img src="/frontend/assets/logo.png" class="logoNavbar"/>
-
-      <button class="news-icon-btn">
-        <a href="/frontend/html/login.html" class="testoLink">Login</a>
-      </button>
-      <button class="news-icon-btn">
-        <a href="/frontend/html/registrazione.html" class="testoLink">Registrati</a>
-      </button>`
-    }
-    
-    else {
-
-    const footerContainer = document.querySelector('.footer');
-
-    utentiContainer.innerHTML = '<h3>Utenti suggeriti:</h3>';
-
-    utenti.forEach(utente => {
-      const div = document.createElement('div');
-      div.classList.add('utente');
-
-      const borderUrl = (utente.selectedBorder && utente.selectedBorder !== 'none')
-        ? utente.selectedBorder
-        : '';
-    
-    if (utente.immagineProfilo){
-      div.innerHTML = `
-        <img src="${utente.immagineProfilo}" alt="Immagine profilo">
-      <p>${utente.username}</p>
-      <p>Punteggio: ${utente.punti}</p>
-      ${borderUrl ? `
-        <div class="trophy-badge">
-          <img class="trophy-icon" src="${borderUrl}" alt="Cornice selezionata">
-        </div>` : ``}`
+      navbarButtons.innerHTML = `
+        <button class="news-icon-btn"><a href="/frontend/html/login.html" class="testoLink">Login</a></button>
+        <button class="news-icon-btn"><a href="/frontend/html/registrazione.html" class="testoLink">Registrati</a></button>
+      `;
     }
     else {
-      div.innerHTML = `
-        <img src="/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg" alt="Immagine profilo">
-      <p>${utente.username}</p>
-      <p>Punteggio: ${utente.punti}</p>
-      ${borderUrl ? `
-        <div class="trophy-badge">
-          <img class="trophy-icon" src="${borderUrl}" alt="Cornice selezionata">
-        </div>` : ``}`
-    }
+      utentiContainer.innerHTML = '<h3>Utenti suggeriti:</h3>';
 
-      div.addEventListener('click', () => {
-        localStorage.setItem('utenteVisualizzato', utente._id);
-        window.location.href = '/frontend/html/ProEsterno.html';
+      utenti.forEach(utente => {
+        const div = document.createElement('div');
+        div.classList.add('utente');
+
+        const borderUrl = (utente.selectedBorder && utente.selectedBorder !== 'none')
+          ? utente.selectedBorder
+          : '';
+
+        const imgSrc = utente.immagineProfilo
+          ? utente.immagineProfilo
+          : '/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg';
+
+        div.innerHTML = `
+          <img src="${imgSrc}" alt="Immagine profilo">
+          <p>${utente.username}</p>
+          <p>Punteggio: ${utente.punti}</p>
+          ${borderUrl ? `
+            <div class="trophy-badge">
+              <img class="trophy-icon" src="${borderUrl}" alt="Cornice selezionata">
+            </div>` : ``}
+        `;
+
+        div.addEventListener('click', () => {
+          localStorage.setItem('utenteVisualizzato', utente._id);
+          window.location.href = '/frontend/html/ProEsterno.html';
+        });
+
+        utentiContainer.appendChild(div);
       });
 
-      utentiContainer.appendChild(div);
-    });
+      navbarButtons.innerHTML = `
+        <button class="news-icon-btn"><a href="/frontend/html/chat.html" class="testoLink">💬</a></button>
+        <button class="news-icon-btn"><a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a></button>
+        <button class="news-icon-btn"><a href="/frontend/html/visualizzapost.html" class="testoLink">🌍</a></button>
+        <button class="news-icon-btn"><a href="/frontend/html/space_road.html" class="testoLink">🚀</a></button>
+        <button class="news-icon-btn"><a href="/frontend/html/profilo.html" class="testoLink">👤</a></button>
+        <button class="news-icon-btn"><a href="/frontend/html/index.html" class="testoLink">🏠</a></button>
+      `;
+    }
 
-    footerContainer.innerHTML=`
-    <button class="news-icon-btn"><a href="/frontend/html/chat.html" class="testoLink">💬</a></button>
-    <button class="news-icon-btn"><a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a></button>
-    <button class="news-icon-btn"><a href="/frontend/html/visualizzapost.html" class="testoLink">🌍</a></button>
-    <button class="news-icon-btn"><a href="/frontend/html/space_road.html" class="testoLink">🚀</a></button>
-    <button class="news-icon-btn"><a href="/frontend/html/profilo.html" class="testoLink">👤</a></button>
-    <button class="news-icon-btn"><a href="/frontend/html/index.html" class="testoLink">🏠</a></button>`
-  }
-}
-  catch (error) {
+  } catch (error) {
     console.error('Errore nel caricamento utenti:', error);
   }
 }
@@ -93,6 +90,7 @@ async function fetchAllNews() {
     const data = await res.json();
     mostraAPOD(data.apod);
     mostraWeather(data.weather);
+    mostraNasaImage(data.imageLibrary);
   } catch (err) {
     console.error('Errore nel caricamento dati:', err);
   }
@@ -109,10 +107,29 @@ function mostraAPOD(apod) {
 
 function mostraWeather(weather) {
   const div = document.getElementById('weather');
-  const sol = weather.sol_keys[0]; 
-  const tempData = weather[sol].AT;   
-  div.innerHTML = `<h3>Meteo su Marte</h3>
-  <p>Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C</p>`;
+  const sol = weather.sol_keys[0];
+  const tempData = weather[sol].AT;
+  div.innerHTML = `
+    <h3>Meteo su Marte</h3>
+    <p>Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C</p>
+  `;
+}
+
+function mostraNasaImage(item) {
+  const div = document.getElementById("nasaImage");
+  if (!item) {
+    div.innerHTML = `<p>Nessuna immagine trovata.</p>`;
+    return;
+  }
+  const imgSrc = item.links?.[0]?.href || "";
+  const title = item.data?.[0]?.title || "Immagine NASA";
+  const description = item.data?.[0]?.description || "Nessuna descrizione disponibile.";
+
+  div.innerHTML = `
+    <h3>${title}</h3>
+    <img src="${imgSrc}" alt="${title}" style="max-width:100%; border-radius:10px;">
+    <p>${description}</p>
+  `;
 }
 
 document.addEventListener('DOMContentLoaded', fetchAllNews);

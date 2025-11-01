@@ -17,10 +17,7 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const CARDS_DIR = path.resolve(__dirname, "../frontend/assets/card");
-
-
 
 let CARD_FILES = [];
 try {
@@ -36,7 +33,6 @@ function pickRandomCard() {
   const i = Math.floor(Math.random() * CARD_FILES.length);
   return `/frontend/assets/card/${CARD_FILES[i]}`;
 }
-
 
   const app = express();
   const PORT = process.env.PORT || 8080;
@@ -101,7 +97,7 @@ const utentiConnessi = new Map();
   });
 
 
-// ---------------- sicurezza e utente ----------------
+/*===Sicurezza e Profilo Utente===*/
 
   app.post("/api/register", async (req, res) => {
     const { username, email, password, birthdate } = req.body;
@@ -186,7 +182,7 @@ const utentiConnessi = new Map();
     }
   });
 
-  // ---------------- trofei ----------------
+ /*===Gestione Decorazioni Profilo===*/
 
   app.get("/api/trophy", async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -325,7 +321,7 @@ const utentiConnessi = new Map();
     }
   });
 
-  // ---------------- seguire ----------------
+/*===Funzione Follow===*/
 
   app.post("/api/segui", async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -373,6 +369,8 @@ const utentiConnessi = new Map();
     }
   });
 
+/*Funzione Unfollow*/
+
   app.post("/api/unfollow", async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ success: false, message: "Token mancante" });
@@ -412,7 +410,7 @@ const utentiConnessi = new Map();
     }
   });
 
-  // ---------------- profilo ----------------
+  /*===Gestione del profilo===*/
 
   app.get("/api/profilo", async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -422,23 +420,20 @@ const utentiConnessi = new Map();
 
   const token = authHeader.split(" ")[1];
   try {
-    // Verifica il token
+
     const decoded = jwt.verify(token, JWT_SECRET);
     const dbLocal = await connectToDB();
 
-    // Recupera l'utente
     const utente = await dbLocal.collection("utenti").findOne({ _id: new ObjectId(decoded.userId) });
     if (!utente) {
       return res.status(404).json({ success: false, message: "Utente non trovato" });
     }
 
-    // Recupera i post dell'utente
     const articoli = await dbLocal.collection("articoli")
-      .find({ userId: decoded.userId })  // assicurati che userId sia stringa
+      .find({ userId: decoded.userId })
       .sort({ createdAt: -1 })
       .toArray();
 
-    // Format dei post (puoi aggiungere autoreNome/immagine se vuoi)
     const postsFormatted = articoli.map(post => ({
       _id: post._id.toString(),
       titolo: post.titolo,
@@ -448,7 +443,6 @@ const utentiConnessi = new Map();
       createdAt: post.createdAt ? new Date(post.createdAt).toLocaleDateString("it-IT") : "",
     }));
 
-    // Risposta finale
     res.json({
       success: true,
       utente: {
@@ -465,7 +459,7 @@ const utentiConnessi = new Map();
         follower: (utente.follower || []).map(id => id.toString()),
         tickets: utente.tickets || 0,
         cards: utente.cards || [],
-        posts: postsFormatted // qui aggiungiamo i post
+        posts: postsFormatted
       }
     });
 
@@ -474,6 +468,8 @@ const utentiConnessi = new Map();
     res.status(403).json({ success: false, message: "Token non valido" });
   }
 });
+
+/*===Post sul profilo dell'utente===*/
 
 app.get("/api/posts/utente/:id", async (req, res) => {
   const userId = req.params.id;
@@ -500,8 +496,7 @@ app.get("/api/posts/utente/:id", async (req, res) => {
   }
 });
 
-
-
+/*===Modifica Profilo===*/
 
   app.put("/api/profilo/update", async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -536,7 +531,7 @@ app.get("/api/posts/utente/:id", async (req, res) => {
     }
   });
 
-  // ---------------- caricare ----------------
+/*===Funzione per caricamento Media dall'utente===*/
 
   app.post("/api/upload", upload.single("file"), async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -642,16 +637,6 @@ app.get("/api/posts/utente/:id", async (req, res) => {
     }
   });
 
-  app.get("/news/getMarsRoverPhoto", async (req, res) => {
-    try {
-      const photos = await getMarsRoverPhoto();
-      res.json(photos);
-    } catch (error) {
-      console.log("Errore nella GET di photos: ", error);
-      res.status(500).json({ error: error.message, stack: error.stack });
-    }
-  });
-
   app.get("/news/searchImageLibrary", async (req, res) => {
     try {
       const image = await searchImageLibrary();
@@ -668,13 +653,12 @@ app.get("/api/posts/utente/:id", async (req, res) => {
     const weather = await getInSightWeather();
     const imageLibrary = await searchImageLibrary();
 
-    res.json({ apod, weather, imageLibrary });
+    res.json({ apod, weather, photos, imageLibrary });
   } catch (error) {
     console.error("Errore nella GET /news/all:", error);
     res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
-
 
 app.get("/api/utente/:id", async (req, res) => {
   const id = req.params.id;
@@ -719,9 +703,9 @@ app.get("/api/utente/:id", async (req, res) => {
   }
 });
 
-
-
 app.use(express.json());
+
+/*===Caricamento Post===*/
 
 app.post("/api/pubblicapost", upload.single("file"), async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -847,8 +831,7 @@ app.get("/api/postutente", async (req, res) => {
   }
 });
 
-
-
+/*===Gestione Pescata Carte===*/
 
 app.post("/api/cards/draw", async (req, res) => {
   const authHeader = req.headers.authorization;

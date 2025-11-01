@@ -43,24 +43,20 @@ export async function getInSightWeather() {
 export async function getMarsRoverPhoto() {
   const res = await axios.get(endpoints.marsRover, {
     params: {
-      sol: 1000,
+      sol: Math.floor(Math.random() * 1000),
       api_key: API_KEY,
     },
   });
   const photos = res.data.photos;
-  if (photos.length > 0) {
-    console.log(`\n Mars Rover Photo:`);
-    console.log(photos[0].img_src);
-    return res.data;
-  } else {
-    console.log('No photos found.');
-  }
+  console.log(`\n Mars Rover Photo:`);
+  console.log(photos[0].img_src);
+  return res.data;
 }
 
 // 4. NASA Image and Video Library
-export async function searchImageLibrary(query = 'moon') {
+export async function searchImageLibrary(query = "moon") {
   const res = await axios.get(endpoints.imageLibrary, {
-    params: { q: query },
+    params: { q: query, media_type: 'image' },
   });
   const items = res.data.collection.items;
   if (items.length > 0) {
@@ -87,7 +83,7 @@ export function getGIBSExampleURL() {
     await getAPOD();
     await getInSightWeather();
     await getMarsRoverPhoto();
-    //await searchImageLibrary();
+    await searchImageLibrary('galaxy');
     getGIBSExampleURL();
   } catch (error) {
     console.error('Errore nelle richieste:', error.message);
