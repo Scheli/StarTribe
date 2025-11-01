@@ -20,9 +20,8 @@ Copia `.env.example` in `.env` e imposta i valori:
 ```env
 PORT=8080
 MONGODB_URI=mongodb://localhost:27017/StarTribeDB
-JWT_SECRET=super_segreto_jwt            # se usi JWT
-COOKIE_SECRET=super_segreto_cookie      # se usi cookie httpOnly
-NASA_API_KEY=la_tua_chiave_nasa
+JWT_SECRET=super_segreto_jwt            #RICORDATI DI FIXARLO, INSERISCI LA CHIAVE GIUSTA
+NASA_API_KEY=la_tua_chiave_nasa         #RICORDATI DI FIXARLO, INSERISCI LA CHIAVE GIUSTA
 CORS_ORIGIN=http://localhost:8080
 NODE_ENV=development
 ```
@@ -43,8 +42,6 @@ Produzione:
 ```bash
 npm start
 ```
-> Se gli script differiscono, aggiorna questa sezione in base al tuo `package.json`.
-
 
 ## Indice delle sezioni
 - Backend
@@ -90,16 +87,6 @@ NOTE: il server Express espone le API usate dal frontend. Qui elenco le funzioni
 
   - `getInSightWeather()`
     - Cosa: prende i dati meteo del lander InSight (o endpoint simile) e li ritorna.
-
-  - `getMarsRoverPhoto()`
-    - Cosa: recupera foto dal Mars Rover (per giorno/sol o altri parametri).
-
-  - `searchImageLibrary(query = 'moon')`
-    - Cosa: ricerca nell'immagine library (NASA) con query opzionale.
-    - Input: stringa `query` (default 'moon').
-
-  - `getGIBSExampleURL()`
-    - Cosa: costruisce un esempio di URL per GIBS (Global Imagery Browse Services) di NASA.
 
 - `backend/db.js`
   - `connectToDB()`

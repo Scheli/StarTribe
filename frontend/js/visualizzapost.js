@@ -21,28 +21,48 @@ async function PaginaPost() {
         const posts = await response.json(); 
         console.log("Post ricevuti dal server:", posts);
 
+        posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
         const postContainer = document.querySelector('.post-utenti');
         if (!postContainer) {
             console.error("Elemento .post-utenti non trovato nel DOM");
             return;
         }
 
-        postContainer.innerHTML = '<h3>Post suggeriti:</h3>';
+        const listaPost = document.getElementById('listaPost');
+        const searchInput = document.getElementById('cercaPost');
 
-        posts.forEach(articolo => {
-            const div = document.createElement('div');
-            div.classList.add('articolo');
-            div.innerHTML = `
-                <div class="autore">
-                    ${articolo.autoreImmagine ? `<img src="${articolo.autoreImmagine}" alt="Avatar">` : ''}
-                    <span>${articolo.autoreNome}</span>
-                </div>
-                <p><strong>Titolo:</strong> ${articolo.titolo}</p>
-                <img src="${articolo.ImmaginePost}" alt="Immagine post">
-                <p><strong>Descrizione:</strong> ${articolo.descrizione}</p>
-                <p><strong>Data di pubblicazione:</strong> ${articolo.createdAt}</p>
-            `;
-            postContainer.appendChild(div);
+        function mostraPost(filtrati) {
+            listaPost.innerHTML = '';
+
+            if (filtrati.length === 0) {
+                listaPost.innerHTML = '<p>Nessun post trovato.</p>';
+                return;
+            }
+
+            filtrati.forEach(articolo => {
+                const div = document.createElement('div');
+                div.classList.add('articolo');
+                div.innerHTML = `
+                    <div class="autore">
+                        ${articolo.autoreImmagine ? `<img src="${articolo.autoreImmagine}" alt="Avatar">` : ''}
+                        <span>${articolo.autoreNome}</span>
+                    </div>
+                    <p><strong>Titolo:</strong> ${articolo.titolo}</p>
+                    ${articolo.ImmaginePost ? `<img src="${articolo.ImmaginePost}" alt="Immagine post">` : ''}
+                    <p><strong>Descrizione:</strong> ${articolo.descrizione}</p>
+                    <p><strong>Data di pubblicazione:</strong> ${new Date(articolo.createdAt).toLocaleString()}</p>
+                `;
+                listaPost.appendChild(div);
+            });
+        }
+
+        mostraPost(posts);
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            const filtrati = posts.filter(post => post.titolo.toLowerCase().includes(query));
+            mostraPost(filtrati);
         });
 
     } catch (error) {

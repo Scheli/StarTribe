@@ -2,7 +2,7 @@
   import express from "express";
   import cors from "cors";
   import { connectToDB, aggiungiUtente, GetUtentiConsigliati } from "./db.js";
-  import { getAPOD, getInSightWeather, getMarsRoverPhoto, searchImageLibrary } from "./apirequest.js";
+  import { getAPOD, getInSightWeather} from "./apirequest.js";
   import bcrypt from "bcrypt";
   import jwt from "jsonwebtoken";
   import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js";

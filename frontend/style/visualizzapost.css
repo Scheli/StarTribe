@@ -31,6 +31,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--bg-primary-color);
+  
 }
 
 /* ====== HEADER CON TITOLO + NAVBAR ====== */
@@ -93,6 +94,54 @@ body {
 .navLink {
   text-decoration: none;
   color: inherit;
+}
+.search-bar {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 100px;
+  display: flex;
+  align-items: center;
+  background-color: var(--btn-bg-color);
+  border: 2px solid var(--btn-border-color);
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 0 10px #0005;
+  transition: all 0.3s ease;
+}
+
+.search-bar:hover {
+  background-color: var(--btn-hover-bg);
+  box-shadow: 0 0 15px #ffffff25;
+  transform: translateY(-2px);
+}
+
+.search-bar input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-color);
+  font-size: 1rem;
+  padding: 8px;
+}
+
+.search-bar input::placeholder {
+  color: var(--text-light);
+  opacity: 0.7;
+}
+
+.search-bar button {
+  background-color: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.search-bar button:hover {
+  color: #fff;
+  transform: scale(1.2);
 }
 
 /* ====== CONTAINER PRINCIPALE ====== */
