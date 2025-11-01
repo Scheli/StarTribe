@@ -637,16 +637,6 @@ app.get("/api/posts/utente/:id", async (req, res) => {
     }
   });
 
-  app.get("/news/searchImageLibrary", async (req, res) => {
-    try {
-      const image = await searchImageLibrary();
-      res.json(image);
-    } catch (error) {
-      console.log("Errore nella GET di image: ", error);
-      res.status(500).json({ error: error.message, stack: error.stack });
-    }
-  });
-
  app.get("/news/all", async (req, res) => {
   try {
     const apod = await getAPOD();

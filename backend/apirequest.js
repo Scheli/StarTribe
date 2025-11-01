@@ -39,52 +39,11 @@ export async function getInSightWeather() {
   return res.data;
 }
 
-// 3. Mars Rover Photos
-export async function getMarsRoverPhoto() {
-  const res = await axios.get(endpoints.marsRover, {
-    params: {
-      sol: Math.floor(Math.random() * 1000),
-      api_key: API_KEY,
-    },
-  });
-  const photos = res.data.photos;
-  console.log(`\n Mars Rover Photo:`);
-  console.log(photos[0].img_src);
-  return res.data;
-}
-
-// 4. NASA Image and Video Library
-export async function searchImageLibrary(query = "moon") {
-  const res = await axios.get(endpoints.imageLibrary, {
-    params: { q: query, media_type: 'image' },
-  });
-  const items = res.data.collection.items;
-  if (items.length > 0) {
-    console.log(`\n NASA Image Library search for "${query}":`);
-    console.log(items[0].links[0].href);
-    return res.data;
-  } else {
-    console.log('No items found.');
-  }
-}
-
-// 5. GIBS – Satellite Imagery (Static URL Example)
-export function getGIBSExampleURL() {
-  const layer = 'MODIS_Terra_CorrectedReflectance_TrueColor';
-  const date = '2024-07-01';
-  const url = `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=${layer}&FORMAT=image/jpeg&WIDTH=1024&HEIGHT=512&CRS=EPSG:4326&BBOX=-90,-180,90,180&TIME=${date}`;
-  console.log(`\n GIBS Example URL:\n${url}`);
-  return res.data;
-}
-
 // Esegui tutte le richieste
 (async () => {
   try {
     await getAPOD();
     await getInSightWeather();
-    await getMarsRoverPhoto();
-    await searchImageLibrary('galaxy');
-    getGIBSExampleURL();
   } catch (error) {
     console.error('Errore nelle richieste:', error.message);
   }

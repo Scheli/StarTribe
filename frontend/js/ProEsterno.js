@@ -4,7 +4,6 @@ const token = localStorage.getItem("token");
 let seguitiCorrenti = [];
 
 const DEFAULT_LOGO = "/frontend/assets/logo.png";
-const DEFAULT_PFP  = "/frontend/assets/default-pfp.jpg";
 
 const TROPHY_MAP = {
   bronzo: "/frontend/assets/card/border-bronzo.png",
@@ -81,7 +80,7 @@ if (!utenteId) {
 
       const imgProfilo = document.getElementById("immagineProfilo");
       imgProfilo.style.width = "200px";
-      imgProfilo.src = isProvided(u.immagineProfilo) ? u.immagineProfilo : DEFAULT_PFP;
+      imgProfilo.src = isProvided(u.immagineProfilo) ? u.immagineProfilo : "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
 
       const borderImg = document.getElementById("selectedBorder");
       const trophySrc = resolveTrophy(u.selectedBorder);
@@ -90,6 +89,10 @@ if (!utenteId) {
       if (isProvided(u.bannerProfilo)) {
         document.getElementById("banner").innerHTML =
           `<img src="${window.safeDom.sanitizeText(u.bannerProfilo)}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
+      }
+      else {
+        document.getElementById("banner").innerHTML = 
+          `<img src="/frontend/img/default_banner.jpg" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
       }
 
       if (token) {

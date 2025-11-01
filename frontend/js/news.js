@@ -90,7 +90,6 @@ async function fetchAllNews() {
     const data = await res.json();
     mostraAPOD(data.apod);
     mostraWeather(data.weather);
-    mostraNasaImage(data.imageLibrary);
   } catch (err) {
     console.error('Errore nel caricamento dati:', err);
   }
@@ -112,23 +111,6 @@ function mostraWeather(weather) {
   div.innerHTML = `
     <h3>Meteo su Marte</h3>
     <p>Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C</p>
-  `;
-}
-
-function mostraNasaImage(item) {
-  const div = document.getElementById("nasaImage");
-  if (!item) {
-    div.innerHTML = `<p>Nessuna immagine trovata.</p>`;
-    return;
-  }
-  const imgSrc = item.links?.[0]?.href || "";
-  const title = item.data?.[0]?.title || "Immagine NASA";
-  const description = item.data?.[0]?.description || "Nessuna descrizione disponibile.";
-
-  div.innerHTML = `
-    <h3>${title}</h3>
-    <img src="${imgSrc}" alt="${title}" style="max-width:100%; border-radius:10px;">
-    <p>${description}</p>
   `;
 }
 

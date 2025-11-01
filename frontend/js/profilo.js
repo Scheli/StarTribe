@@ -123,7 +123,7 @@ async function caricaProfilo() {
     document.getElementById("birthdateInput").value = safeBirthdateStr(utente.birthdate);
 
     // --- Media profilo ---
-    CURRENT.avatarBaseUrl  = utente.immagineProfilo || "";
+    CURRENT.avatarBaseUrl  = utente.immagineProfilo || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
     CURRENT.selectedBorder = utente.selectedBorder || "none";
 
     const media = document.getElementById("mediaProfilo");
@@ -158,6 +158,9 @@ async function caricaProfilo() {
       banner1.innerHTML = `<img src="${window.safeDom.sanitizeText(data.utente.bannerProfilo)}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
     }
 
+    else {
+      banner.innerHTML = `<img src="/frontend/img/default_banner.jpg" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
+    }
     // Aggiorna il nome utente nel titolo dei post
     document.getElementById("postUsername").textContent = window.safeDom.sanitizeText(data.utente.username);
 
@@ -189,7 +192,7 @@ async function caricaProfilo() {
         return `
           <article class="post-card">
             <header class="post-header">
-              <img src="${data.utente.immagineProfilo || '../assets/default-pfp.jpg'}" alt="${sanitizedUsername}">
+              <img src="${data.utente.immagineProfilo || ''}" alt="${sanitizedUsername}">
               <div class="username">${sanitizedUsername}</div>
             </header>
 
