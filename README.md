@@ -119,6 +119,12 @@ Cartella: `frontend/js/`
 Nota: molte funzioni sono legate alla UI (vanilla JS) e al motore grafico 3D (Three.js o wrapper custom). Di seguito le principali.
 
 - `frontend/js/app.js` (frontend)
+  - `ensureLoaderOverlay()`
+    - cosa: Garantisce la presenza in pagina dell’overlay di caricamento (logo + testo + spinner).
+
+  - `showLoader(text="Caricamento…")`
+    - cosa: Mostra l’overlay di caricamento e aggiorna il testo visibile all’utente.
+
   - `importBackground(name)`
     - Cosa: importa dinamicamente uno sfondo/asset di background (modulo JS dal folder `core/backgrounds`).
 
