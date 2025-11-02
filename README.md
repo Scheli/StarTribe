@@ -19,10 +19,11 @@ Questo repository contiene il progetto StarTribe (backend Node.js + frontend sta
 Copia `.env.example` in `.env` e imposta i valori:
 ```env
 PORT=8080
-MONGODB_URI=mongodb://localhost:27017/StarTribeDB
-JWT_SECRET=super_segreto_jwt            #RICORDATI DI FIXARLO, INSERISCI LA CHIAVE GIUSTA
-NASA_API_KEY=la_tua_chiave_nasa         #RICORDATI DI FIXARLO, INSERISCI LA CHIAVE GIUSTA
-CORS_ORIGIN=http://localhost:8080
+MONGODB_URI="mongodb+srv://databaseprogetto:StarTribe@startribedb.dwlllm5.mongodb.net/"
+NASA_API_KEY="4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga"   
+CLOUDINARY_CLOUD_NAME=dprigpdai
+CLOUDINARY_API_KEY=652246393145783
+CLOUDINARY_API_SECRET=0rlOVrq6hE-i8xZjbYC1-KPk8-I      
 NODE_ENV=development
 ```
 
@@ -190,13 +191,10 @@ Nota: molte funzioni sono legate alla UI (vanilla JS) e al motore grafico 3D (Th
 ## Deployment
 - Imposta variabili `.env` in produzione
 - `npm start` per avvio produzione (o PM2)
-- (Opzionale) **Docker**: definisci `Dockerfile` + `docker-compose.yml` per app + MongoDB
 
 ## Sicurezza
 - Hashing password (**bcrypt**)
-- Cookie **httpOnly + SameSite** (se cookie-based)
 - Validazione/sanitizzazione input
-- Non committare `.env` / segreti
 
 ## Roadmap
 - ✅ Campi `follower` / `seguiti` nello schema
