@@ -218,3 +218,80 @@ body.album-theme{
   from{ transform: scale(.96); opacity: .85; }
   to{ transform: scale(1); opacity: 1; }
 }
+
+
+#theme-toggle{
+  position: fixed;
+  top: 12px;
+  right: calc(12px + env(safe-area-inset-right));
+  z-index: 20;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 42px;
+  text-align: center;
+  color: var(--violet-500);
+  box-shadow: 0 0 12px rgba(157,124,242,.20);
+  backdrop-filter: blur(8px);
+  transition: background .25s ease, color .25s ease, transform .15s ease, box-shadow .25s ease;
+}
+#theme-toggle:hover{
+  background: var(--violet-500);
+  color: #0b142c;
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px var(--violet-400);
+}
+body[data-theme="light"] #theme-toggle:hover{
+  background: var(--violet-600);
+  color: #fff;
+  box-shadow: 0 0 12px var(--violet-500);
+}
+
+body.album-theme[data-theme="light"]{
+  --bg-primary-color: #48bff2d3;
+  --bg-primary-color-selected: #eaf3ff;
+  --color-text: #0f1b2d;
+
+  --color-lilla: #8f60ff;
+  --color-lilla-chiaro: #a17eff;
+
+  --input-border: #b7d7ff;
+  --testobottoni: linear-gradient(90deg, #a17eff,#b4ddff 60%, #7ae2ff);
+  --viola2: #a17eff;
+
+  --sfumatura: rgba(0, 0, 255, 0.25);
+  --card: #ffffffcc;
+
+  background:
+    radial-gradient(900px 600px at 5% -10%, #ffffff 0%, transparent 55%),
+    linear-gradient(180deg, #fafdff 0%, #eef7ff 40%, #e7f2ff 100%);
+  color: var(--color-text);
+}
+
+body.album-theme[data-theme="light"] .album-item{
+  background: linear-gradient(180deg, #a17eff, #7ae2ff);
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 10px 24px rgba(0,0,0,.10), inset 0 0 20px rgba(115,72,207,.10);
+}
+body.album-theme[data-theme="light"] .album-item img{
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
+}
+
+body.album-theme[data-theme="light"] .album-header h1{
+  color:#2a2550;
+  text-shadow: 0 1px 0 rgba(255,255,255,.9), 0 0 16px rgba(134,93,255,.30);
+}
+
+body.album-theme[data-theme="light"] .album-footer,
+body.album-theme[data-theme="light"] .album-status{
+  color: rgba(20,24,40,.85);
+}
+
+body.album-theme[data-theme="light"] .lightbox-overlay{
+  background: linear-gradient(180deg, rgba(161,126,255,.28), rgba(122,226,255,.28));
+  backdrop-filter: blur(4px);
+}

@@ -6,8 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <title>News</title>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+    </script>
 </head>
-<body>
+<body data-theme data-no-engine>
+    <button id="theme-toggle" aria-label="Cambia tema"></button>
     <section class="navbar">
   <div class="navbar-content">
     <div class="navbar-left">
@@ -30,5 +40,7 @@
     </div>
 
     <script type="module" src="/frontend/js/news.js"></script>
+    <script type="module" src="../js/app.js"></script>
+
 </body>
 </html>

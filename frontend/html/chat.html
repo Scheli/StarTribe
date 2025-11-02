@@ -8,9 +8,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script defer src="../js/chat.js"></script>
-</head>
-<body>
 
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+    </script>
+</head>
+<body data-theme data-no-engine>
+  <button id="theme-toggle" aria-label="Cambia tema"></button>
   <div class="chat-container">
     <div class="chat-header">
       <div class="header-content">
@@ -37,6 +46,8 @@
   </div>
 
   <script type="module" src="../js/areaprotetta.js"></script>
+  <script type="module" src="../js/app.js"></script>
+
 
 </body>
 </html>

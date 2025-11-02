@@ -6,6 +6,34 @@ if (window.__STARTRIBE_BOOTED__) {
 }
 window.__STARTRIBE_BOOTED__ = true;
 
+/* ---------- helper: overlay logo ---------- */
+function ensureLoaderOverlay(){
+  let el = document.getElementById('bg-logo-loader');
+  if (el) return el;
+
+  el = document.createElement('div');
+  el.id = 'bg-logo-loader';
+  el.innerHTML = `
+    <div class="bg-loader-card" role="status" aria-live="polite">
+      <div class="bg-loader-logo" aria-hidden="true"></div>
+      <div class="bg-loader-text">Caricamento…</div>
+      <div class="bg-loader-spinner" aria-hidden="true"></div>
+    </div>
+  `;
+  document.body.appendChild(el);
+  return el;
+}
+function showLoader(text="Caricamento…"){
+  const el = ensureLoaderOverlay();
+  const t = el.querySelector('.bg-loader-text');
+  if (t) t.textContent = text;
+  el.classList.add('is-visible');
+}
+function hideLoader(){
+  const el = ensureLoaderOverlay();
+  el.classList.remove('is-visible');
+}
+
 /* ---------- import dinamico background ---------- */
 async function importBackground(name) {
   const base = "./core/backgrounds/";
@@ -34,15 +62,19 @@ async function setBackground(name, engine) {
   currentBgLoad = token;
 
   try {
+    // overlay + fade-out canvas
+    showLoader(`Caricamento `);
     canvas.style.transition = "opacity 500ms ease-in-out";
     canvas.style.opacity = 0;
 
     const mod = await importBackground(name);
     if (currentBgLoad !== token) return;
 
+    // dispose vecchio bg
     if (window.__bg?.dispose) { try { window.__bg.dispose(); } catch {} }
     window.__bg = null;
 
+    // svuota scena e post
     for (let i = engine.scene.children.length - 1; i >= 0; i--) {
       engine.scene.remove(engine.scene.children[i]);
     }
@@ -50,6 +82,7 @@ async function setBackground(name, engine) {
       engine.composer.passes = engine.composer.passes.slice(0, 1);
     }
 
+    // init nuovo bg
     const bg = await mod.initBackground(engine);
     if (currentBgLoad !== token) { bg?.dispose?.(); return; }
 
@@ -57,48 +90,50 @@ async function setBackground(name, engine) {
     document.body.dataset.bg = name;
     localStorage.setItem("selectedBgPlanet", name);
 
-    /* -------------------- fade sincronizzato via FocusBus -------------------- */
-    const FADE_MS  = 900; // durata del fade-in
-    const ANTICIPO = 700; // quanto prima della fine del focus far partire il fade
+    /* ---- Fade-in sincronizzato al focus della camera ---- */
+    const FADE_MS   = 900;  
+    const END_DELAY = 180;  
 
     canvas.style.transition = `opacity ${FADE_MS}ms ease-in-out`;
 
+    // pulizia listener/timer precedenti
     if (window.__fadeUnsub) { try { window.__fadeUnsub(); } catch {} window.__fadeUnsub = null; }
     if (window.__fadeTimer) { clearTimeout(window.__fadeTimer); window.__fadeTimer = null; }
 
     await new Promise(resolve => {
       let done = false;
 
-      const fadeInNow = () => {
+      const finish = () => {
         if (done) return;
         done = true;
         canvas.style.opacity = 1;
+        hideLoader();
         if (window.__fadeUnsub) { window.__fadeUnsub(); window.__fadeUnsub = null; }
         if (window.__fadeTimer) { clearTimeout(window.__fadeTimer); window.__fadeTimer = null; }
         resolve();
       };
 
-     window.__fadeUnsub = FocusBus.on(evt => {
-      if (!evt) return;
-      
-      if (evt.type === "focusEnd") {
-        if (window.__fadeTimer) clearTimeout(window.__fadeTimer);
-        const FADE_DELAY = 200; 
-        window.__fadeTimer = setTimeout(fadeInNow, FADE_DELAY);
-      }
-    });
+      window.__fadeUnsub = FocusBus.on(evt => {
+        if (!evt) return;
+        if (evt.type === "focusEnd") {
+          if (window.__fadeTimer) clearTimeout(window.__fadeTimer);
+          window.__fadeTimer = setTimeout(finish, END_DELAY);
+        }
+      });
 
-      window.__fadeTimer = setTimeout(fadeInNow, 4000);
+      window.__fadeTimer = setTimeout(finish, 4500);
     });
 
   } catch (e) {
     console.error("Errore durante il cambio background:", e);
     try { canvas.style.opacity = 1; } catch {}
+    hideLoader();
   } finally {
     if (currentBgLoad === token) currentBgLoad = null;
   }
 }
 
+/* ---------- boot ---------- */
 async function boot() {
   document.querySelectorAll('canvas[data-startribe="engine"]').forEach((c, i) => {
     if (i) c.remove();
@@ -111,6 +146,7 @@ async function boot() {
   let raw = (document.body.dataset.bg || "random").trim();
   if (raw === "random") raw = options[Math.floor(Math.random() * options.length)];
 
+  showLoader("Preparazione scena…");
   await setBackground(raw, engine);
 
   requestAnimationFrame(() => {
@@ -131,7 +167,6 @@ async function boot() {
     window.__cardsBound__ = true;
   }
 
-  // cleanup
   window.addEventListener("beforeunload", () => {
     try { window.__bg?.dispose?.(); } catch {}
     try { engine?.dispose?.(); } catch {}
@@ -142,10 +177,9 @@ if (!document.body.hasAttribute('data-no-engine')) {
   boot();
 }
 
-/* ===================== TEMA DARK/LIGHT ===================== */
 document.addEventListener('DOMContentLoaded', () => {
   const toggleBtn = document.getElementById('theme-toggle');
-  if (!toggleBtn) return; 
+  if (!toggleBtn) return;
 
   const currentTheme = localStorage.getItem('theme') || 'dark';
   document.body.setAttribute('data-theme', currentTheme);
@@ -153,9 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   toggleBtn.addEventListener('click', () => {
     const theme = document.body.getAttribute('data-theme');
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    toggleBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    toggleBtn.textContent = next === 'dark' ? '🌙' : '☀️';
   });
 });
