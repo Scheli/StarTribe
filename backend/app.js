@@ -23,7 +23,6 @@ let CARD_FILES = [];
 try {
   CARD_FILES = fs.readdirSync(CARDS_DIR)
     .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f));
-  console.log(`[cards] trovate ${CARD_FILES.length} carte in ${CARDS_DIR}`);
 } catch (err) {
   console.error("[cards] impossibile leggere la cartella:", err);
 }

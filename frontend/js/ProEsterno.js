@@ -22,13 +22,18 @@ function isProvided(v) {
 }
 
 function resolveTrophy(value) {
-  if (!isProvided(value)) return null;             
+  if (!isProvided(value)) return null;
   const val = String(value).trim();
-  if (val.includes("/") || val.endsWith(".png")) { 
+  if (val.includes("/") || val.endsWith(".png")) {
     return val;
   }
   return TROPHY_MAP[val.toLowerCase()] || null;
 }
+
+// Riferimenti contatori UI
+const followerCountEl = document.getElementById("followerCount");
+const seguitiCountEl  = document.getElementById("seguitiCount");
+const actionsEl       = document.getElementById("profiloActions");
 
 // Funzione popup sicura (riutilizzo quella di login/registrazione)
 function showPopup({ title, text, duration = 1500 }) {
@@ -54,6 +59,20 @@ function showPopup({ title, text, duration = 1500 }) {
   }, duration);
 }
 
+function setCountsFromUser(u) {
+  const follower = Array.isArray(u.follower) ? u.follower.length : 0;
+  const seguiti  = Array.isArray(u.seguiti)  ? u.seguiti.length  : 0;
+  if (followerCountEl) followerCountEl.textContent = String(follower);
+  if (seguitiCountEl)  seguitiCountEl.textContent  = String(seguiti);
+}
+
+function incFollowerTarget(delta) {
+  if (!followerCountEl) return;
+  const current = parseInt(followerCountEl.textContent || "0", 10);
+  const next = Math.max(0, current + delta);
+  followerCountEl.textContent = String(next);
+}
+
 if (!utenteId) {
   showPopup({
     title: "Errore",
@@ -61,6 +80,7 @@ if (!utenteId) {
     duration: 1500
   });
 } else {
+  // Carica profilo target
   fetch(`http://localhost:8080/api/utente/${utenteId}`)
     .then(res => res.json())
     .then(data => {
@@ -89,11 +109,11 @@ if (!utenteId) {
       if (isProvided(u.bannerProfilo)) {
         document.getElementById("banner").innerHTML =
           `<img src="${window.safeDom.sanitizeText(u.bannerProfilo)}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
-      }
-      else {
-        document.getElementById("banner").innerHTML = 
+      } else {
+        document.getElementById("banner").innerHTML =
           `<img src="/frontend/img/default_banner.jpg" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
       }
+      setCountsFromUser(u);
 
       if (token) {
         fetch("http://localhost:8080/api/profilo", {
@@ -101,13 +121,14 @@ if (!utenteId) {
         })
           .then(res => res.json())
           .then(authData => {
-            if (!authData?.utente?._id) return;
+            const mioId = authData?.utente?._id;
+            if (!mioId) return;
 
-            const mioId = authData.utente._id;
             seguitiCorrenti = Array.isArray(authData.utente.seguiti) ? authData.utente.seguiti : [];
 
-            if (mioId === utenteId) return; 
-            
+            // Se sto guardando me stesso, niente bottone
+            if (mioId === utenteId) return;
+
             const btn = document.createElement("button");
             btn.id = "btnFollow";
 
@@ -118,15 +139,24 @@ if (!utenteId) {
             });
 
             btn.textContent = already ? "Seguito" : "Segui";
+
             btn.onclick = async () => {
               if (btn.textContent === "Segui") {
-                await seguiUtente(utenteId, btn);
+                const ok = await seguiUtente(utenteId, btn);
+                if (ok) {
+                  if (!seguitiCorrenti.includes(utenteId)) seguitiCorrenti.push(utenteId);
+                  incFollowerTarget(1);
+                }
               } else {
-                await unfollowUtente(utenteId, btn);
+                const ok = await unfollowUtente(utenteId, btn);
+                if (ok) {
+                  seguitiCorrenti = seguitiCorrenti.filter(id => id !== utenteId);
+                  incFollowerTarget(-1);
+                }
               }
             };
 
-            document.getElementById("profiloEsterno").appendChild(btn);
+            (actionsEl || document.getElementById("profiloEsterno")).appendChild(btn);
           })
           .catch(() => {});
       }
@@ -155,12 +185,14 @@ async function seguiUtente(idSeguito, bottone) {
     const data = await res.json();
     if (data.success) {
       bottone.textContent = "Seguito";
+      return true;
     } else {
       showPopup({
         title: "Errore",
         text: window.safeDom.sanitizeText(data.message || "Impossibile seguire l'utente."),
         duration: 1500
       });
+      return false;
     }
   } catch (err) {
     console.error("Errore durante il follow:", err);
@@ -169,6 +201,7 @@ async function seguiUtente(idSeguito, bottone) {
       text: "Errore durante la richiesta follow",
       duration: 1500
     });
+    return false;
   }
 }
 
@@ -186,12 +219,14 @@ async function unfollowUtente(id, bottone) {
     const data = await res.json();
     if (data.success) {
       bottone.textContent = "Segui";
+      return true;
     } else {
       showPopup({
         title: "Errore",
         text: window.safeDom.sanitizeText(data.message || "Impossibile smettere di seguire l'utente."),
         duration: 1500
       });
+      return false;
     }
   } catch (err) {
     console.error("Errore durante unfollow:", err);
@@ -200,6 +235,6 @@ async function unfollowUtente(id, bottone) {
       text: "Errore durante la richiesta unfollow",
       duration: 1500
     });
+    return false;
   }
 }
-

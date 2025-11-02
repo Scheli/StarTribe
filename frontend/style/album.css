@@ -41,6 +41,57 @@ body.album-theme{
   padding:22px 20px 60px;
 }
 
+/* ── Barra di ricerca ─────────────────────────────────────────────── */
+.album-controls{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin: 6px 0 10px;
+}
+
+.album-search{
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  padding:12px 42px 12px 44px; /* spazio per l'icona lente */
+  border-radius:14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.16);
+  color:var(--white);
+  outline:none;
+  font-size:1rem;
+  box-shadow:
+    inset 0 0 14px rgba(115,72,207,.10),
+    0 8px 18px rgba(0,0,0,.35);
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  /* icona lente */
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='.75'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+  background-repeat:no-repeat;
+  background-position:14px 50%;
+  background-size:20px 20px;
+}
+.album-search::placeholder{ color: rgba(255,255,255,.75); }
+.album-search:focus{
+  border-color: rgba(157,124,242,.75);
+  box-shadow:
+    0 0 0 3px rgba(157,124,242,.28),
+    inset 0 0 16px rgba(115,72,207,.18);
+}
+
+.album-search::-webkit-search-cancel-button{
+  -webkit-appearance:none;
+  height:18px; width:18px;
+  cursor:pointer;
+   filter: drop-shadow(0 0 1px rgba(0,0,0,.35));
+  margin-right:8px;
+}
+.album-search::-webkit-search-decoration{ -webkit-appearance:none; }
+
+@media (max-width:640px){
+  .album-search{ font-size:.98rem; padding:11px 40px 11px 42px; }
+}
+
 .album-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -97,7 +148,7 @@ body.album-theme{
 .album-fab img{
   width: 120px;
   height: auto;
-  filter: drop-shadow(0 0 8px var(--color-lilla-chiaro));
+  filter: drop-shadow(0 0 8px var(--color-lilla-chiaro, var(--violet-400)));
   transition: transform .2s ease, filter .2s ease;
   cursor: pointer;
 }
@@ -107,7 +158,6 @@ body.album-theme{
 @media (max-width: 768px){
   .album-fab img{ width: 56px; }
 }
-
 
 .album-status{
   text-align:center;

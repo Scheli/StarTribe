@@ -18,9 +18,24 @@
 
   <main class="album-main">
     <p id="albumStatus" class="album-status">Caricamento…</p>
+
+    <!-- Barra di ricerca -->
+    <div class="album-controls">
+      <input
+        type="search"
+        id="albumSearch"
+        class="album-search"
+        placeholder="Cerca carta per nome…"
+        aria-label="Cerca carta per nome"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
     <div class="album-grid" id="albumGrid"></div>
   </main>
-   <a class="album-fab" href="profilo.html" aria-label="Apri album">
+
+  <a class="album-fab" href="profilo.html" aria-label="Apri profilo">
     <img src="../assets/album.png" alt="Album">
   </a>
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -19,19 +18,32 @@
   <!-- 👤 PROFILO -->
   <div id="profiloEsterno">
     <img id="immagineProfilo" src="/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg" alt="Foto profilo">
-<img class="trofeo" id="selectedBorder" src="/frontend/assets/logo.png" alt="Trofeo/Border">
+    <img class="trofeo" id="selectedBorder" src="/frontend/assets/logo.png" alt="Trofeo/Border">
+
     <h2 id="username">Utente</h2>
 
     <p><strong>Punti:</strong> <span id="punti">300</span></p>
     <p class="info-punti">⭐ Guadagni punti quando ricevi like ai tuoi post (1 like = 100 punti)</p>
 
+    <!-- 👥 STATISTICHE FOLLOW -->
+    <div id="followStats" class="follow-stats" aria-live="polite">
+      <div class="stat">
+        <span id="seguitiCount">0</span>
+        <small>Seguiti</small>
+      </div>
+      <div class="stat">
+        <span id="followerCount">0</span>
+        <small>Follower</small>
+      </div>
+    </div>
+
+    <div id="profiloActions" class="profilo-actions"></div>
+
     <p class="info-segui">👥 Segui un esploratore per restare aggiornato sulle sue avventure</p>
   </div>
-
 
   <script src="/frontend/js/utils/sanitize.js"></script>
   <script src="/frontend/js/proEsterno.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
 </body>
 </html>
-
