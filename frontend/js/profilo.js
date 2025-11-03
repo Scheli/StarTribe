@@ -50,8 +50,7 @@ let CURRENT = {
   seguitiIds: []
 };
 
-// Funzione popup sicura (riutilizzo quella di login/registrazione)
-function showPopup({ title, text, duration = 1500 }) {
+function showPopup({ title, text, duration = 1000 }) {
   const overlay = window.safeDom.createSafeElement('div', { className: 'welcome-overlay' });
   const popupDiv = window.safeDom.createSafeElement('div', { className: 'welcome-popup' });
   const logo = window.safeDom.createSafeElement('img', {
