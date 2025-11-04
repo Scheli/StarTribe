@@ -130,15 +130,15 @@
   </div>
 
   <div id="modalBanner" class="modal-overlay">
-    <div class="modal-content">
-      <h3>Modifica banner</h3>
-      <form id="bannerForm">
-        <input type="file" name="file" accept="image/*" required />
-        <button type="submit">Carica banner</button>
-        <button type="button" class="btnChiudi" data-close="modalBanner">Chiudi</button>
-      </form>
-    </div>
+  <div class="modal-content">
+    <h3>Modifica banner</h3>
+    <form id="bannerForm">
+      <input type="file" name="file" accept="image/*" required />
+      <button type="submit">Carica banner</button>
+      <button type="button" class="btnChiudi" data-close="modalBanner">Chiudi</button>
+    </form>
   </div>
+</div>
 
   <div id="modalMedia" class="modal-overlay">
     <div class="modal-content">
@@ -204,8 +204,8 @@
       btn.addEventListener("click", e => {
         const target = e.target.getAttribute("data-close");
         document.getElementById(target).style.display = "none";
+        });
       });
-    });
   </script>
 
   <script type="module" src="../js/app.js"></script>

@@ -1,4 +1,3 @@
-/* profilo.js (versione corretta) */
 const token = localStorage.getItem("token");
 
 const BORDER_URLS = Object.freeze({
@@ -85,6 +84,8 @@ function showPopup({ title, text, duration = 1000 }) {
   }, duration);
 }
 
+
+
 /* ====== caricaProfilo ====== */
 async function caricaProfilo() {
   if (!token) {
@@ -112,7 +113,6 @@ async function caricaProfilo() {
 
     const utente = data.utente;
 
-    // Info base
     const byId = id => document.getElementById(id);
     byId("usernameDisplay").textContent = utente.username || "";
     byId("emailDisplay").textContent = utente.email || "";
@@ -128,17 +128,14 @@ async function caricaProfilo() {
     if (countFollowerEl) countFollowerEl.textContent = CURRENT.followerIds.length;
     if (countSeguitiEl)  countSeguitiEl.textContent  = CURRENT.seguitiIds.length;
 
-    // assegna onclick direttamente (ridondanza rispetto alla delegazione globale)
     const elFollower = byId("openFollower");
     const elSeguiti  = byId("openSeguiti");
     if (elFollower) elFollower.onclick = () => openUserList("follower");
     if (elSeguiti)  elSeguiti.onclick  = () => openUserList("seguiti");
 
-    // modale inputs
     if (byId("usernameInput")) byId("usernameInput").value = utente.username || "";
     if (byId("birthdateInput")) byId("birthdateInput").value = safeBirthdateStr(utente.birthdate);
 
-    // media profilo
     CURRENT.avatarBaseUrl = utente.immagineProfilo || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
     CURRENT.selectedBorder = utente.selectedBorder || "none";
 
@@ -155,13 +152,11 @@ async function caricaProfilo() {
       }
     }
 
-    // banner
     const banner = byId("bannerProfilo");
     if (banner) {
       banner.innerHTML = `<img src="${utente.bannerProfilo || '/frontend/img/default_banner.jpg'}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
     }
 
-    // decorazione selezionata box
     const selBox = byId("selectedBorderBox");
     const selImg = byId("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
@@ -173,10 +168,8 @@ async function caricaProfilo() {
       } else selBox.style.display = "none";
     }
 
-    // titoli post
     if (byId("postUsername")) byId("postUsername").textContent = window.safeDom.sanitizeText(utente.username || "");
 
-    // === POST ===
     const userId = utente._id?.$oid || utente._id;
     const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`);
     const postsData = await postsRes.json();
@@ -203,7 +196,6 @@ async function caricaProfilo() {
               <div class="post-date">Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</div>
             </div>
           `;
-          // click per overlay (solo se immagine o dati esistono)
           postElem.addEventListener("click", () => openPostOverlay(post));
           container.appendChild(postElem);
         });
@@ -217,7 +209,6 @@ async function caricaProfilo() {
   }
 }
 
-/* ====== setupBordersUI (tua implementazione) ====== */
 async function setupBordersUI() {
   const bordiGrid = document.getElementById("bordiGrid");
   const selectedBox = document.getElementById("selectedBorderBox");
@@ -225,23 +216,65 @@ async function setupBordersUI() {
 
   if (!bordiGrid) return;
 
-  const savedBorder = localStorage.getItem("selectedBorder");
-  if (savedBorder) {
-    const imgEl = bordiGrid.querySelector(`[data-border="${savedBorder}"]`);
-    if (imgEl) mostraBordoSelezionato(imgEl.src, savedBorder);
+  // Recupera cornici sbloccate e riscattabili dal server
+  try {
+    const res = await fetch("http://localhost:8080/api/trophy", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const data = await res.json();
+    if (!data.success) return;
+
+    const unlocked = data.unlockedBorders || [];
+    const claimable = data.claimableBorders || [];
+
+    // Pulisce la griglia
+    bordiGrid.innerHTML = "";
+
+    // Funzione helper per creare card cornice
+    const creaCard = (borderKey, status) => {
+      const url = getBorderUrl(borderKey);
+      const card = document.createElement("div");
+      card.className = "bordo-card";
+      if (status === "claimable") card.classList.add("claimable");
+
+      card.innerHTML = `<img class="pfp-border" src="${url}" data-border="${borderKey}" alt="${borderKey}">`;
+      bordiGrid.appendChild(card);
+    };
+
+    // Cornici sbloccate
+    unlocked.forEach(border => creaCard(border, "unlocked"));
+    // Cornici riscattabili
+    claimable.forEach(border => creaCard(border, "claimable"));
+
+    // Evidenzia la cornice selezionata
+    const savedBorder = CURRENT.selectedBorder || localStorage.getItem("selectedBorder");
+    if (savedBorder) {
+      const imgEl = bordiGrid.querySelector(`[data-border="${savedBorder}"]`);
+      if (imgEl) mostraBordoSelezionato(imgEl.src, savedBorder);
+    }
+
+    // Click listener su tutte le immagini visibili
+    bordiGrid.querySelectorAll(".pfp-border").forEach(img => {
+      img.addEventListener("click", () => {
+        const tipo = img.getAttribute("data-border");
+        const src = img.getAttribute("src");
+
+        // Aggiorna selezione
+        mostraBordoSelezionato(src, tipo);
+        CURRENT.selectedBorder = tipo;
+        localStorage.setItem("selectedBorder", tipo);
+
+        // Evidenzia la card selezionata
+        bordiGrid.querySelectorAll(".bordo-card").forEach(card => card.classList.remove("selected"));
+        img.closest(".bordo-card").classList.add("selected");
+      });
+    });
+
+  } catch (err) {
+    console.error("setupBordersUI error:", err);
   }
 
-  bordiGrid.querySelectorAll(".pfp-border").forEach((img) => {
-    img.addEventListener("click", () => {
-      const tipo = img.getAttribute("data-border");
-      const src = img.getAttribute("src");
-      mostraBordoSelezionato(src, tipo);
-      localStorage.setItem("selectedBorder", tipo);
-      bordiGrid.querySelectorAll(".bordo-card").forEach(card => card.classList.remove("selected"));
-      img.closest(".bordo-card").classList.add("selected");
-    });
-  });
-
+  // Mostra la cornice selezionata
   function mostraBordoSelezionato(src, nome) {
     if (selectedBox && selectedImg) {
       selectedBox.style.display = "block";
@@ -250,8 +283,6 @@ async function setupBordersUI() {
     }
   }
 }
-
-/* ====== Funzioni per MODALE follower/seguiti (mancavano) ====== */
 const usersModal = document.getElementById("modalUsers");
 const usersTitle = document.getElementById("modalUsersTitle");
 const userListContainer = document.getElementById("userListContainer");
@@ -279,7 +310,6 @@ async function getUserById(id) {
 }
 
 async function openUserList(tipo) {
-  // Rimuovi duplicati usando Set
   const ids = [...new Set(tipo === "follower" ? CURRENT.followerIds : CURRENT.seguitiIds)];
   const container = document.getElementById("userListContainer");
   container.innerHTML = "";
@@ -317,7 +347,6 @@ async function openUserList(tipo) {
   if (modal) modal.style.display = "flex";
 }
 
-/* ====== Overlay Zoom Post ====== */
 function openPostOverlay(post) {
   const overlay = document.getElementById("postOverlay");
   const overlayImg = document.getElementById("overlayImage");
@@ -346,7 +375,53 @@ function closePostOverlay() {
   if (overlay) overlay.style.display = "none";
 }
 
-/* ====== Upload immagine profilo (invariato) ====== */
+/*===Aggiorna Username e Data di nascita===*/
+const profileForm = document.getElementById("modificaForm");
+if (profileForm) {
+  profileForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const username = document.getElementById("usernameInput").value;
+    const birthdate = document.getElementById("birthdateInput").value;
+
+    if (!username || !birthdate) {
+      showPopup({
+        title: "Errore",
+        text: "Username e data di nascita sono obbligatori",
+        duration: 1500
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/api/profilo/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ username, birthdate })
+      });
+
+      const data = await resJsonSafe(res);
+
+      showPopup({
+        title: data.success ? "Successo" : "Errore",
+        text: window.safeDom.sanitizeText(data.message || (data.success ? "Profilo aggiornato" : "Errore")),
+        duration: 1500
+      });
+
+      if (data.success) {
+        await caricaProfilo();
+      }
+    } catch (err) {
+      console.error("Errore aggiornamento profilo:", err);
+      showPopup({ title: "Errore", text: "Errore aggiornamento profilo", duration: 1500 });
+    }
+  });
+}
+
+/*===Aggiorna Immagine Profilo===*/
 const uploadForm = document.getElementById("uploadForm");
 if (uploadForm) {
   uploadForm.addEventListener("submit", async e => {
@@ -369,6 +444,40 @@ if (uploadForm) {
       duration: 1500,
     });
     await caricaProfilo();
+  });
+}
+
+/*===Aggiorna Banner===*/
+const bannerForm = document.getElementById("bannerForm");
+if (bannerForm) {
+  bannerForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const file = bannerForm.querySelector('input[name="file"]').files[0];
+    if (!file || !token) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("http://localhost:8080/api/upload/banner", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        body: formData,
+      });
+      const data = await res.json();
+
+      showPopup({
+        title: data.success ? "Successo" : "Errore",
+        text: window.safeDom.sanitizeText(data.message || (data.success ? "Banner aggiornato" : "Errore upload")),
+        duration: 1500,
+      });
+
+      document.getElementById("modalBanner").style.display = "none";
+      await caricaProfilo();
+    } catch (err) {
+      console.error("Errore upload banner:", err);
+      showPopup({ title: "Errore", text: "Errore upload banner", duration: 1500 });
+    }
   });
 }
 
