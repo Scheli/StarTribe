@@ -54,7 +54,7 @@ function bindLightboxHandlers() {
   });
 }
 
-
+/*
  * @param {string[]} cards - Array di URL immagine.
  * @param {number} totalCount - Totale collezione (default 35).
  * @param {string} searchTerm - Termine di ricerca corrente (opzionale).
