@@ -1,29 +1,46 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <link rel="stylesheet" href="/frontend/style/style.css">
+    <link rel="stylesheet" href="/frontend/style/news.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <title>News</title>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+    </script>
 </head>
-<body>
+<body data-theme data-no-engine>
+    <button id="theme-toggle" aria-label="Cambia tema"></button>
     <section class="navbar">
-        
-    </section>
+  <div class="navbar-content">
+    <div class="navbar-left">
+      <h1 class="navbar-title">News</h1>
+    </div>
+    <div class="navbar-right">
+    </div>
+  </div>
+</section>
+
     <div class="container">
         <div class="news">
             <div id="apod"></div>
             <div id="weather"></div>
-            <div id="roverPhoto"></div>
         </div>
+        
         <div class="utenti">
-            <div class="bordo">
-                
-            </div>
+            <div class="bordo"></div>
         </div>
     </div>
 
-    <div class="footer"></div>
-    <script src="/frontend/js/news.js"></script>
+    <script type="module" src="/frontend/js/news.js"></script>
+    <script type="module" src="../js/app.js"></script>
+
 </body>
 </html>

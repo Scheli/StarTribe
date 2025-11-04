@@ -1,11 +1,11 @@
 const token = localStorage.getItem("token");
 
 const BORDER_URLS = Object.freeze({
-  bronzo:   "https://res.cloudinary.com/dprigpdai/image/upload/v1755211493/trophy-bronzo_xl2hkq.png",
-  argento:  "https://res.cloudinary.com/dprigpdai/image/upload/v1755211494/trophy-argento_lckpvi.png",
-  oro:      "https://res.cloudinary.com/dprigpdai/image/upload/v1755211491/trophy-oro_lrt8tr.png",
-  platino:  "https://res.cloudinary.com/dprigpdai/image/upload/v1755211490/trophy-platino_k95tal.png",
-  rubino:   "https://res.cloudinary.com/dprigpdai/image/upload/v1755211490/trophy-rubino_odsmnm.png",
+  bronzo: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211493/trophy-bronzo_xl2hkq.png",
+  argento: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211494/trophy-argento_lckpvi.png",
+  oro: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211491/trophy-oro_lrt8tr.png",
+  platino: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211490/trophy-platino_k95tal.png",
+  rubino: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211490/trophy-rubino_odsmnm.png",
   diamante: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211490/trophy-diamante_ozndke.png",
   universo: "https://res.cloudinary.com/dprigpdai/image/upload/v1755211489/trophy-universo_xleqpr.png",
 });
@@ -33,36 +33,46 @@ function safeBirthdateStr(bd) {
 }
 
 async function resJsonSafe(res) {
-  try { return await res.json(); } 
-  catch { return { success:false, message:"Errore JSON" }; } 
+  try {
+    return await res.json();
+  } catch {
+    return { success: false, message: "Errore JSON" };
+  }
 }
 
-function isHttpUrl(v) { return typeof v === "string" && /^https?:\/\//i.test(v); }
-function keyFromBorderUrl(url) { /* ... come nel tuo codice originale ... */ return "none"; }
-function getBorderUrl(v) { if (!v) return ""; if (isHttpUrl(v)) return v; return BORDER_URLS[String(v).toLowerCase()] || ""; }
-function keyFromAny(v) { if (!v) return "none"; return isHttpUrl(v) ? keyFromBorderUrl(v) : String(v).toLowerCase(); }
+function isHttpUrl(v) {
+  return typeof v === "string" && /^https?:\/\//i.test(v);
+}
+function getBorderUrl(v) {
+  if (!v) return "";
+  if (isHttpUrl(v)) return v;
+  return BORDER_URLS[String(v).toLowerCase()] || "";
+}
+function keyFromAny(v) {
+  if (!v) return "none";
+  return isHttpUrl(v) ? "none" : String(v).toLowerCase();
+}
 
 let CURRENT = {
   avatarBaseUrl: "",
   unlocked: [],
   selectedBorder: "none",
   followerIds: [],
-  seguitiIds: []
+  seguitiIds: [],
 };
 
-// Funzione popup sicura (riutilizzo quella di login/registrazione)
-function showPopup({ title, text, duration = 1500 }) {
-  const overlay = window.safeDom.createSafeElement('div', { className: 'welcome-overlay' });
-  const popupDiv = window.safeDom.createSafeElement('div', { className: 'welcome-popup' });
-  const logo = window.safeDom.createSafeElement('img', {
-    className: 'welcome-logo',
-    src: '/frontend/assets/logo.png'
+function showPopup({ title, text, duration = 1000 }) {
+  const overlay = window.safeDom.createSafeElement("div", { className: "welcome-overlay" });
+  const popupDiv = window.safeDom.createSafeElement("div", { className: "welcome-popup" });
+  const logo = window.safeDom.createSafeElement("img", {
+    className: "welcome-logo",
+    src: "/frontend/assets/logo.png",
   });
-  logo.alt = 'Logo';
-  const titleElement = window.safeDom.createSafeElement('h2', {}, title);
-  const textElement = window.safeDom.createSafeElement('p', {}, text);
-  const loadingBar = window.safeDom.createSafeElement('div', { className: 'loading-bar' });
-  const loadingFill = window.safeDom.createSafeElement('div', { className: 'loading-fill' });
+  logo.alt = "Logo";
+  const titleElement = window.safeDom.createSafeElement("h2", {}, title);
+  const textElement = window.safeDom.createSafeElement("p", {}, text);
+  const loadingBar = window.safeDom.createSafeElement("div", { className: "loading-bar" });
+  const loadingFill = window.safeDom.createSafeElement("div", { className: "loading-fill" });
   loadingBar.appendChild(loadingFill);
   popupDiv.append(logo, titleElement, textElement, loadingBar);
   overlay.appendChild(popupDiv);
@@ -74,91 +84,81 @@ function showPopup({ title, text, duration = 1500 }) {
   }, duration);
 }
 
+
+
+/* ====== caricaProfilo ====== */
 async function caricaProfilo() {
   if (!token) {
     showPopup({
       title: "Errore",
       text: "Token mancante. Esegui il login.",
-      duration: 1500
+      duration: 1500,
     });
     return;
   }
 
   try {
-    // --- Fetch dati utente ---
     const res = await fetch("http://localhost:8080/api/profilo", {
-      headers: { Authorization: "Bearer " + token }
+      headers: { Authorization: "Bearer " + token },
     });
     const data = await res.json();
     if (!data.success) {
       showPopup({
         title: "Errore",
         text: window.safeDom.sanitizeText(data.message || "Accesso negato"),
-        duration: 1500
+        duration: 1500,
       });
       return;
     }
 
     const utente = data.utente;
 
-    // --- Info base ---
-    document.getElementById("usernameDisplay").textContent = utente.username;
-    document.getElementById("emailDisplay").textContent    = utente.email;
-    document.getElementById("birthdateDisplay").textContent= safeBirthdateStr(utente.birthdate);
-    document.getElementById("puntiDisplay").textContent    = utente.punti;
-    document.getElementById("navUsername").textContent = utente.username;
+    const byId = id => document.getElementById(id);
+    byId("usernameDisplay").textContent = utente.username || "";
+    byId("emailDisplay").textContent = utente.email || "";
+    byId("birthdateDisplay").textContent = safeBirthdateStr(utente.birthdate);
+    byId("puntiDisplay").textContent = utente.punti ?? "";
+    byId("navUsername").textContent = utente.username || "";
 
-    // --- Contatori + ids ---
+    // follower / seguiti ids + conteggi
     CURRENT.followerIds = Array.isArray(utente.follower) ? utente.follower.map(f => f.$oid || f) : [];
-    CURRENT.seguitiIds  = Array.isArray(utente.seguiti)  ? utente.seguiti.map(s => s.$oid || s) : [];
-    document.getElementById("countFollower").textContent = CURRENT.followerIds.length;
-    document.getElementById("countSeguiti").textContent  = CURRENT.seguitiIds.length;
+    CURRENT.seguitiIds = Array.isArray(utente.seguiti) ? utente.seguiti.map(s => s.$oid || s) : [];
+    const countFollowerEl = byId("countFollower");
+    const countSeguitiEl = byId("countSeguiti");
+    if (countFollowerEl) countFollowerEl.textContent = CURRENT.followerIds.length;
+    if (countSeguitiEl)  countSeguitiEl.textContent  = CURRENT.seguitiIds.length;
 
-    // --- Click per aprire box centrale ---
-    document.getElementById("openFollower").onclick = () => openUserList("follower");
-    document.getElementById("openSeguiti").onclick  = () => openUserList("seguiti");
+    const elFollower = byId("openFollower");
+    const elSeguiti  = byId("openSeguiti");
+    if (elFollower) elFollower.onclick = () => openUserList("follower");
+    if (elSeguiti)  elSeguiti.onclick  = () => openUserList("seguiti");
 
-    // --- Modale inputs ---
-    document.getElementById("usernameInput").value  = utente.username;
-    document.getElementById("birthdateInput").value = safeBirthdateStr(utente.birthdate);
+    if (byId("usernameInput")) byId("usernameInput").value = utente.username || "";
+    if (byId("birthdateInput")) byId("birthdateInput").value = safeBirthdateStr(utente.birthdate);
 
-    // --- Media profilo ---
-    CURRENT.avatarBaseUrl  = utente.immagineProfilo || "";
+    CURRENT.avatarBaseUrl = utente.immagineProfilo || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
     CURRENT.selectedBorder = utente.selectedBorder || "none";
 
-  const media = document.getElementById("mediaProfilo");
-  while (media.firstChild) media.removeChild(media.firstChild);
-    const display = CURRENT.avatarBaseUrl || "/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg";
-    if (display) {
-      if (eVideo(display)) {
-        const video = document.createElement('video');
-        video.width = 220; video.height = 260; video.controls = true;
-        video.style.borderRadius = '50%'; video.style.objectFit = 'cover';
-        // only set src if it looks like an http(s) URL or a safe local path
-        if (/^https?:\/\//i.test(display) || display.startsWith('/')) video.src = display;
-        media.appendChild(video);
-      } else {
-        const img = document.createElement('img');
-        img.width = 220; img.height = 260; img.alt = 'Immagine profilo';
-        img.style.borderRadius = '50%'; img.style.objectFit = 'cover';
-        if (/^https?:\/\//i.test(display) || display.startsWith('/')) img.src = display;
-        media.appendChild(img);
+    const media = byId("mediaProfilo");
+    if (media) {
+      media.innerHTML = "";
+      const display = CURRENT.avatarBaseUrl;
+      if (display) {
+        if (eVideo(display)) {
+          media.innerHTML = `<video width="220" height="260" style="border-radius:50%;object-fit:cover" controls src="${display}"></video>`;
+        } else {
+          media.innerHTML = `<img src="${display}" alt="Immagine profilo" width="220" height="260" style="border-radius:50%;object-fit:cover"/>`;
+        }
       }
     }
 
-    // --- Banner ---
-  const banner = document.getElementById("bannerProfilo");
-  while (banner.firstChild) banner.removeChild(banner.firstChild);
-    if (utente.bannerProfilo && (/^https?:\/\//i.test(utente.bannerProfilo) || utente.bannerProfilo.startsWith('/'))) {
-      const bimg = document.createElement('img');
-      bimg.src = utente.bannerProfilo;
-      bimg.alt = 'Banner'; bimg.style.maxHeight = '200px'; bimg.style.objectFit = 'cover'; bimg.style.width = '100%';
-      banner.appendChild(bimg);
+    const banner = byId("bannerProfilo");
+    if (banner) {
+      banner.innerHTML = `<img src="${utente.bannerProfilo || '/frontend/img/default_banner.jpg'}" alt="Banner" width="100%" style="max-height:200px; object-fit:cover"/>`;
     }
 
-    // --- Decorazione selezionata ---
-    const selBox = document.getElementById("selectedBorderBox");
-    const selImg = document.getElementById("selectedBorderImg");
+    const selBox = byId("selectedBorderBox");
+    const selImg = byId("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
     if (selUrl) { selImg.src = selUrl; selImg.alt = "Decorazione selezionata"; selBox.style.display = "block"; }
     else { selBox.style.display = "none"; }
@@ -173,211 +173,58 @@ async function caricaProfilo() {
       banner1.appendChild(bimg);
     }
 
-    // Aggiorna il nome utente nel titolo dei post
-    document.getElementById("postUsername").textContent = window.safeDom.sanitizeText(data.utente.username);
+    if (byId("postUsername")) byId("postUsername").textContent = window.safeDom.sanitizeText(utente.username || "");
 
-    // Container principale per i post
-    const postContainer = document.getElementById("postContainer");
-    if (!postContainer) return;
-  while (postContainer.firstChild) postContainer.removeChild(postContainer.firstChild);
+    const userId = utente._id?.$oid || utente._id;
+    const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`);
+    const postsData = await postsRes.json();
+    const posts = postsData.success ? postsData.posts : [];
 
-    // Funzione che costruisce e inserisce un singolo post usando DOM (sicuro)
-    function renderPost(post, author) {
-      const article = document.createElement('article');
-      article.className = 'post-card';
-
-      // Header
-      const header = document.createElement('header'); header.className = 'post-header';
-      const avatar = document.createElement('img');
-      avatar.src = author.immagineProfilo || '../assets/default-pfp.jpg';
-      avatar.alt = window.safeDom.sanitizeText(author.username || '');
-      const authorInfo = document.createElement('div'); authorInfo.className = 'post-author-info';
-      const authorName = document.createElement('div'); authorName.className = 'post-author-name'; authorName.textContent = window.safeDom.sanitizeText(author.username || '');
-      const timeEl = document.createElement('time'); timeEl.className = 'post-date'; timeEl.textContent = post.createdAt ? new Date(post.createdAt).toLocaleDateString('it-IT') : '';
-      authorInfo.append(authorName, timeEl);
-      header.append(avatar, authorInfo);
-      article.appendChild(header);
-
-      // Image (se presente)
-      if (post.ImmaginePost) {
-        const imgWrap = document.createElement('div'); imgWrap.className = 'post-image-container';
-        const pimg = document.createElement('img'); pimg.className = 'post-image'; pimg.src = post.ImmaginePost; pimg.alt = window.safeDom.sanitizeText(post.titolo || '');
-        imgWrap.appendChild(pimg);
-        article.appendChild(imgWrap);
-      }
-
-      // Details
-      const details = document.createElement('div'); details.className = 'post-details';
-      const title = document.createElement('h3'); title.className = 'post-title'; title.textContent = window.safeDom.sanitizeText(post.titolo || '');
-      const txt = document.createElement('p'); txt.className = 'post-text'; txt.textContent = window.safeDom.sanitizeText(post.descrizione || '');
-      details.append(title, txt);
-      article.appendChild(details);
-
-      // Footer / Actions
-      const footer = document.createElement('footer'); footer.className = 'post-footer';
-      const actions = document.createElement('div'); actions.className = 'post-actions';
-      const likeBtn = document.createElement('button'); likeBtn.className = 'like-button';
-      likeBtn.dataset.postId = post._id && post._id.$oid ? post._id.$oid : (post._id || '');
-  const star = document.createElement('span'); star.className = 'like-icon';
-  // create SVG star icon via DOM (safer)
-  const svgNS = 'http://www.w3.org/2000/svg';
-  const svgEl = document.createElementNS(svgNS, 'svg');
-  svgEl.setAttribute('aria-hidden', 'true');
-  svgEl.setAttribute('width', '18');
-  svgEl.setAttribute('height', '18');
-  svgEl.setAttribute('viewBox', '0 0 24 24');
-  svgEl.setAttribute('fill', 'currentColor');
-  const path = document.createElementNS(svgNS, 'path');
-  path.setAttribute('d', 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z');
-  svgEl.appendChild(path);
-  star.appendChild(svgEl);
-      const count = document.createElement('span'); count.className = 'like-count'; count.textContent = post.likes || 0;
-      likeBtn.append(star, count);
-      actions.appendChild(likeBtn);
-      footer.appendChild(actions);
-      article.appendChild(footer);
-
-      // Like listener (UI + chiamata API)
-      likeBtn.addEventListener('click', async function () {
-        try {
-          const postId = this.dataset.postId;
-          if (!postId) return;
-          const res = await fetch(`http://localhost:8080/api/posts/${postId}/like`, {
-            method: 'POST', headers: { Authorization: 'Bearer ' + token }
-          });
-          const rjson = await resJsonSafe(res);
-          if (rjson && rjson.success) {
-            this.classList.toggle('liked');
-            const c = this.querySelector('.like-count');
-            const n = parseInt(c.textContent) || 0;
-            c.textContent = this.classList.contains('liked') ? n + 1 : Math.max(0, n - 1);
-            // micro-interaction: pop animation
-            this.classList.add('pop');
-            setTimeout(() => this.classList.remove('pop'), 420);
-          } else {
-            showPopup({ title: 'Errore', text: window.safeDom.sanitizeText(rjson.message || 'Impossibile aggiornare il like') });
-          }
-        } catch (e) {
-          console.error('like error', e);
-          showPopup({ title: 'Errore', text: 'Impossibile aggiornare il like' });
-        }
-      });
-
-      postContainer.appendChild(article);
-    }
-
-    // Esempi fallback (sviluppo) - saranno usati se il fetch reale fallisce o non ritorna post
-    const examplePosts = [
-      {
-        titolo: 'Scoperta di una nuova galassia! 🌌',
-        descrizione: "Ho appena scoperto una nuova galassia! Le stelle qui brillano di una luce mai vista prima.",
-        ImmaginePost: '../assets/nebula1.jpg',
-        createdAt: '2025-10-28',
-        likes: 15
-      },
-      {
-        titolo: 'Nebulosa arcobaleno ✨',
-        descrizione: 'Una meravigliosa nebulosa si staglia all\'orizzonte. I colori sono incredibili!',
-        ImmaginePost: '../assets/planet2.jpg',
-        createdAt: '2025-10-27',
-        likes: 23
-      }
-    ];
-
-    // Prima carichiamo l'interfaccia dei trofei (può cambiare classi selezionate)
-    await setupBordersUI();
-
-    // Fetch dei post reali; se fallisce o non ne trova, uso fallback examplePosts
-    try {
-      const userId = utente._id && utente._id.$oid ? utente._id.$oid : (utente._id || '');
-      const postsRes = await fetch(`http://localhost:8080/api/posts/utente/${userId}`, { headers: { Authorization: 'Bearer ' + token } });
-      if (!postsRes.ok) throw new Error('fetch posts failed');
-      const postsData = await postsRes.json();
-      const posts = postsData && postsData.success ? postsData.posts : [];
+    const container = byId("postContainer");
+    if (container) {
+      container.innerHTML = "";
       if (!posts || !posts.length) {
-        // fallback
-        examplePosts.forEach(p => renderPost(p, data.utente));
+        container.innerHTML = `<div class="no-posts">Nessun post disponibile</div>`;
       } else {
-        posts.forEach(p => renderPost(p, data.utente));
+        posts.forEach(post => {
+          const postElem = document.createElement("div");
+          postElem.className = "post-card";
+          postElem.innerHTML = `
+            <div class="post-header">
+              <h3 class="post-title">${post.titolo || ''}</h3>
+            </div>
+            <div class="post-body">
+              <p class="post-text">${post.descrizione || ''}</p>
+              ${post.ImmaginePost ? `<img class="post-image" src="${post.ImmaginePost}" alt="Post image">` : ""}
+            </div>
+            <div class="post-footer">
+              <div class="post-date">Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</div>
+            </div>
+          `;
+          postElem.addEventListener("click", () => openPostOverlay(post));
+          container.appendChild(postElem);
+        });
       }
     } catch (e) {
       console.warn('Caricamento post reali fallito, uso fallback examplePosts', e);
       examplePosts.forEach(p => renderPost(p, data.utente));
     }
 
+    await setupBordersUI();
   } catch (err) {
     console.error("caricaProfilo error:", err);
-    showPopup({
-      title: "Errore",
-      text: "Errore caricamento profilo",
-      duration: 1500
-    });
+    showPopup({ title: "Errore", text: "Errore caricamento profilo", duration: 1500 });
   }
 }
 
-// Upload media profilo
-document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const file = document.querySelector('#uploadForm input[name="file"]').files[0];
-  if (!file || !token) return;
-  const formData = new FormData(); formData.append("file", file);
-
-  const res = await fetch("http://localhost:8080/api/upload", {
-    method: "POST", headers: { Authorization: "Bearer " + token }, body: formData,
-  });
-
-  const data = await res.json();
-  showPopup({
-    title: data.success ? "Successo" : "Errore",
-    text: window.safeDom.sanitizeText(data.message || (data.success ? "Upload completato" : "Errore upload")),
-    duration: 1500
-  });
-  await caricaProfilo();
-});
-
-// Upload banner
-document.getElementById("bannerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const file = document.querySelector('#bannerForm input[name="file"]').files[0];
-  if (!file || !token) return;
-  const formData = new FormData(); formData.append("file", file);
-
-  const res = await fetch("http://localhost:8080/api/upload/banner", {
-    method: "POST", headers: { Authorization: "Bearer " + token }, body: formData
-  });
-
-  const data = await res.json();
-  showPopup({
-    title: data.success ? "Successo" : "Errore",
-    text: window.safeDom.sanitizeText(data.message || (data.success ? "Banner caricato" : "Errore upload banner")),
-    duration: 1500
-  });
-  await caricaProfilo();
-});
-
-// Modifica info base
-document.getElementById("modificaForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const username = document.getElementById("usernameInput").value;
-  const birthdate = document.getElementById("birthdateInput").value;
-
-  const res = await fetch("http://localhost:8080/api/profilo/update", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-    body: JSON.stringify({ username, birthdate })
-  });
-
-  const data = await res.json();
-  showPopup({
-    title: data.success ? "Successo" : "Errore",
-    text: window.safeDom.sanitizeText(data.message || (data.success ? "Modifica completata" : "Errore modifica")),
-    duration: 1500
-  });
-  await caricaProfilo();
-});
-
-// Trofei UI
 async function setupBordersUI() {
+  const bordiGrid = document.getElementById("bordiGrid");
+  const selectedBox = document.getElementById("selectedBorderBox");
+  const selectedImg = document.getElementById("selectedBorderImg");
+
+  if (!bordiGrid) return;
+
+  // Recupera cornici sbloccate e riscattabili dal server
   try {
     const res = await fetch("http://localhost:8080/api/trophy", {
       headers: { Authorization: "Bearer " + token }
@@ -385,124 +232,264 @@ async function setupBordersUI() {
     const data = await res.json();
     if (!data.success) return;
 
-    CURRENT.unlocked = data.unlockedBorders || [];
-    const selectedKey = keyFromAny(CURRENT.selectedBorder);
+    const unlocked = data.unlockedBorders || [];
+    const claimable = data.claimableBorders || [];
 
-    document.querySelectorAll(".pfp-border").forEach(img => {
-      const key = img.dataset.border;
-      img.classList.remove("locked", "selected");
-      img.onclick = null;
+    // Pulisce la griglia
+    bordiGrid.innerHTML = "";
 
-      const isUnlocked = CURRENT.unlocked.includes(key);
-      if (!isUnlocked) { img.classList.add("locked"); return; }
+    // Funzione helper per creare card cornice
+    const creaCard = (borderKey, status) => {
+      const url = getBorderUrl(borderKey);
+      const card = document.createElement("div");
+      card.className = "bordo-card";
+      if (status === "claimable") card.classList.add("claimable");
 
-      img.onclick = () => handleBorderClick(key);
-      if (key === selectedKey) img.classList.add("selected");
+      card.innerHTML = `<img class="pfp-border" src="${url}" data-border="${borderKey}" alt="${borderKey}">`;
+      bordiGrid.appendChild(card);
+    };
+
+    // Cornici sbloccate
+    unlocked.forEach(border => creaCard(border, "unlocked"));
+    // Cornici riscattabili
+    claimable.forEach(border => creaCard(border, "claimable"));
+
+    // Evidenzia la cornice selezionata
+    const savedBorder = CURRENT.selectedBorder || localStorage.getItem("selectedBorder");
+    if (savedBorder) {
+      const imgEl = bordiGrid.querySelector(`[data-border="${savedBorder}"]`);
+      if (imgEl) mostraBordoSelezionato(imgEl.src, savedBorder);
+    }
+
+    // Click listener su tutte le immagini visibili
+    bordiGrid.querySelectorAll(".pfp-border").forEach(img => {
+      img.addEventListener("click", () => {
+        const tipo = img.getAttribute("data-border");
+        const src = img.getAttribute("src");
+
+        // Aggiorna selezione
+        mostraBordoSelezionato(src, tipo);
+        CURRENT.selectedBorder = tipo;
+        localStorage.setItem("selectedBorder", tipo);
+
+        // Evidenzia la card selezionata
+        bordiGrid.querySelectorAll(".bordo-card").forEach(card => card.classList.remove("selected"));
+        img.closest(".bordo-card").classList.add("selected");
+      });
     });
-  } catch (err) { console.error("setupBordersUI error:", err); }
-}
 
-async function handleBorderClick(key) {
-  const url = getBorderUrl(key);
-  const selRes = await fetch("http://localhost:8080/api/trophy/select", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-    body: JSON.stringify({ borderKey: key, borderUrl: url })
-  });
-  const selData = await resJsonSafe(selRes);
-  if (!selData.success) {
-    showPopup({
-      title: "Errore",
-      text: window.safeDom.sanitizeText(selData.message || "Impossibile selezionare la cornice"),
-      duration: 1500
-    });
-    return;
+  } catch (err) {
+    console.error("setupBordersUI error:", err);
   }
 
-  CURRENT.selectedBorder = url || "none";
-  document.querySelectorAll(".pfp-border").forEach(i => i.classList.remove("selected"));
-  const el = document.querySelector(`.pfp-border[data-border="${key}"]`);
-  if (el) el.classList.add("selected");
-
-  const selBox = document.getElementById("selectedBorderBox");
-  const selImg = document.getElementById("selectedBorderImg");
-  if (url) { selImg.src = url; selBox.style.display = "block"; }
-  else { selBox.style.display = "none"; }
-
-  showPopup({
-    title: "Successo",
-    text: "Cornice selezionata!",
-    duration: 1200
-  });
+  // Mostra la cornice selezionata
+  function mostraBordoSelezionato(src, nome) {
+    if (selectedBox && selectedImg) {
+      selectedBox.style.display = "block";
+      selectedImg.src = src;
+      selectedImg.alt = nome;
+    }
+  }
 }
-
-// ======= BOX CENTRALE (MODALE) LISTA UTENTI =======
 const usersModal = document.getElementById("modalUsers");
 const usersTitle = document.getElementById("modalUsersTitle");
 const userListContainer = document.getElementById("userListContainer");
 
-function closeUsersModal() { usersModal.style.display = "none"; while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild); }
-usersModal.addEventListener("click", (e) => { if (e.target.id === "modalUsers") closeUsersModal(); });
+function closeUsersModal() {
+  if (usersModal) usersModal.style.display = "none";
+  if (userListContainer) userListContainer.innerHTML = "";
+}
+if (usersModal) {
+  usersModal.addEventListener("click", (e) => {
+    if (e.target === usersModal) closeUsersModal();
+  });
+}
 
-async function getUserById(id){
+async function getUserById(id) {
+  if (!id) return null;
   try {
     const res = await fetch(`http://localhost:8080/api/utente/${id}`);
     const data = await res.json();
     if (data && data.success) return { _id: id, ...data.utente };
-  } catch (e) { console.error("getUserById error:", e); }
+  } catch (e) {
+    console.error("getUserById error:", e);
+  }
   return null;
 }
 
-async function openUserList(kind){
-  const ids = (kind === "follower") ? CURRENT.followerIds : CURRENT.seguitiIds;
-  usersTitle.textContent = (kind === "follower") ? "Follower" : "Seguiti";
-  usersModal.style.display = "flex";
-  // show skeleton via DOM
-  while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild);
-  const skeleton = document.createElement('div'); skeleton.className = 'userlist-row-skeleton'; skeleton.textContent = 'Caricamento...';
-  userListContainer.appendChild(skeleton);
+async function openUserList(tipo) {
+  const ids = [...new Set(tipo === "follower" ? CURRENT.followerIds : CURRENT.seguitiIds)];
+  const container = document.getElementById("userListContainer");
+  container.innerHTML = "";
 
-  if (!ids || !ids.length) {
-  while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild);
-  const noneEl = document.createElement('div'); noneEl.className = 'userlist-row-skeleton'; noneEl.textContent = 'Nessun utente';
-  userListContainer.appendChild(noneEl);
-    return;
+  for (const id of ids) {
+    try {
+      const res = await fetch(`http://localhost:8080/api/utente/${id}`);
+      const data = await res.json();
+      if (!data.success) continue;
+
+      const utente = data.utente;
+
+      const barra = document.createElement("div");
+      barra.className = "user-bar";
+      barra.style.display = "flex";
+      barra.style.alignItems = "center";
+      barra.style.marginBottom = "8px";
+
+      barra.innerHTML = `
+        <img src="${utente.immagineProfilo || '/frontend/img/default-avatar-icon-of-social-media-user-vector.jpg'}" 
+             alt="Avatar" style="width:36px;height:36px;border-radius:50%;margin-right:8px;">
+        <div>
+          <div>${utente.username}</div>
+          <div style="font-size:.8rem;opacity:.7;">Punti: ${utente.punti}</div>
+        </div>
+      `;
+
+      container.appendChild(barra);
+    } catch (err) {
+      console.error("Errore caricamento utente:", err);
+    }
   }
 
-  const results = await Promise.all(ids.map(getUserById));
-  const users = results.filter(Boolean);
+  const modal = document.getElementById("modalUsers");
+  if (modal) modal.style.display = "flex";
+}
 
-  while (userListContainer.firstChild) userListContainer.removeChild(userListContainer.firstChild);
-  users.forEach(u => {
-    const item = document.createElement('div');
-    item.className = 'userlist-item';
-    item.dataset.id = u._id || '';
+function openPostOverlay(post) {
+  const overlay = document.getElementById("postOverlay");
+  const overlayImg = document.getElementById("overlayImage");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayText = document.getElementById("overlayText");
+  const overlayDate = document.getElementById("overlayDate");
+  const closeBtn = document.getElementById("closePostOverlay");
 
-    const avatar = document.createElement('img');
-    avatar.className = 'avatar';
-    avatar.src = (u.immagineProfilo && (/^https?:\/\//i.test(u.immagineProfilo) || u.immagineProfilo.startsWith('/'))) ? u.immagineProfilo : '/frontend/assets/logo.png';
-    avatar.alt = '';
+  if (!overlay) return;
 
-    const info = document.createElement('div');
-    const name = document.createElement('div'); name.className = 'name';
-    name.textContent = (window.safeDom && window.safeDom.sanitizeText) ? window.safeDom.sanitizeText(u.username || '') : (u.username || '');
-    const pts = document.createElement('div'); pts.className = 'points';
-    pts.textContent = 'Punti: ' + (u.punti || 0);
+  if (overlayImg) overlayImg.src = post.ImmaginePost || "";
+  if (overlayTitle) overlayTitle.textContent = post.titolo || "Senza titolo";
+  if (overlayText) overlayText.textContent = post.descrizione || "";
+  if (overlayDate) overlayDate.textContent = post.createdAt ? `Pubblicato il ${new Date(post.createdAt).toLocaleString()}` : "Data non disponibile";
 
-    info.appendChild(name); info.appendChild(pts);
-    item.appendChild(avatar); item.appendChild(info);
+  overlay.style.display = "flex";
 
-    item.addEventListener('click', () => {
-      const id = item.getAttribute('data-id');
-      localStorage.setItem('utenteVisualizzato', id);
-      window.location.href = '/frontend/html/ProEsterno.html';
-    });
+  if (closeBtn) closeBtn.onclick = () => closePostOverlay();
+  overlay.onclick = (e) => {
+    if (e.target && e.target.id === "postOverlay") closePostOverlay();
+  };
+}
 
-    userListContainer.appendChild(item);
+function closePostOverlay() {
+  const overlay = document.getElementById("postOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
+/*===Aggiorna Username e Data di nascita===*/
+const profileForm = document.getElementById("modificaForm");
+if (profileForm) {
+  profileForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const username = document.getElementById("usernameInput").value;
+    const birthdate = document.getElementById("birthdateInput").value;
+
+    if (!username || !birthdate) {
+      showPopup({
+        title: "Errore",
+        text: "Username e data di nascita sono obbligatori",
+        duration: 1500
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/api/profilo/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ username, birthdate })
+      });
+
+      const data = await resJsonSafe(res);
+
+      showPopup({
+        title: data.success ? "Successo" : "Errore",
+        text: window.safeDom.sanitizeText(data.message || (data.success ? "Profilo aggiornato" : "Errore")),
+        duration: 1500
+      });
+
+      if (data.success) {
+        await caricaProfilo();
+      }
+    } catch (err) {
+      console.error("Errore aggiornamento profilo:", err);
+      showPopup({ title: "Errore", text: "Errore aggiornamento profilo", duration: 1500 });
+    }
   });
 }
 
-// ====== Avvio caricamento al DOM ready ======
+/*===Aggiorna Immagine Profilo===*/
+const uploadForm = document.getElementById("uploadForm");
+if (uploadForm) {
+  uploadForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const file = document.querySelector('#uploadForm input[name="file"]').files[0];
+    if (!file || !token) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("http://localhost:8080/api/upload", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token },
+      body: formData,
+    });
+
+    const data = await res.json();
+    showPopup({
+      title: data.success ? "Successo" : "Errore",
+      text: window.safeDom.sanitizeText(data.message || (data.success ? "Upload completato" : "Errore upload")),
+      duration: 1500,
+    });
+    await caricaProfilo();
+  });
+}
+
+/*===Aggiorna Banner===*/
+const bannerForm = document.getElementById("bannerForm");
+if (bannerForm) {
+  bannerForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const file = bannerForm.querySelector('input[name="file"]').files[0];
+    if (!file || !token) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("http://localhost:8080/api/upload/banner", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        body: formData,
+      });
+      const data = await res.json();
+
+      showPopup({
+        title: data.success ? "Successo" : "Errore",
+        text: window.safeDom.sanitizeText(data.message || (data.success ? "Banner aggiornato" : "Errore upload")),
+        duration: 1500,
+      });
+
+      document.getElementById("modalBanner").style.display = "none";
+      await caricaProfilo();
+    } catch (err) {
+      console.error("Errore upload banner:", err);
+      showPopup({ title: "Errore", text: "Errore upload banner", duration: 1500 });
+    }
+  });
+}
+
+/* ====== Avvio ====== */
 document.addEventListener("DOMContentLoaded", () => {
   caricaProfilo();
 });

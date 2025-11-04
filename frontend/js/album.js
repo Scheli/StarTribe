@@ -8,6 +8,10 @@ const overlay = document.getElementById("lightbox");
 const lbImg = document.getElementById("lightboxImg");
 const lbCap = document.getElementById("lightboxCap");
 
+// Stato
+let allCards = [];
+let searchInput = null;
+
 function setStatus(t) {
   if (statusEl) statusEl.textContent = t;
 }
@@ -17,7 +21,7 @@ function niceNameFromUrl(url) {
     let name = decodeURIComponent(url.split("/").pop().split(".")[0]);
     name = name.replace(/^(card|carta|cards)[-_ ]*/i, "");
     name = name.replace(/[_-]+/g, " ").trim();
-    return name;
+    return name || "Carta";
   } catch {
     return "Carta";
   }
@@ -50,13 +54,30 @@ function bindLightboxHandlers() {
   });
 }
 
-function renderCards(cards) {
-  while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+ * @param {string[]} cards - Array di URL immagine.
+ * @param {number} totalCount - Totale collezione (default 35).
+ * @param {string} searchTerm - Termine di ricerca corrente (opzionale).
+ */
+function renderCards(cards, totalCount = 35, searchTerm = "") {
+  grid.innerHTML = "";
+
   if (!cards || !cards.length) {
-    setStatus("Nessuna carta ancora. Prova a pescare nella pagina Tenta la Fortuna.");
+    if (allCards.length === 0) {
+      setStatus("Nessuna carta ancora. Prova a pescare nella pagina Tenta la Fortuna.");
+    } else if (searchTerm) {
+      setStatus(`Nessun risultato per “${searchTerm}”.`);
+    } else {
+      setStatus("Nessuna carta da mostrare.");
+    }
     return;
   }
-  setStatus(`Carte: ${cards.length}/30`);
+
+  if (searchTerm) {
+    setStatus(`Carte: ${cards.length}/${totalCount} (filtro: “${searchTerm}”)`);
+  } else {
+    setStatus(`Carte: ${cards.length}/${totalCount}`);
+  }
 
   for (const url of cards) {
     const fig = document.createElement("figure");
@@ -77,6 +98,18 @@ function renderCards(cards) {
   }
 }
 
+function applyFilter() {
+  const term = (searchInput?.value || "").trim().toLowerCase();
+  if (!term) {
+    renderCards(allCards, 35);
+    return;
+  }
+  const filtered = allCards.filter((url) =>
+    niceNameFromUrl(url).toLowerCase().includes(term)
+  );
+  renderCards(filtered, 35, term);
+}
+
 async function loadCards() {
   if (!token) {
     setStatus("Effettua l'accesso per vedere l'album.");
@@ -93,7 +126,8 @@ async function loadCards() {
     }
     const data = await res.json();
     const cards = data?.utente?.cards ?? [];
-    renderCards(cards);
+    allCards = Array.isArray(cards) ? cards : [];
+    renderCards(allCards, 35);
   } catch (e) {
     console.error(e);
     setStatus("Errore di rete.");
@@ -102,5 +136,19 @@ async function loadCards() {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindLightboxHandlers();
+
+  searchInput = document.getElementById("albumSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", applyFilter);
+
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && searchInput.value) {
+        searchInput.value = "";
+        applyFilter();
+        e.stopPropagation();
+      }
+    });
+  }
+
   loadCards();
 });

@@ -1,4 +1,4 @@
-export async function verificaAccesso(redirectUrl = "/frontend/html/registrazione.html") {
+export async function verificaAccesso(redirectUrl = "/frontend/html/login.html") {
   const token = localStorage.getItem("token");
   if (!token) {
     return { accesso: false, message: "Devi essere registrato per accedere." };

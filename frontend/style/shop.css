@@ -1,3 +1,4 @@
+
 :root{
   --violet-950:#0e051f;
   --violet-900:#180b2e;
@@ -15,7 +16,6 @@ body{
   margin:0;
   color:var(--white);
   font-family:"Oxanium", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-
   background: transparent !important;
 }
 
@@ -120,7 +120,8 @@ body.db-theme::before{ content:none !important; }
   margin-top:4px;
 }
 
-.cta-button{
+.cta-button,
+.back-button{
   --padX: clamp(26px, 3.6vw, 44px);
   --padY: clamp(12px, 1.6vw, 16px);
   display:inline-flex;
@@ -130,7 +131,7 @@ body.db-theme::before{ content:none !important; }
   border-radius:999px;
   text-decoration:none;
   font-family:"Orbitron", sans-serif;
-  font-weight:700;
+  font-weight:100;
   font-size:clamp(1rem, 1.2vw + .8rem, 1.35rem);
   letter-spacing:.6px;
   color:#fff;
@@ -143,16 +144,18 @@ body.db-theme::before{ content:none !important; }
   border:1px solid rgba(255,255,255,.15);
   transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
-
-.cta-button:hover{
+.cta-button:hover,
+.back-button:hover{
   transform: translateY(-2px) scale(1.02);
   box-shadow:
     0 16px 34px rgba(0,0,0,.45),
     0 0 46px rgba(157,124,242,.55);
   filter: saturate(1.12);
 }
-.cta-button:active{ transform: translateY(0) scale(.99); }
-.cta-button:focus-visible{
+.cta-button:active,
+.back-button:active{ transform: translateY(0) scale(.99); }
+.cta-button:focus-visible,
+.back-button:focus-visible{
   outline:3px solid var(--violet-400);
   outline-offset:4px;
 }
@@ -171,9 +174,7 @@ body.db-theme::before{ content:none !important; }
   font-size:.9rem;
 }
 
-.shenron-stage {
-  position: relative;
-}
+.shenron-stage { position: relative; }
 
 .drawn-card {
   position: absolute;
@@ -188,9 +189,7 @@ body.db-theme::before{ content:none !important; }
   animation: cardPop 2s ease-out forwards;
 }
 
-.drawn-card.fadeout {
-  animation: cardFadeOut .6s ease-in forwards;
-}
+.drawn-card.fadeout { animation: cardFadeOut .6s ease-in forwards; }
 
 @keyframes cardPop {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(-10deg); }

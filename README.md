@@ -19,11 +19,11 @@ Questo repository contiene il progetto StarTribe (backend Node.js + frontend sta
 Copia `.env.example` in `.env` e imposta i valori:
 ```env
 PORT=8080
-MONGODB_URI=mongodb://localhost:27017/StarTribeDB
-JWT_SECRET=super_segreto_jwt            # se usi JWT
-COOKIE_SECRET=super_segreto_cookie      # se usi cookie httpOnly
-NASA_API_KEY=la_tua_chiave_nasa
-CORS_ORIGIN=http://localhost:8080
+MONGODB_URI="mongodb+srv://databaseprogetto:StarTribe@startribedb.dwlllm5.mongodb.net/"
+NASA_API_KEY="4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga"   
+CLOUDINARY_CLOUD_NAME=dprigpdai
+CLOUDINARY_API_KEY=652246393145783
+CLOUDINARY_API_SECRET=0rlOVrq6hE-i8xZjbYC1-KPk8-I      
 NODE_ENV=development
 ```
 
@@ -43,8 +43,6 @@ Produzione:
 ```bash
 npm start
 ```
-> Se gli script differiscono, aggiorna questa sezione in base al tuo `package.json`.
-
 
 ## Indice delle sezioni
 - Backend
@@ -91,16 +89,6 @@ NOTE: il server Express espone le API usate dal frontend. Qui elenco le funzioni
   - `getInSightWeather()`
     - Cosa: prende i dati meteo del lander InSight (o endpoint simile) e li ritorna.
 
-  - `getMarsRoverPhoto()`
-    - Cosa: recupera foto dal Mars Rover (per giorno/sol o altri parametri).
-
-  - `searchImageLibrary(query = 'moon')`
-    - Cosa: ricerca nell'immagine library (NASA) con query opzionale.
-    - Input: stringa `query` (default 'moon').
-
-  - `getGIBSExampleURL()`
-    - Cosa: costruisce un esempio di URL per GIBS (Global Imagery Browse Services) di NASA.
-
 - `backend/db.js`
   - `connectToDB()`
     - Cosa: inizializza la connessione al DB (MongoDB o altro, come appare dal codice) e ritorna l'istanza.
@@ -131,6 +119,12 @@ Cartella: `frontend/js/`
 Nota: molte funzioni sono legate alla UI (vanilla JS) e al motore grafico 3D (Three.js o wrapper custom). Di seguito le principali.
 
 - `frontend/js/app.js` (frontend)
+  - `ensureLoaderOverlay()`
+    - cosa: Garantisce la presenza in pagina dell’overlay di caricamento (logo + testo + spinner).
+
+  - `showLoader(text="Caricamento…")`
+    - cosa: Mostra l’overlay di caricamento e aggiorna il testo visibile all’utente.
+
   - `importBackground(name)`
     - Cosa: importa dinamicamente uno sfondo/asset di background (modulo JS dal folder `core/backgrounds`).
 
@@ -203,13 +197,10 @@ Nota: molte funzioni sono legate alla UI (vanilla JS) e al motore grafico 3D (Th
 ## Deployment
 - Imposta variabili `.env` in produzione
 - `npm start` per avvio produzione (o PM2)
-- (Opzionale) **Docker**: definisci `Dockerfile` + `docker-compose.yml` per app + MongoDB
 
 ## Sicurezza
 - Hashing password (**bcrypt**)
-- Cookie **httpOnly + SameSite** (se cookie-based)
 - Validazione/sanitizzazione input
-- Non committare `.env` / segreti
 
 ## Roadmap
 - ✅ Campi `follower` / `seguiti` nello schema

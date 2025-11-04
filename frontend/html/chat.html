@@ -5,33 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat</title>
   <link rel="stylesheet" href="..\style\chat.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script defer src="../js/chat.js"></script>
+  <script defer src="../js/chat.js"></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+    </script>
 </head>
-<body>
-
-  <div class="navbar">
-    <button class="btn-navbar">
-      <a href="/frontend/html/news.html" class="navLink">📰</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/pubblicapost.html" class="navLink">➕</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/visualizzapost.html" class="navLink">🌍</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/chat.html" class="navLink">💬</a>
-    </button>
-    <button class="btn-navbar">
-      <a href="/frontend/html/space_road.html" class="navLink">🚀</a>
-    </button>
-  </div>
-
-
+<body data-theme data-no-engine>
+  <button id="theme-toggle" aria-label="Cambia tema"></button>
   <div class="chat-container">
     <div class="chat-header">
-      Chat Live – <span id="usernameDisplay"></span>
+      <div class="header-content">
+        <div class="header-center">
+          Chat Live – <span id="usernameDisplay"></span>
+        </div>
+        <div class="header-right">
+          <button class="btn-navbar"><a href="/frontend/html/news.html" class="navLink">📰</a></button>
+          <button class="btn-navbar"><a href="/frontend/html/pubblicapost.html" class="navLink">➕</a></button>
+          <button class="btn-navbar"><a href="/frontend/html/visualizzapost.html" class="navLink">🌍</a></button>
+          <button class="btn-navbar"><a href="/frontend/html/profilo.html" class="navLink">👤</a></button>
+          <button class="btn-navbar"><a href="/frontend/html/space_road.html" class="navLink">🚀</a></button>
+          <button class="btn-navbar"><a href="/frontend/html/index.html" class="navLink">🏠</a></button>
+        </div>
+      </div>
     </div>
 
     <div class="chat-messages" id="chat"></div>
@@ -41,7 +44,10 @@
       <button type="submit">Invia</button>
     </form>
   </div>
-    <script type="module" src="../js/areaprotetta.js"></script>
+
+  <script type="module" src="../js/areaprotetta.js"></script>
+  <script type="module" src="../js/app.js"></script>
+
 
 </body>
 </html>

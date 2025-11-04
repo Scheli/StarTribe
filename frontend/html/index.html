@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Startribe — Homepage</title>
+  <title>Homepage</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,12 +22,18 @@
 
 <body data-bg="random" data-theme>
   <header class="nav-wrapper">
-    <h1 class="Navbar-hp">Startribe</h1>
-    <nav class="Navlinks">
-      <a href="../html/login.html">Login</a>
-      <a href="../html/registrazione.html">Registrati</a>
-      <a href="../html/news.html">News</a>
-    </nav>
+    <div class="nav-row">
+      <h1 class="Navbar-hp">
+        <a class="nav-logo" aria-label="Homepage">
+          <img src="../assets/logo.png" alt="Startribe logo">
+        </a>
+      </h1>
+      <nav class="Navlinks">
+        <a href="../html/login.html">Login</a>
+        <a href="../html/registrazione.html">Registrati</a>
+        <a href="../html/news.html">News</a>
+      </nav>
+    </div>
   </header>
 
   <button id="theme-toggle" aria-label="Cambia tema">🌙</button>

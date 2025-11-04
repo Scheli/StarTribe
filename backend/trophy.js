@@ -1,6 +1,6 @@
 export const TIERS = [
     { key: "bronzo",   label: "Bronzo",   minPoints: 50  },
-    { key: "argento",  label: "Argento",  minPoints: 300 },
+    { key: "argento",  label: "Argento",  minPoints: 500 },
     { key: "oro",      label: "Oro",      minPoints: 900 },
     { key: "platino",  label: "Platino",  minPoints: 1300 },
     { key: "rubino",   label: "Rubino",   minPoints: 1700 },

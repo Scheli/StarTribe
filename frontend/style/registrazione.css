@@ -161,7 +161,7 @@ input:focus {
 
 .send-form:hover {
   background: var(--sfumatura);
-  color: var(--color-lilla-chiaro);
+  color: var(--color-text);
   box-shadow: 2px 2px var(--sfumatura);
 }
 

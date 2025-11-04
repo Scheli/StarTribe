@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Tenta la Fortuna</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/frontend/style/shop.css" />
-  
 
   <script type="importmap">
   {
@@ -43,6 +41,10 @@
     <div class="cta-wrap">
       <a class="cta-button" href="#" role="button" aria-label="Esprimi desiderio">Esprimi desiderio</a>
       <p id="tickets-msg" class="tickets-info" aria-live="polite">Caricamento biglietti…</p>
+
+      <a class="back-button" href="/frontend/html/space_road.html" role="button" aria-label="Torna alla space-road">
+        Torna alla space-road
+      </a>
     </div>
   </main>
 
@@ -50,13 +52,11 @@
     <p>Dragon Wish</p>
   </footer>
 
-   <script type="module">
+  <script type="module">
     import { mountAuthSky } from "/frontend/js/auth/sky_bg.js";
     const cleanup = mountAuthSky(document.body);
   </script>
   <script type="module" src="/frontend/js/shop.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
-
-
 </body>
 </html>
