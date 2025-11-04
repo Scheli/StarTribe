@@ -1,10 +1,44 @@
 const token = localStorage.getItem("token");
 
+async function resJsonSafe(res) {
+    try { return await res.json(); }
+    catch { return { success: false, message: 'Errore JSON' }; }
+}
+
+// Popup helper (sanitized) - reuse the safe popup used in profilo.js when available
+function showPopup({ title = '', text = '', duration = 1500 } = {}) {
+    if (window.safeDom && window.safeDom.createSafeElement) {
+        const overlay = window.safeDom.createSafeElement('div', { className: 'welcome-overlay' });
+        const popupDiv = window.safeDom.createSafeElement('div', { className: 'welcome-popup' });
+        const logo = window.safeDom.createSafeElement('img', {
+            className: 'welcome-logo',
+            src: '/frontend/assets/logo.png'
+        });
+        logo.alt = 'Logo';
+        const titleElement = window.safeDom.createSafeElement('h2', {}, title);
+        const textElement = window.safeDom.createSafeElement('p', {}, text);
+        const loadingBar = window.safeDom.createSafeElement('div', { className: 'loading-bar' });
+        const loadingFill = window.safeDom.createSafeElement('div', { className: 'loading-fill' });
+        loadingBar.appendChild(loadingFill);
+        popupDiv.append(logo, titleElement, textElement, loadingBar);
+        overlay.appendChild(popupDiv);
+        document.body.appendChild(overlay);
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => overlay.remove(), 600);
+        }, duration);
+    } else {
+        // fallback simple alert if safeDom not available
+        try { alert((title ? title + '\n' : '') + (text || '')) } catch (e) { console.log(title, text); }
+    }
+}
+
 async function PaginaPost() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-        alert("Token mancante. Effettua il login.");
+        showPopup({ title: 'Errore', text: (window.safeDom && window.safeDom.sanitizeText) ? window.safeDom.sanitizeText('Token mancante. Effettua il login.') : 'Token mancante. Effettua il login.', duration: 1800 });
         return;
     }
 
@@ -25,7 +59,7 @@ async function PaginaPost() {
 
         const postContainer = document.querySelector('.post-utenti');
         if (!postContainer) {
-            console.error("Elemento .post-utenti non trovato nel DOM");
+            console.error("Elemento .post-container non trovato nel DOM");
             return;
         }
 
@@ -67,6 +101,7 @@ async function PaginaPost() {
 
     } catch (error) {
         console.error('Errore nel caricamento post:', error);
+        showPopup({ title: 'Errore', text: (window.safeDom && window.safeDom.sanitizeText) ? window.safeDom.sanitizeText(error.message || 'Errore nel caricamento post') : (error.message || 'Errore nel caricamento post') });
     }
 }
 

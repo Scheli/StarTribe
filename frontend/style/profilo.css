@@ -37,6 +37,7 @@ body[data-theme] {
   pointer-events: auto;
 }
 
+/* Bottom navigation bar used for quick actions (kept as .navbar) */
 .navbar {
   background-color: var(--color-bg-dark);
   height: 80px;

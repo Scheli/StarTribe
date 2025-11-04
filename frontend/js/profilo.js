@@ -160,12 +160,17 @@ async function caricaProfilo() {
     const selBox = byId("selectedBorderBox");
     const selImg = byId("selectedBorderImg");
     const selUrl = getBorderUrl(CURRENT.selectedBorder);
-    if (selBox && selImg) {
-      if (selUrl) {
-        selImg.src = selUrl;
-        selImg.alt = "Decorazione selezionata";
-        selBox.style.display = "block";
-      } else selBox.style.display = "none";
+    if (selUrl) { selImg.src = selUrl; selImg.alt = "Decorazione selezionata"; selBox.style.display = "block"; }
+    else { selBox.style.display = "none"; }
+
+    // Banner
+  const banner1 = document.getElementById("bannerProfilo");
+  while (banner1.firstChild) banner1.removeChild(banner1.firstChild);
+    if (data.utente.bannerProfilo && (/^https?:\/\//i.test(data.utente.bannerProfilo) || data.utente.bannerProfilo.startsWith('/'))) {
+      const bimg = document.createElement('img');
+      bimg.src = data.utente.bannerProfilo;
+      bimg.alt = 'Banner'; bimg.style.maxHeight = '200px'; bimg.style.objectFit = 'cover'; bimg.style.width = '100%';
+      banner1.appendChild(bimg);
     }
 
     if (byId("postUsername")) byId("postUsername").textContent = window.safeDom.sanitizeText(utente.username || "");
@@ -200,6 +205,9 @@ async function caricaProfilo() {
           container.appendChild(postElem);
         });
       }
+    } catch (e) {
+      console.warn('Caricamento post reali fallito, uso fallback examplePosts', e);
+      examplePosts.forEach(p => renderPost(p, data.utente));
     }
 
     await setupBordersUI();

@@ -97,21 +97,26 @@ async function fetchAllNews() {
 
 function mostraAPOD(apod) {
   const div = document.getElementById('apod');
-  div.innerHTML = `
-    <h2>${apod.title}</h2>
-    <img src="${apod.url}" alt="${apod.title}" style="max-width:100%;">
-    <p>${apod.explanation}</p>
-  `;
+  while (div.firstChild) div.removeChild(div.firstChild);
+  const h = document.createElement('h2'); h.textContent = (window.safeDom && window.safeDom.sanitizeText) ? window.safeDom.sanitizeText(apod.title || '') : (apod.title || '');
+  if (apod.url && /^https?:\/\//i.test(apod.url)) {
+    const img = document.createElement('img'); img.src = apod.url; img.alt = apod.title || ''; img.style.maxWidth = '100%'; div.appendChild(h); div.appendChild(img);
+  } else {
+    div.appendChild(h);
+  }
+  const p = document.createElement('p'); p.textContent = (window.safeDom && window.safeDom.sanitizeText) ? window.safeDom.sanitizeText(apod.explanation || '') : (apod.explanation || '');
+  div.appendChild(p);
 }
 
 function mostraWeather(weather) {
   const div = document.getElementById('weather');
   const sol = weather.sol_keys[0];
   const tempData = weather[sol].AT;
-  div.innerHTML = `
-    <h3>Meteo su Marte</h3>
-    <p>Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C</p>
-  `;
+  while (div.firstChild) div.removeChild(div.firstChild);
+  const h = document.createElement('h3'); h.textContent = 'Meteo su Marte';
+  const p = document.createElement('p');
+  p.textContent = `Media: ${tempData.av}°C | Min: ${tempData.mn}°C | Max: ${tempData.mx}°C`;
+  div.appendChild(h); div.appendChild(p);
 }
 
 document.addEventListener('DOMContentLoaded', fetchAllNews);

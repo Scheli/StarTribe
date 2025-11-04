@@ -277,3 +277,59 @@ body {
     .articolo img { max-height: 250px; }
     .articolo .autore img { width: 30px; height: 30px; }
 }
+
+/* --- merged visualizzapost.override.css --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Orbitron:wght@400;700&display=swap');
+
+:root {
+  --bg-primary-color: #090a21;
+  --bg-primary-color-selected: #290e4d;
+  --text-color: #ffffff;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: linear-gradient(180deg, #050515 0%, #0b0a1a 100%);
+  color: var(--text-color);
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.posts-section {
+  margin-top: 100px;
+  padding-bottom: 140px;
+}
+
+.post-container {
+  padding: 1.6rem;
+}
+
+.posts-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ensure side decorations keep correct sizing on this page */
+.side-decorations img { height: 160px; object-fit: cover; }
+
+/* small adjustments to card spacing to match profile */
+.post-card { margin-bottom: 1rem; }
+
+/* ensure like button text/number matches profile styling */
+.like-button { padding: 8px 12px; }
+.like-count { font-weight: 700; }
