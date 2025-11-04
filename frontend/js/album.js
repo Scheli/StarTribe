@@ -57,10 +57,10 @@ function bindLightboxHandlers() {
 /**
  * Renderizza le carte sul grid.
  * @param {string[]} cards - Array di URL immagine.
- * @param {number} totalCount - Totale collezione (default 30).
+ * @param {number} totalCount - Totale collezione (default 35).
  * @param {string} searchTerm - Termine di ricerca corrente (opzionale).
  */
-function renderCards(cards, totalCount = 30, searchTerm = "") {
+function renderCards(cards, totalCount = 35, searchTerm = "") {
   grid.innerHTML = "";
 
   if (!cards || !cards.length) {
@@ -102,13 +102,13 @@ function renderCards(cards, totalCount = 30, searchTerm = "") {
 function applyFilter() {
   const term = (searchInput?.value || "").trim().toLowerCase();
   if (!term) {
-    renderCards(allCards, 30);
+    renderCards(allCards, 35);
     return;
   }
   const filtered = allCards.filter((url) =>
     niceNameFromUrl(url).toLowerCase().includes(term)
   );
-  renderCards(filtered, 30, term);
+  renderCards(filtered, 35, term);
 }
 
 async function loadCards() {
@@ -128,7 +128,7 @@ async function loadCards() {
     const data = await res.json();
     const cards = data?.utente?.cards ?? [];
     allCards = Array.isArray(cards) ? cards : [];
-    renderCards(allCards, 30);
+    renderCards(allCards, 35);
   } catch (e) {
     console.error(e);
     setStatus("Errore di rete.");

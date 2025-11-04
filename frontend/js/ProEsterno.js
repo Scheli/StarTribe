@@ -126,7 +126,6 @@ if (!utenteId) {
 
             seguitiCorrenti = Array.isArray(authData.utente.seguiti) ? authData.utente.seguiti : [];
 
-            // Se sto guardando me stesso, niente bottone
             if (mioId === utenteId) return;
 
             const btn = document.createElement("button");
