@@ -185,8 +185,21 @@ async function seguiUtente(idSeguito, bottone) {
     });
 
     const data = await res.json();
+
     if (data.success) {
-      bottone.textContent = "Seguito";
+      // Aggiorna bottone
+      bottone.textContent = "💖 Piaciuto";
+      bottone.classList.add("liked");
+
+      // Se vuoi aggiornare i punti visivamente nel frontend
+      aggiornaPuntiUtenteAutore(postId, +100);
+
+      showPopup({
+        title: "Like aggiunto",
+        text: "Hai messo mi piace! L'autore ha guadagnato 100 punti 🎉",
+        duration: 1200
+      });
+
       return true;
     } else {
       showPopup({
@@ -207,7 +220,8 @@ async function seguiUtente(idSeguito, bottone) {
   }
 }
 
-async function unfollowUtente(id, bottone) {
+
+async function togliLike(postId, bottone) {
   try {
     const res = await fetch("http://localhost:8080/api/unfollow", {
       method: "POST",
@@ -219,8 +233,20 @@ async function unfollowUtente(id, bottone) {
     });
 
     const data = await res.json();
+
     if (data.success) {
-      bottone.textContent = "Segui";
+      bottone.textContent = "🤍 Mi piace";
+      bottone.classList.remove("liked");
+
+      // Aggiorna i punti nel frontend se necessario
+      aggiornaPuntiUtenteAutore(postId, -100);
+
+      showPopup({
+        title: "Like rimosso",
+        text: "Hai tolto il mi piace. All'autore sono stati rimossi 100 punti.",
+        duration: 1200
+      });
+
       return true;
     } else {
       showPopup({

@@ -871,6 +871,8 @@ app.post("/api/cards/draw", async (req, res) => {
     return res.status(401).json({ success: false, message: "Token non valido o scaduto" });
   }
 });
+
+// gestione like
     
 
 app.post("/api/like", async (req, res) => {
@@ -892,17 +894,27 @@ app.post("/api/like", async (req, res) => {
 
     const db = await connectToDB();
     const posts = db.collection("posts");
+    const users = db.collection("users");
 
     const post = await posts.findOne({ _id: new ObjectId(postId) });
     if (!post) {
       return res.status(404).json({ success: false, message: "Post non trovato" });
     }
 
-    // Aggiunge l’ID dell’utente all’array "likes" solo se non è già presente
-    await posts.updateOne(
+    // Aggiunge l’ID dell’utente ai like solo se non è già presente
+    const result = await posts.updateOne(
       { _id: new ObjectId(postId) },
       { $addToSet: { likes: new ObjectId(mioId) } }
     );
+
+    // Se l'update ha effettivamente aggiunto un nuovo like (non era già presente)
+    if (result.modifiedCount > 0) {
+      // Incrementa i punti dell'autore del post di 100
+      await users.updateOne(
+        { _id: new ObjectId(post.userId) },
+        { $inc: { punti: 100 } }
+      );
+    }
 
     res.json({ success: true, message: "Like aggiunto con successo" });
   } catch (err) {
@@ -910,7 +922,6 @@ app.post("/api/like", async (req, res) => {
     res.status(401).json({ success: false, message: "Token non valido o errore interno" });
   }
 });
-
 
 app.post("/api/unlike", async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -931,17 +942,26 @@ app.post("/api/unlike", async (req, res) => {
 
     const db = await connectToDB();
     const posts = db.collection("posts");
+    const users = db.collection("users");
 
     const post = await posts.findOne({ _id: new ObjectId(postId) });
     if (!post) {
       return res.status(404).json({ success: false, message: "Post non trovato" });
     }
 
-    // Rimuove l'utente dall’array dei like
-    await posts.updateOne(
+    // Togli il like solo se esiste
+    const result = await posts.updateOne(
       { _id: new ObjectId(postId) },
       { $pull: { likes: new ObjectId(mioId) } }
     );
+
+    // Se è stato realmente tolto il like, togli 100 punti all'autore
+    if (result.modifiedCount > 0) {
+      await users.updateOne(
+        { _id: new ObjectId(post.userId) },
+        { $inc: { punti: -100 } }
+      );
+    }
 
     res.json({ success: true, message: "Like rimosso con successo" });
   } catch (err) {
@@ -949,3 +969,5 @@ app.post("/api/unlike", async (req, res) => {
     res.status(401).json({ success: false, message: "Token non valido o errore interno" });
   }
 });
+
+
