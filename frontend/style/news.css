@@ -25,6 +25,7 @@ html, body {
   --sidebar-w: 450px; 
 }
 
+/*===Stile Navbar===*/
 body {
   display: flex;
   flex-direction: column;
@@ -111,6 +112,7 @@ body {
   height: 100%;
 }
 
+/*===Container===*/
 .container {
   background-color: var(--bg-primary-color);
   flex-grow: 1;
@@ -127,6 +129,7 @@ body {
   margin-bottom: 10px;
 }
 
+/*===News===*/
 .news {
   flex: 0 0 70%;
   padding: 20px;
@@ -165,6 +168,7 @@ body {
   margin-bottom: 10px;
 }
 
+/*===Stile Utenti Suggeriti===*/
 .utenti {
   flex: 0 0 30%;
   padding: 20px;
@@ -197,6 +201,7 @@ body {
   border-bottom: 1px solid #2e2e50;
 }
 
+/*===Stile utente singolo nella barra laterale===*/
 .utente {
   border: 1px solid #ccc;
   padding: 10px 15px;
@@ -225,6 +230,7 @@ body {
   font-family: "Orbitron", sans-serif;
 }
 
+/*===Visualizzazione corretta trofei===*/
 .trophy-badge {
   width: 80px;
   height: 80px;

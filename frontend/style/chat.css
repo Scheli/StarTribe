@@ -164,6 +164,7 @@ body {
   text-align: right;
 }
 
+/* ====== INPUT MESSAGGI ====== */
 .chat-input {
   display: flex;
   padding: 10px;
@@ -196,6 +197,7 @@ body {
   background: #8376ff;
 }
 
+/* ====== ANIMAZIONE MESSAGGI ====== */
 @keyframes fadeIn {
   from {
     opacity: 0;

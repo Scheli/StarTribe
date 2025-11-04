@@ -1,3 +1,4 @@
+/* ====== VARIABILI ====== */
 :root {
   --bg-primary-color: #090a21;
   --bg-primary-color-selected: #290e4d;
@@ -11,6 +12,7 @@
   --text-color: #ffffff;
 }
 
+/* ====== RESET BASE ====== */
 * {
   margin: 0;
   padding: 0;
@@ -31,6 +33,7 @@ body {
   color: var(--text-color);
 }
 
+/* ====== HEADER CON TITOLO + NAVBAR ====== */
 .page-header {
   position: fixed;
   top: 0;
@@ -77,6 +80,7 @@ body {
   gap: 10px;
 }
 
+/* ====== PULSANTI NAVBAR ====== */
 .btn-navbar {
   background-color: var(--btn-bg-color);
   border: 2px solid var(--btn-border-color);
@@ -103,6 +107,7 @@ body {
   color: inherit;
 }
 
+/* ====== CONTAINER PRINCIPALE ====== */
 .container {
   flex-grow: 1;
   display: grid;
@@ -130,6 +135,7 @@ body {
   margin-top: 6px;
 }
 
+/* ====== FORM INPUT ====== */
 input[type='text'] {
   font-family: inherit;
   width: 100%;
@@ -316,6 +322,7 @@ body[data-theme="light"] #theme-toggle:hover{
   color: #fff;
 }
 
+/* ====== RESPONSIVE ====== */
 @media (max-width: 768px) {
   .page-header { 
     padding-right: 64px; 
