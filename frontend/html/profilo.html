@@ -6,8 +6,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../style/profilo.css" />
   <link rel="stylesheet" href="../style/popup.css" />
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+    </script>
 </head>
-<body>
+<body data-theme data-no-engine>
+    <button id="theme-toggle"></button>
  <nav class="navbar">
   <div class="navbar-content">
     
@@ -192,6 +202,7 @@
       });
     });
   </script>
+  <script type="module" src="../js/app.js"></script>
 </body>
 </html>
  
