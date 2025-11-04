@@ -193,7 +193,7 @@ const posts = postsData.success ? postsData.posts : [];
             <h3>${post.titolo}</h3>
             <p>${post.descrizione}</p>
             ${post.ImmaginePost ? `<img src="${post.ImmaginePost}" width="200" height="150"/>` : ""}
-            <small>Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</small>
+            <div class="post-Date"><small>Creato il: ${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Data non disponibile"}</small></div>
           `;
           container.appendChild(postElem);
         });

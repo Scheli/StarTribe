@@ -3,21 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <title>Profilo Utente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../style/profilo.css" />
   <link rel="stylesheet" href="../style/popup.css" />
-  <link rel="stylesheet" href="../style/decorations.css" />
 </head>
 <body>
-  <!-- Navbar -->
  <nav class="navbar">
   <div class="navbar-content">
     
-    <!-- Sinistra: Titolo / Username -->
     <div class="navbar-left">
       <span class="navbar-title" id="navUsername">Profilo</span>
     </div>
 
-    <!-- Destra: Icone navigazione -->
     <div class="navbar-right">
       <button class="news-icon-btn"><a href="/frontend/html/news.html" class="testoLink">📰</a></button>
       <button class="news-icon-btn"><a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a></button>
@@ -26,31 +23,28 @@
       <button class="news-icon-btn"><a href="/frontend/html/space_road.html" class="testoLink">🚀</a></button>
       <button class="news-icon-btn"><a href="/frontend/html/index.html" class="testoLink">🏠</a></button>
     </div>
-
   </div>
 </nav>
- 
-  <!-- Banner utente -->
+
   <div id="bannerProfilo" class="banner-profilo"></div>
    
  
   <!-- Sezione principale: foto profilo + info utente -->
    <main class="profilo-layout">
- <aside class="user-info-box">
+    <!---Scheda utente--->
+    <aside class="user-info-box">
       <div id="mediaProfilo" class="media-profilo"></div>
         <div id="selectedBorderBox">
-        <img id="selectedBorderImg" alt="Cornice selezionata"/>
-        <div style="font-size:.9rem; opacity:.8; margin-top:6px;">Decorazione selezionata</div>
+          <img id="selectedBorderImg" alt="Cornice selezionata"/>
+          <div style="font-size:.9rem; opacity:.8; margin-top:6px;">Decorazione selezionata</div>
       </div>
-
-<!---Informazioni Utente--->
-  <div class="info-base">
-    <h3>Informazioni Utente</h3>
-    <div class="ig-stats" aria-label="Statistiche profilo">
-      <div class="stat" id="openFollower" role="button" tabindex="0" aria-label="Apri follower">
-        <div id="countFollower" class="num">0</div>
+      <div class="info-base">
+        <h3>Informazioni Utente</h3>
+        <div class="ig-stats" aria-label="Statistiche profilo">
+        <div class="stat" id="openFollower" role="button" tabindex="0" aria-label="Apri follower">
+          <div id="countFollower" class="num">0</div>
         <div class="lbl">Follower</div>
-      </div>
+        </div>
         <div class="stat" id="openSeguiti" role="button" tabindex="0" aria-label="Apri seguiti">
           <div id="countSeguiti" class="num">0</div>
           <div class="lbl">Seguiti</div>
@@ -70,14 +64,10 @@
       </div>
     </aside>
 
- 
-  <!-- Sezione Post -->
-  <section class="posts-section">
- 
-    <!-- Colonna centrale con i post -->
-    <div class="post-container" id="postContainer">
-      <h2 class="posts-title">Post di <span id="postUsername"></span></h2>
-    </div>
+<section class="posts-section">
+  <h2 class="posts-title">Post di <span id="postUsername"></span></h2>
+  <div id="postContainer" class="post-container"></div>
+</section>
  
   <!-- Sezione decorazioni -->
   <section class="bordi-wrapper">
@@ -157,14 +147,7 @@
       </form>
     </div>
   </div>
- 
-  <section class="post-wrapper">
-  <h3>I tuoi post</h3>
-  <div id="postContainer" class="post-container">
-    <!-- I post verranno inseriti qui tramite JS -->
-  </div>
-</section>
- 
+
   <!-- BOX CENTRALE: lista follower/seguiti -->
   <div id="modalUsers" class="modal-overlay">
     <div class="modal-content users">
