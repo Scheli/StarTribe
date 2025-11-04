@@ -6,8 +6,18 @@
     <link rel="stylesheet" href="/frontend/style/visualizzapost.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <title>Visualizza Post</title>
+
+      <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
 </head>
-<body>
+<body data-theme data-no-engine>
+      <button id="theme-toggle" aria-label="Cambia tema">🌙</button>
     <header class="page-header">
         <div class="header-content">
             <div class="header-left">
@@ -39,5 +49,7 @@
   <script type="module" src="../js/areaprotetta.js"></script>
 
     <script src="/frontend/js/visualizzapost.js"></script>
+      <script type="module" src="../js/app.js"></script>
+
 </body>
 </html>

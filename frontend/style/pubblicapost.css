@@ -43,6 +43,7 @@ body {
   z-index: 2000;
   box-shadow: 0 1px 6px #0008;
   color: white;
+  padding-right: 72px; 
 }
 
 .header-content {
@@ -50,7 +51,13 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
 }
+
+.header-left{ grid-column: 1; justify-self: start; }
 
 .header-left .titolo {
   font-size: 4vh;
@@ -62,6 +69,11 @@ body {
   display: flex;
   gap: 10px;
   align-items: center;
+  grid-column: 2;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* ====== PULSANTI NAVBAR ====== */
@@ -170,27 +182,6 @@ input[type="file"] {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.page-header{
-  padding-right: 72px; 
-}
-
-.header-content{
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  width: 100%;
-}
-
-.header-left{ grid-column: 1; justify-self: start; }
-
-.header-right{
-  grid-column: 2;
-  justify-self: center;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 #theme-toggle{
   position: fixed;
   top: 16px; 
@@ -277,7 +268,6 @@ body[data-theme="light"] .post{
 
 body[data-theme="light"] input[type="text"]{
   color: var(--nav-link);
-  border-bottom-color: var(--input-border);
   background: transparent;
 }
 

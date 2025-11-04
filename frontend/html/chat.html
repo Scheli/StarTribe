@@ -18,7 +18,7 @@
     }
     </script>
 </head>
-<body data-theme data-no-engine>
+<body data-no-engine>
   <button id="theme-toggle" aria-label="Cambia tema"></button>
   <div class="chat-container">
     <div class="chat-header">
@@ -45,6 +45,11 @@
     </form>
   </div>
 
+  <script type="module">
+    import { mountAuthSky } from "../js/auth/sky_bg.js";
+    const cleanup = mountAuthSky(document.body);
+  </script>
+  
   <script type="module" src="../js/areaprotetta.js"></script>
   <script type="module" src="../js/app.js"></script>
 

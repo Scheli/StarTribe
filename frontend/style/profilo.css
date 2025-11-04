@@ -23,6 +23,131 @@ body, html {
   color: var(--text-color);
   height: 100%;
 }
+#theme-toggle:hover {
+  background: var(--primary);
+  color: #0b142c;
+  transform: translateY(-1px);
+}
+
+body[data-theme="light"] {
+  --color-bg-dark: #ffffff;
+  --color-bg-light: #f6f9ff;
+  --color-card-bg: rgba(255, 255, 255, 0.85);
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-text-dark: #1a1a2e;
+  --color-text-light: #20263a;
+
+  --color-lilla: #8a5cff;
+  --color-lilla-chiaro: #a47fff;
+  --color-lilla-hover: #7e4aff;
+
+  --bg-primary-color: #7ae2ff;
+  --bg-primary-color-selected: #eaf3ff;
+  --bg-hover-color: #f0f5ff;
+  --input-border: #b7d7ff;
+  --testobottoni: linear-gradient(90deg, #9e7aff, #6bd3ff);
+  --sfumatura: rgba(0, 0, 255, 0.15);
+  --card: #ffffffcc;
+
+  background:
+    radial-gradient(900px 600px at 10% -10%, #ffffff 0%, transparent 55%),
+    linear-gradient(180deg, #fafdff 0%, #eef6ff 50%, #e8f0ff 100%);
+  color: var(--color-text-light);
+  transition: all 0.4s ease-in-out;
+}
+
+body[data-theme="light"] .navbar {
+  background-color: var(--color-bg-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+body[data-theme="light"] .navbar-title {
+  color: var(--color-text-light);
+}
+
+body[data-theme="light"] .news-icon-btn {
+  background-color: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  color: var(--color-text-light);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .news-icon-btn:hover {
+  background-color: #f0f0ff;
+  border-color: #c7b8ff;
+  transform: scale(1.06);
+}
+
+body[data-theme="light"] .testoLink {
+  color: var(--color-text-light);
+}
+
+body[data-theme="light"] .user-name {
+  color: var(--color-text-light);
+}
+
+body[data-theme="light"] .user-points {
+  color: var(--color-lilla);
+  opacity: 0.8;
+}
+
+body[data-theme="light"] .user-info-box,
+body[data-theme="light"] .bordo-card,
+body[data-theme="light"] .modal-content {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-light);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+body[data-theme="light"] .modal-content {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .banner-profilo {
+  background: linear-gradient(90deg, #a47fff, #7ae2ff);
+}
+
+body[data-theme="light"] .azioni-utente button {
+  background: var(--testobottoni);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .azioni-utente button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+body[data-theme="light"] .logout-section button {
+  color: var(--color-lilla);
+  border-color: var(--color-lilla);
+}
+
+body[data-theme="light"] .logout-section button:hover {
+  background: var(--color-lilla-hover);
+  color: #fff;
+}
+
+body[data-theme="light"] .user-item {
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+body[data-theme="light"] .user-item:hover {
+  background-color: var(--bg-hover-color);
+  transform: scale(1.02);
+}
+
+body[data-theme="light"] .album-fab img {
+  filter: drop-shadow(0 0 8px var(--color-lilla-chiaro));
+}
+
+
 
 /* ─────────── NAVBAR ─────────── */
 .navbar {

@@ -10,7 +10,7 @@
   --input-border: #bda8ff;
   --testobottoni: purple;
   --form: #d067fd7b;
-  --sfumatura: #7ad7ff;
+  --sfumatura:  rgba(0, 0, 173, 0.856);
   --viola2: #eb07eb9d;
 
   --muted: #a9b4cc;
@@ -155,6 +155,8 @@ body[data-theme="light"] {
   --bg-primary-color-selected: #eaf3ff;
   --color-text: #8f60ff;
   --muted: #4772bb;
+  --testobottoni: linear-gradient(90deg, #a17eff, #7ae2ff);
+  --sfumatura:  rgba(0, 159, 199, 0.882);
 
   --color-lilla: #eb07eb9d;
   --color-lilla-chiaro: #a17eff;
@@ -206,10 +208,10 @@ main { width:min(1200px, 92%); margin-inline:auto; padding:24px 0 64px; }
   font-weight:600; text-decoration:none; cursor:pointer; transition:all .25s ease;
 }
 .btn--primary{
-  background:linear-gradient(90deg, var(--color-lilla), var(--color-lilla-chiaro));
-  color:#0b142c; box-shadow:0 0 18px rgba(74,183,255,.28);
+  background:var(--testobottoni);
+  color:var(--nav-link); box-shadow:0 0 18px rgba(74,183,255,.28);
 }
-.btn--primary:hover{ background: var(--sfumatura); color: var(--color-text); box-shadow: 2px 2px var(--sfumatura); }
+.btn--primary:hover{ background: var(--sfumatura); color: var(--nav-link); box-shadow: 2px 2px var(--sfumatura); }
 .btn--ghost{
   color:#e7f2ff; border:1px solid rgba(255,255,255,.15);
   background:rgba(12,21,48,0.65); backdrop-filter: blur(6px);
