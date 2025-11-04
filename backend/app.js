@@ -872,3 +872,80 @@ app.post("/api/cards/draw", async (req, res) => {
   }
 });
     
+
+app.post("/api/like", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const { postId } = req.body;
+
+  if (!postId) {
+    return res.status(400).json({ success: false, message: "ID del post mancante" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const mioId = decoded.userId;
+
+    const db = await connectToDB();
+    const posts = db.collection("posts");
+
+    const post = await posts.findOne({ _id: new ObjectId(postId) });
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post non trovato" });
+    }
+
+    // Aggiunge l’ID dell’utente all’array "likes" solo se non è già presente
+    await posts.updateOne(
+      { _id: new ObjectId(postId) },
+      { $addToSet: { likes: new ObjectId(mioId) } }
+    );
+
+    res.json({ success: true, message: "Like aggiunto con successo" });
+  } catch (err) {
+    console.error("Errore nel mettere like:", err);
+    res.status(401).json({ success: false, message: "Token non valido o errore interno" });
+  }
+});
+
+
+app.post("/api/unlike", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Token mancante" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const { postId } = req.body;
+
+  if (!postId) {
+    return res.status(400).json({ success: false, message: "ID del post mancante" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const mioId = decoded.userId;
+
+    const db = await connectToDB();
+    const posts = db.collection("posts");
+
+    const post = await posts.findOne({ _id: new ObjectId(postId) });
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post non trovato" });
+    }
+
+    // Rimuove l'utente dall’array dei like
+    await posts.updateOne(
+      { _id: new ObjectId(postId) },
+      { $pull: { likes: new ObjectId(mioId) } }
+    );
+
+    res.json({ success: true, message: "Like rimosso con successo" });
+  } catch (err) {
+    console.error("Errore nel togliere il like:", err);
+    res.status(401).json({ success: false, message: "Token non valido o errore interno" });
+  }
+});

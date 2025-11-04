@@ -170,70 +170,73 @@ if (!utenteId) {
     });
 }
 
-async function seguiUtente(idSeguito, bottone) {
+async function mettiLike(postId, bottone) {
   try {
-    const res = await fetch("http://localhost:8080/api/segui", {
+    const res = await fetch("http://localhost:8080/api/like", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ utenteDaSeguireId: idSeguito })
+      body: JSON.stringify({ postId })
     });
 
     const data = await res.json();
     if (data.success) {
-      bottone.textContent = "Seguito";
+      bottone.textContent = "💖 Piaciuto";
+      bottone.classList.add("liked");
       return true;
     } else {
       showPopup({
         title: "Errore",
-        text: window.safeDom.sanitizeText(data.message || "Impossibile seguire l'utente."),
+        text: window.safeDom.sanitizeText(data.message || "Impossibile mettere like."),
         duration: 1500
       });
       return false;
     }
   } catch (err) {
-    console.error("Errore durante il follow:", err);
+    console.error("Errore durante il like:", err);
     showPopup({
       title: "Errore",
-      text: "Errore durante la richiesta follow",
+      text: "Errore durante la richiesta like",
       duration: 1500
     });
     return false;
   }
 }
 
-async function unfollowUtente(id, bottone) {
+async function togliLike(postId, bottone) {
   try {
-    const res = await fetch("http://localhost:8080/api/unfollow", {
+    const res = await fetch("http://localhost:8080/api/unlike", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ utenteDaSmettereId: id })
+      body: JSON.stringify({ postId })
     });
 
     const data = await res.json();
     if (data.success) {
-      bottone.textContent = "Segui";
+      bottone.textContent = "🤍 Mi piace";
+      bottone.classList.remove("liked");
       return true;
     } else {
       showPopup({
         title: "Errore",
-        text: window.safeDom.sanitizeText(data.message || "Impossibile smettere di seguire l'utente."),
+        text: window.safeDom.sanitizeText(data.message || "Impossibile togliere il like."),
         duration: 1500
       });
       return false;
     }
   } catch (err) {
-    console.error("Errore durante unfollow:", err);
+    console.error("Errore durante il unlike:", err);
     showPopup({
       title: "Errore",
-      text: "Errore durante la richiesta unfollow",
+      text: "Errore durante la richiesta unlike",
       duration: 1500
     });
     return false;
   }
 }
+
