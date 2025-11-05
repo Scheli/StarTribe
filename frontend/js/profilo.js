@@ -198,12 +198,7 @@ const posts = postsData.success ? postsData.posts : [];
           container.appendChild(postElem);
         });
       }
-<<<<<<< HEAD
-    } 
-=======
     }
->>>>>>> a40ef120a5d949f2475b749c286f0ff8f1e0fd39
-
   } catch (err) {
     console.error("caricaProfilo error:", err);
     showPopup({
