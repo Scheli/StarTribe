@@ -19,6 +19,7 @@ body {
 :root {
   --bg-primary-color: #090a21;
   --bg-primary-color-selected: #290e4d;
+  --accent-light: #d8b6ff;
 }
 
 .page-header {
@@ -30,26 +31,32 @@ body {
     display: flex;
     align-items: center;
     z-index: 2000;
-    box-shadow: 0 1px 6px #0008;
+    box-shadow: 0 1px 10px #0008;
     padding: 0 20px;
 }
 
 .header-content {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     width: 100%;
 }
 
 .header-left h1 {
-    font-size: 4vh;
-    color: #d3d0ff;
-    letter-spacing: 0.03em;
-    font-family: "orbitron", sans-serif;
+  grid-column: 1;
+  justify-self: start;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 4vh;
+  color: var(--accent-light);
 }
 
 .header-right {
     display: flex;
+    grid-column: 2;
+    justify-self: center;
+    display: flex;
+    align-items: center;
     gap: 10px;
 }
 
@@ -69,10 +76,10 @@ body {
 }
 
 .btn-navbar:hover {
-    background-color: #2a2a50;
-    box-shadow: 0 0 10px #ffffff30;
-    transform: scale(1.05);
+  background-color: var(--accent-light);
+  transform: scale(1.1);
 }
+.testoLink { text-decoration: none; color: inherit; }
 
 .navLink {
     text-decoration: none;
@@ -80,7 +87,6 @@ body {
 }
 
 .container {
-  background-color: var(--bg-primary-color);
   flex-grow: 1;
   display: flex; 
   color: white;
@@ -166,4 +172,117 @@ body {
   outline: 2px solid #9b73ff;
   outline-offset: 6px;
   border-radius: 12px;
+}
+
+#theme-toggle{
+  position: fixed;
+  top: 16px; 
+  right: calc(16px + env(safe-area-inset-right));
+  z-index: 2100; 
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  line-height: 42px; text-align: center;
+  font-size: 20px;
+  color: #c79aff;               
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px rgba(199,154,255,.20);
+  cursor: pointer;
+  transition: background .25s ease, color .25s ease, transform .15s ease, box-shadow .25s ease;
+}
+
+#theme-toggle:hover{
+  background: #c79aff;
+  color: #0b142c;
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px #c79aff;
+}
+
+body[data-theme="light"]{
+  --bg-primary-color: #48bff2d3;
+  --bg-primary-color-selected: #eaf3ff;
+  --color-text: #8f60ff;
+  --muted: #4772bb;
+
+  --color-lilla: #eb07eb9d;
+  --color-lilla-chiaro: #a17eff;
+
+  --input-bg: rgba(0, 0, 0, 0.04);
+  --input-border: #b7d7ff;
+
+  --card: #ffffffcc;
+  --card-2: #f6fbffcc;
+  --glass: blur(10px) saturate(150%);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+
+  --nav-from: rgba(255, 255, 255, 0.70);
+  --nav-to: #48bff2d3;
+  --nav-link: #0f1b2d;
+  --nav-link-hover-fg: #ffffff;
+
+  background:
+    radial-gradient(900px 600px at 5% -10%, #ffffff 0%, transparent 55%),
+    linear-gradient(180deg, #fafdff 0%, #eef7ff 40%, #e7f2ff 100%);
+  color: var(--nav-link);
+}
+
+body[data-theme="light"] .page-header{
+  background: linear-gradient(180deg, var(--nav-from), var(--nav-to));
+  color: var(--nav-link);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="light"] .header-left h1{ 
+  color: var(--nav-link); 
+}
+
+body[data-theme="light"] .btn-navbar{
+  background: var(--card);
+  border-color: rgba(0,0,0,.08);
+  color: var(--nav-link);
+}
+
+body[data-theme="light"] .btn-navbar:hover{
+  background-color: #f0f0ff;
+  border-color: #c7b8ff;
+  transform: scale(1.06);
+}
+
+body[data-theme="light"] .container{
+  background: transparent;
+  color: var(--nav-link);
+}
+
+body[data-theme="light"] .trophy-section {
+  color: var(--nav-link);
+}
+
+body[data-theme="light"] .space-screen {
+  background: linear-gradient(135deg, var(--card-2), var(--card));
+  border-color: var(--input-border);
+  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+}
+
+body[data-theme="light"] .milestone {
+  background: var(--card);
+  border-color: var(--input-border);
+}
+
+body[data-theme="light"] .milestone.locked {
+  opacity: .6;
+  filter: grayscale(100%);
+}
+
+body[data-theme="light"] #theme-toggle{
+  background: var(--card);
+  border-color: rgba(0,0,0,.10);
+  color: var(--color-lilla);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="light"] #theme-toggle:hover{
+  background: var(--color-lilla);
+  color: #fff;
 }

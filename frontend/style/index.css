@@ -21,8 +21,8 @@
   --radius: 16px;
   --shadow: 0 0 28px rgba(199, 154, 255, 0.15);
 
-  --nav-from: rgba(41, 14, 77, 0.8);
-  --nav-to: rgba(9, 10, 33, 0.85);
+  --nav-from: #2e1550;
+  --nav-to: #3b1c60;
   --nav-link: #ffffff;
   --nav-link-hover-fg: #0b142c;
   --nav-hover-shadow: 0 0 14px rgba(199, 154, 255, 0.4);
@@ -104,7 +104,6 @@ body[data-theme="light"] #bg-logo-loader .bg-loader-text{ color:#2b2740; }
 .nav-row{
   width: min(1200px, 92%);
   margin: 0 auto;
-  height: 100%;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;

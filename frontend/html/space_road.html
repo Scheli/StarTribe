@@ -6,9 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <title>Space Road</title>
-</head>
-<body>
+    <link rel="icon" type="image/png" href="../assets/shenron.png">
 
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+    </script>
+</head>
+<body data-no-engine>
+    <button id="theme-toggle"></button>
     <section class="page-header">
         <div class="header-content">
             <div class="header-left">
@@ -49,8 +59,14 @@
       </section>
     </div>
 
+  <script type="module">
+    import { mountAuthSky } from "../js/auth/sky_bg.js";
+    const cleanup = mountAuthSky(document.body);
+  </script>
+
     <script type="module" src="../js/areaprotetta.js"></script>
     <script type="module" src="/frontend/js/trophy.js"></script>
+    <script type="module" src="../js/app.js"></script>
 
 </body>
 </html>

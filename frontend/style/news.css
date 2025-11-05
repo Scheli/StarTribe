@@ -16,7 +16,7 @@ html, body {
 
   --bg-header-gradient-start: #2e1550;
   --bg-header-gradient-end: #3b1c60;
-
+  --accent-light: #d8b6ff;
   --btn-bg-color: #1f1f3d;
   --btn-border-color: #ffffff20;
   --btn-hover-bg: #2a2a50;
@@ -67,7 +67,7 @@ body {
 
 .navbar-title {
   font-size: 4vh;
-  color: white;
+  color: var(--accent-light);
   font-weight: 600;
   letter-spacing: 1px;
   font-family: "Orbitron", sans-serif;
@@ -97,10 +97,10 @@ body {
 }
 
 .news-icon-btn:hover {
-  background-color: var(--btn-hover-bg);
-  box-shadow: 0 0 10px #ffffff30;
-  transform: scale(1.05);
+  background-color: var(--accent-light);
+  transform: scale(1.1);
 }
+.testoLink { text-decoration: none; color: inherit; }
 
 .testoLink {
   color: white;
@@ -308,6 +308,12 @@ body[data-theme="light"] .news-icon-btn{
   background: var(--card);
   border-color: rgba(0,0,0,.08);
   color: var(--nav-link);
+}
+
+body[data-theme="light"] .news-icon-btn:hover {
+  background-color: #f0f0ff;
+  border-color: #c7b8ff;
+  transform: scale(1.06);
 }
 
 body[data-theme="light"] .navbar-title {

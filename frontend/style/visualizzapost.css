@@ -5,6 +5,7 @@
   --btn-bg-color: #1f1f3d;
   --btn-border-color: #ffffff20;
   --btn-hover-bg: #2a2a50;
+  --accent-light: #d8b6ff;
 
   --text-color: #ffffff;
   --text-light: #cccccc;
@@ -79,12 +80,13 @@ body[data-theme="light"] .btn-navbar{
   color: var(--nav-link);
 }
 body[data-theme="light"] .btn-navbar:hover{
-  background: var(--card-2);
-  box-shadow: 0 0 12px rgba(0,0,0,.06);
+  background-color: #f0f0ff;
+  border-color: #c7b8ff;
+  transform: scale(1.06);
 }
 
 body[data-theme="light"] .container{
-  background: transparent;
+  background-color: var(--bg-primary-color-selected);
   color: var(--nav-link);
 }
 
@@ -221,7 +223,7 @@ html, body {
 .header-left .titolo {
   font-size: 4vh;
   font-family: "Orbitron", sans-serif;
-  color: white;
+  color: var(--accent-light);
 }
 
 .header-right {
@@ -258,10 +260,10 @@ html, body {
 }
 
 .btn-navbar:hover {
-  background-color: var(--btn-hover-bg, #2a2a50);
-  box-shadow: 0 0 12px rgba(199,154,255,0.5);
-  transform: scale(1.05);
+  background-color: var(--accent-light);
+  transform: scale(1.1);
 }
+.testoLink { text-decoration: none; color: inherit; }
 
 /*===Barra di ricerca===*/
 .search-bar {
