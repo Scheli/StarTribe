@@ -109,6 +109,7 @@ if (!utenteId) {
       if (isProvided(u.bannerProfilo)) {
         document.getElementById("banner").innerHTML =
           `<img src="${window.safeDom.sanitizeText(u.bannerProfilo)}" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
+    
       } else {
         document.getElementById("banner").innerHTML =
           `<img src="/frontend/img/default_banner.jpg" style="width: 100%; max-height: 500px; object-fit: cover; object-position: top;">`;
@@ -126,6 +127,8 @@ if (!utenteId) {
 
             seguitiCorrenti = Array.isArray(authData.utente.seguiti) ? authData.utente.seguiti : [];
 
+            
+            // Se sto guardando me stesso, niente bottone
             if (mioId === utenteId) return;
 
             const btn = document.createElement("button");
@@ -170,15 +173,15 @@ if (!utenteId) {
     });
 }
 
-async function mettiLike(postId, bottone) {
+async function seguiUtente(idSeguito, bottone) {
   try {
-    const res = await fetch("http://localhost:8080/api/like", {
+    const res = await fetch("http://localhost:8080/api/segui", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ postId })
+      body: JSON.stringify({ utenteDaSeguireId: idSeguito })
     });
 
     const data = await res.json();
@@ -201,16 +204,16 @@ async function mettiLike(postId, bottone) {
     } else {
       showPopup({
         title: "Errore",
-        text: window.safeDom.sanitizeText(data.message || "Impossibile mettere like."),
+        text: window.safeDom.sanitizeText(data.message || "Impossibile seguire l'utente."),
         duration: 1500
       });
       return false;
     }
   } catch (err) {
-    console.error("Errore durante il like:", err);
+    console.error("Errore durante il follow:", err);
     showPopup({
       title: "Errore",
-      text: "Errore durante la richiesta like",
+      text: "Errore durante la richiesta follow",
       duration: 1500
     });
     return false;
@@ -220,13 +223,13 @@ async function mettiLike(postId, bottone) {
 
 async function togliLike(postId, bottone) {
   try {
-    const res = await fetch("http://localhost:8080/api/unlike", {
+    const res = await fetch("http://localhost:8080/api/unfollow", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ postId })
+      body: JSON.stringify({ utenteDaSmettereId: id })
     });
 
     const data = await res.json();
@@ -248,19 +251,18 @@ async function togliLike(postId, bottone) {
     } else {
       showPopup({
         title: "Errore",
-        text: window.safeDom.sanitizeText(data.message || "Impossibile togliere il like."),
+        text: window.safeDom.sanitizeText(data.message || "Impossibile smettere di seguire l'utente."),
         duration: 1500
       });
       return false;
     }
   } catch (err) {
-    console.error("Errore durante il unlike:", err);
+    console.error("Errore durante unfollow:", err);
     showPopup({
       title: "Errore",
-      text: "Errore durante la richiesta unlike",
+      text: "Errore durante la richiesta unfollow",
       duration: 1500
     });
     return false;
   }
 }
-

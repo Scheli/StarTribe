@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <title>Profilo Utente</title>
-  <!-- Theme fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../style/profilo.css" />
   <link rel="stylesheet" href="../style/popup.css" />
-  <link rel="stylesheet" href="../style/post-cards.css" />
-  <link rel="stylesheet" href="../style/decorations.css" />
 
   <script type="importmap">
     {
@@ -17,21 +14,17 @@
         "three/addons/": "/node_modules/three/examples/jsm/"
       }
     }
-  </script>
+    </script>
 </head>
-
 <body data-theme data-no-engine>
-  <button id="theme-toggle"></button>
-
-  <nav class="navbar">
+    <button id="theme-toggle"></button>
+ <nav class="navbar">
   <div class="navbar-content">
     
-    <!-- Sinistra: Titolo / Username -->
     <div class="navbar-left">
       <span class="navbar-title" id="navUsername">Profilo</span>
     </div>
 
-    <!-- Destra: Icone navigazione -->
     <div class="navbar-right">
       <button class="news-icon-btn"><a href="/frontend/html/news.html" class="testoLink">📰</a></button>
       <button class="news-icon-btn"><a href="/frontend/html/pubblicapost.html" class="testoLink">➕</a></button>
@@ -40,46 +33,39 @@
       <button class="news-icon-btn"><a href="/frontend/html/space_road.html" class="testoLink">🚀</a></button>
       <button class="news-icon-btn"><a href="/frontend/html/index.html" class="testoLink">🏠</a></button>
     </div>
-
   </div>
 </nav>
 
-  <!-- Banner profilo -->
   <div id="bannerProfilo" class="banner-profilo"></div>
-
-  <!-- LAYOUT PRINCIPALE -->
-  <main class="profilo-layout">
-
-    <!-- COLONNA SINISTRA: informazioni utente -->
+   
+ 
+  <!-- Sezione principale: foto profilo + info utente -->
+   <main class="profilo-layout">
+    <!---Scheda utente--->
     <aside class="user-info-box">
       <div id="mediaProfilo" class="media-profilo"></div>
-
-      <!-- Cornice/trofeo selezionato -->
-      <div id="selectedBorderBox" style="display:none; text-align:center; margin-top:12px;">
-        <img id="selectedBorderImg" alt="Cornice selezionata" style="max-width:160px; height:auto; border-radius:12px;" />
-        <div style="font-size:.9rem; opacity:.8; margin-top:6px;">Decorazione selezionata</div>
+        <div id="selectedBorderBox">
+          <img id="selectedBorderImg" alt="Cornice selezionata"/>
+          <div style="font-size:.9rem; opacity:.8; margin-top:6px;">Decorazione selezionata</div>
       </div>
-
       <div class="info-base">
         <h3>Informazioni Utente</h3>
-
-        <!-- Contatori stile Instagram -->
         <div class="ig-stats" aria-label="Statistiche profilo">
-          <div class="stat" id="openFollower" role="button" tabindex="0" aria-label="Apri follower">
-            <div id="countFollower" class="num">0</div>
-            <div class="lbl">Follower</div>
-          </div>
-          <div class="stat" id="openSeguiti" role="button" tabindex="0" aria-label="Apri seguiti">
-            <div id="countSeguiti" class="num">0</div>
-            <div class="lbl">Seguiti</div>
-          </div>
+        <div class="stat" id="openFollower" role="button" tabindex="0" aria-label="Apri follower">
+          <div id="countFollower" class="num">0</div>
+        <div class="lbl">Follower</div>
         </div>
-
-        <p><strong>Username:</strong> <span id="usernameDisplay"></span></p>
-        <p><strong>Email:</strong> <span id="emailDisplay"></span></p>
-        <p><strong>Data di nascita:</strong> <span id="birthdateDisplay"></span></p>
-        <p><strong>Punti:</strong> <span id="puntiDisplay"></span></p>
-
+        <div class="stat" id="openSeguiti" role="button" tabindex="0" aria-label="Apri seguiti">
+          <div id="countSeguiti" class="num">0</div>
+          <div class="lbl">Seguiti</div>
+        </div>
+    </div>
+        <div class="user-info-details">
+          <p><strong>Username:</strong> <span id="usernameDisplay"></span></p>
+          <p><strong>Email:</strong> <span id="emailDisplay"></span></p>
+          <p><strong>Data di nascita:</strong> <span id="birthdateDisplay"></span></p>
+          <p><strong>Punti:</strong> <span id="puntiDisplay"></span></p>
+        </div>
         <div class="azioni-utente">
           <button id="btnModificaInfo">Modifica informazioni</button>
           <button id="btnModificaBanner">Modifica banner</button>
@@ -88,58 +74,79 @@
       </div>
     </aside>
 
-    <!-- COLONNA DESTRA: post -->
-    <section class="post-container" id="postContainer">
-      <h2 class="posts-title">Post di <span id="postUsername"></span></h2>
-      <!-- I post vengono generati dinamicamente via JS -->
-    </section>
-  </main>
-
+<section class="posts-section">
+  <h2 class="posts-title">Post di <span id="postUsername"></span></h2>
+  <div id="postContainer" class="post-container"></div>
+</section>
+ 
   <!-- Sezione decorazioni -->
   <section class="bordi-wrapper">
     <h3>Decorazioni disponibili</h3>
     <div class="bordi-grid" id="bordiGrid">
-      <div class="bordo-card"><img class="pfp-border" data-border="bronzo" src="/frontend/assets/border-bronzo.png" alt="Bronzo"><div class="bordo-label">Bronzo</div></div>
-      <div class="bordo-card"><img class="pfp-border" data-border="argento" src="/frontend/assets/border-argento.png" alt="Argento"><div class="bordo-label">Argento</div></div>
-      <div class="bordo-card"><img class="pfp-border" data-border="oro" src="/frontend/assets/border-oro.png" alt="Oro"><div class="bordo-label">Oro</div></div>
-      <div class="bordo-card"><img class="pfp-border" data-border="platino" src="/frontend/assets/border-platino.png" alt="Platino"><div class="bordo-label">Platino</div></div>
-      <div class="bordo-card"><img class="pfp-border" data-border="rubino" src="/frontend/assets/border-rubino.png" alt="Rubino"><div class="bordo-label">Rubino</div></div>
-      <div class="bordo-card"><img class="pfp-border" data-border="diamante" src="/frontend/assets/border-diamante.png" alt="Diamante"><div class="bordo-label">Diamante</div></div>
-      <div class="bordo-card"><img class="pfp-border" data-border="universo" src="/frontend/assets/border-universo.png" alt="Universo"><div class="bordo-label">Universo</div></div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="bronzo" src="/frontend/assets/border-bronzo.png" alt="Bronzo">
+        <div class="bordo-label">Bronzo</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="argento" src="/frontend/assets/border-argento.png" alt="Argento">
+        <div class="bordo-label">Argento</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="oro" src="/frontend/assets/border-oro.png" alt="Oro">
+        <div class="bordo-label">Oro</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="platino" src="/frontend/assets/border-platino.png" alt="Platino">
+        <div class="bordo-label">Platino</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="rubino" src="/frontend/assets/border-rubino.png" alt="Rubino">
+        <div class="bordo-label">Rubino</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="diamante" src="/frontend/assets/border-diamante.png" alt="Diamante">
+        <div class="bordo-label">Diamante</div>
+      </div>
+      <div class="bordo-card">
+        <img class="pfp-border" data-border="universo" src="/frontend/assets/border-universo.png" alt="Universo">
+        <div class="bordo-label">Universo</div>
+      </div>
     </div>
   </section>
-
-  <!-- Logout -->
+ 
+  <!-- Bottone logout -->
   <div class="logout-section">
     <button id="logoutBtn">Logout</button>
   </div>
-
-  <!-- MODALI -->
+ 
+  <!-- Modifica informazioni -->
   <div id="modalInfo" class="modal-overlay">
     <div class="modal-content">
       <h3>Modifica informazioni utente</h3>
       <form id="modificaForm">
-        <label>Username:</label>
-        <input type="text" id="usernameInput" />
+        <label>Username: </label>
+        <input type="text" id="usernameInput">
         <label>Data di nascita:</label>
-        <input type="date" id="birthdateInput" />
+        <input type="date" id="birthdateInput">
         <button type="submit">Salva modifiche</button>
         <button type="button" class="btnChiudi" data-close="modalInfo">Chiudi</button>
       </form>
     </div>
   </div>
-
+ 
+  <!-- Modifica banner -->
   <div id="modalBanner" class="modal-overlay">
-  <div class="modal-content">
-    <h3>Modifica banner</h3>
-    <form id="bannerForm">
-      <input type="file" name="file" accept="image/*" required />
-      <button type="submit">Carica banner</button>
-      <button type="button" class="btnChiudi" data-close="modalBanner">Chiudi</button>
-    </form>
+    <div class="modal-content">
+      <h3>Modifica banner</h3>
+      <form id="bannerForm">
+        <input type="file" name="file" accept="image/*" required />
+        <button type="submit">Carica banner</button>
+        <button type="button" class="btnChiudi" data-close="modalBanner">Chiudi</button>
+      </form>
+    </div>
   </div>
-</div>
-
+ 
+  <!-- Modifica immagine profilo -->
   <div id="modalMedia" class="modal-overlay">
     <div class="modal-content">
       <h3>Modifica immagine profilo</h3>
@@ -151,7 +158,7 @@
     </div>
   </div>
 
-  <!-- Modal follower/seguiti -->
+  <!-- BOX CENTRALE: lista follower/seguiti -->
   <div id="modalUsers" class="modal-overlay">
     <div class="modal-content users">
       <h3 id="modalUsersTitle">Utenti</h3>
@@ -159,35 +166,23 @@
       <button type="button" class="btnChiudi" data-close="modalUsers">Chiudi</button>
     </div>
   </div>
-
-  <!-- MODALE OVERLAY ZOOM POST -->
-  <div id="postOverlay" class="post-overlay" style="display:none;">
-  <div class="post-overlay-content">
-    <button id="closePostOverlay" class="close-overlay">&times;</button>
-    <img id="overlayImage" alt="Zoom post" />
-    <h3 id="overlayTitle" class="overlay-title"></h3>
-    <p id="overlayText" class="overlay-text"></p>
-    <small id="overlayDate" class="overlay-date"></small>
-  </div>
-</div>
-
-  <!-- JS -->
+ 
   <script src="../js/utils/sanitize.js"></script>
   <script src="../js/profilo.js"></script>
   <script type="module" src="../js/areaprotetta.js"></script>
-
-  <!-- Album FAB -->
+ 
+  <!-- Pulsante Album (in basso a destra) -->
   <a class="album-fab" href="album.html" aria-label="Apri album">
     <img src="../assets/album.png" alt="Album">
   </a>
-
+ 
   <script>
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = 'login.html';
     });
-
+ 
     // Apertura modali
     document.getElementById("btnModificaInfo").addEventListener("click", () => {
       document.getElementById("modalInfo").style.display = "flex";
@@ -198,16 +193,17 @@
     document.getElementById("btnModificaMedia").addEventListener("click", () => {
       document.getElementById("modalMedia").style.display = "flex";
     });
-
-    // Chiusura modali
+ 
+    // Chiusura modali generica
     document.querySelectorAll(".btnChiudi").forEach(btn => {
       btn.addEventListener("click", e => {
         const target = e.target.getAttribute("data-close");
         document.getElementById(target).style.display = "none";
-        });
       });
+    });
   </script>
-
   <script type="module" src="../js/app.js"></script>
 </body>
 </html>
+ 
+ 
