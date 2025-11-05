@@ -205,10 +205,7 @@ async function caricaProfilo() {
           container.appendChild(postElem);
         });
       }
-    } catch (e) {
-      console.warn('Caricamento post reali fallito, uso fallback examplePosts', e);
-      examplePosts.forEach(p => renderPost(p, data.utente));
-    }
+    } 
 
     await setupBordersUI();
   } catch (err) {

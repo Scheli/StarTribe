@@ -1,43 +1,40 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/frontend/style/visualizzapost.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-    <title>Visualizza Post</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/frontend/style/visualizzapost.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <title>Visualizza Post</title>
 </head>
 <body>
-    <header class="page-header">
-        <div class="header-content">
-            <div class="header-left">
-                <h1 class="titolo">Post</h1>
-            </div>
-            <div class="header-right">
-                <button class="btn-navbar"><a href="/frontend/html/news.html" class="navLink">📰</a></button>
-                <button class="btn-navbar"><a href="/frontend/html/profilo.html" class="navLink">👤</a></button>
-                <button class="btn-navbar"><a href="/frontend/html/pubblicapost.html" class="navLink">➕</a></button>
-                <button class="btn-navbar"><a href="/frontend/html/chat.html" class="navLink">💬</a></button>
-                <button class="btn-navbar"><a href="/frontend/html/space_road.html" class="navLink">🚀</a></button>
-                <button class="btn-navbar"><a href="/frontend/html/index.html" class="navLink">🏠</a></button>
-            </div>
-        </div>
-    </header>
-
-    <div class="search-bar">
-        <input type="text" id="cercaPost" placeholder="Cerca per titolo...">
-        <button id="btnCerca"><i class="fa fa-search"></i></button>
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="titolo">Post</h1>
+      </div>
+      <div class="header-right">
+        <button class="btn-navbar"><a href="/frontend/html/news.html" class="navLink">📰</a></button>
+        <button class="btn-navbar"><a href="/frontend/html/profilo.html" class="navLink">👤</a></button>
+        <button class="btn-navbar"><a href="/frontend/html/pubblicapost.html" class="navLink">➕</a></button>
+        <button class="btn-navbar"><a href="/frontend/html/chat.html" class="navLink">💬</a></button>
+        <button class="btn-navbar"><a href="/frontend/html/space_road.html" class="navLink">🚀</a></button>
+        <button class="btn-navbar"><a href="/frontend/html/index.html" class="navLink">🏠</a></button>
+      </div>
     </div>
+  </header>
 
-    <div id="listaPost"></div>
+  <div class="search-bar">
+    <input type="text" id="cercaPost" placeholder="Cerca per titolo...">
+    <button id="btnCerca"><i class="fa fa-search"></i></button>
+  </div>
 
-    <div class="container">
-        <div class="post">
-            <div class="post-utenti"></div>
-        </div>
-    </div>
+  <div class="container">
+    <!-- container principale: dentro c'è il wrapper usato dal CSS -->
+    <div class="post-utenti" id="listaPost"></div>
+  </div>
+
   <script type="module" src="../js/areaprotetta.js"></script>
-
-    <script src="/frontend/js/visualizzapost.js"></script>
+  <script type="module" src="/frontend/js/visualizzapost.js"></script>
 </body>
 </html>
