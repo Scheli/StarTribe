@@ -34,7 +34,7 @@ export async function GetUtentiConsigliati(dbInstance) {
   const db = dbInstance || (await connectToDB());
   const utenti = await db
     .collection("utenti")
-    .aggregate([{ $sample: { size: 3 } }])
+    .aggregate([{ $sample: { size: 5 } }])
     .toArray();
   return utenti;
 }

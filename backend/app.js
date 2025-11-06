@@ -879,7 +879,6 @@ app.post("/api/cards/draw", async (req, res) => {
   }
 });
 
-// gestione like - ADATTATO per utilizzare la collection "articoli" e "utenti"
 app.post("/api/like", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -912,7 +911,6 @@ app.post("/api/like", async (req, res) => {
     );
 
     if (result.modifiedCount > 0) {
-      // Incrementa i punti dell'autore del post di 100 (se esiste)
       try {
         if (post.userId) {
           await usersColl.updateOne(
@@ -925,7 +923,6 @@ app.post("/api/like", async (req, res) => {
       }
     }
 
-    // restituisci anche il nuovo count (opzionale)
     const updatedPost = await postsColl.findOne({ _id: new ObjectId(postId) });
     const likesCount = Array.isArray(updatedPost.likes) ? updatedPost.likes.length : 0;
 
