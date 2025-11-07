@@ -159,3 +159,83 @@ async function fetchMeteoTerni() {
 }
 
 document.addEventListener('DOMContentLoaded', fetchMeteoTerni);
+
+
+
+let neoDataGlobal = [];
+let currentPage = 1;
+const perPage = 5; 
+
+async function fetchNEO() {
+  try {
+    const res = await fetch("http://localhost:8080/news/neo");
+    if (!res.ok) throw new Error("Errore nella fetch di NEO");
+
+    const data = await res.json();
+    neoDataGlobal = data;
+    currentPage = 1;
+    mostraNEO();
+  } catch (err) {
+    console.error("❌ Errore nel caricamento di NEO:", err);
+  }
+}
+
+function mostraNEO() {
+  const div = document.getElementById("neo");
+  div.innerHTML = "<h3>🌑 Asteroidi vicini alla Terra</h3>";
+
+  if (!neoDataGlobal.length) {
+    div.innerHTML += "<p>Nessun dato disponibile</p>";
+    return;
+  }
+
+
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+  const pageData = neoDataGlobal.slice(start, end);
+
+
+  pageData.forEach(neo => {
+    const p = document.createElement("p");
+    p.classList.add("neo-item");
+    p.innerHTML = `
+      🌑 <b>${neo.name}</b>  
+      (Diametro: ${neo.diameter_meters} m,  
+      Distanza: ${Math.round(neo.distance_km)} km,  
+      Velocità: ${Math.round(neo.velocity_kmh)} km/h,  
+      ${neo.is_hazardous ? "🚨 <b>PERICOLOSO</b>" : "🟢 Sicuro"})
+    `;
+    div.appendChild(p);
+  });
+  const totalPages = Math.ceil(neoDataGlobal.length / perPage);
+  const pagination = document.createElement("div");
+  pagination.classList.add("pagination");
+
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "⬅️ Precedente";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    currentPage--;
+    mostraNEO();
+    window.scrollTo({ top: div.offsetTop, behavior: "smooth" });
+  };
+
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Successivo ➡️";
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => {
+    currentPage++;
+    mostraNEO();
+    window.scrollTo({ top: div.offsetTop, behavior: "smooth" });
+  };
+
+  const pageInfo = document.createElement("span");
+  pageInfo.textContent = `Pagina ${currentPage} di ${totalPages}`;
+
+  pagination.appendChild(prevBtn);
+  pagination.appendChild(pageInfo);
+  pagination.appendChild(nextBtn);
+  div.appendChild(pagination);
+}
+
+document.addEventListener("DOMContentLoaded", fetchNEO);

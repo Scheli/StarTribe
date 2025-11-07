@@ -3,7 +3,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectToDB, aggiungiUtente, GetUtentiConsigliati } from "./db.js";
-import { getAPOD, getInSightWeather, getTerniMeteo} from "./apirequest.js";
+import { getAPOD,getNEO, getInSightWeather, getTerniMeteo} from "./apirequest.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js";
@@ -637,6 +637,24 @@ app.get("/news/getInSightWeather", async (req, res) => {
   }
 });
 
+app.get("/news/neo", async (req, res) => {
+  try {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 3);
+
+    const startDate = start.toISOString().split("T")[0];
+    const endDate = today.toISOString().split("T")[0];
+
+    const data = await getNEO(startDate, endDate);
+    res.json(data);
+
+  } catch (error) {
+    console.error("Errore nella GET di NEO:", error);
+    res.status(500).json({ error: "Errore nel recupero dei dati NEO", message: error.message });
+  }
+});
+
 app.get("/news/all", async (req, res) => {
 try {
   const apod = await getAPOD();
@@ -658,6 +676,26 @@ app.get("/news/meteoTerni", async (req, res) => {
     res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
+
+app.get("/news/neo", async (req, res) => {
+  try {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 3); // ultimi 3 giorni
+
+    const startDate = start.toISOString().split("T")[0];
+    const endDate = today.toISOString().split("T")[0];
+
+    const neos = await getNEO(startDate, endDate);
+    res.json(neos);
+  } catch (error) {
+    console.error("Errore nella GET /news/neo:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 
 app.get("/api/utente/:id", async (req, res) => {
 const id = req.params.id;

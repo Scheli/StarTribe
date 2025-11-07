@@ -8,6 +8,7 @@ const WEATHER_KEY = "fc0d8f7948d44b989b580523250711";
 
 const endpoints = {
   apod: `https://api.nasa.gov/planetary/apod?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
+  NEO: `https://api.nasa.gov/neo/rest/v1/feed`,
   insight: `https://api.nasa.gov/insight_weather/?api_key=${API_KEY}&feedtype=json&ver=1.0`,
   weather: `http://api.weatherapi.com/v1/current.json`,
 };
@@ -65,6 +66,45 @@ export async function getTerniMeteo() {
     throw err;
   }
 }
+
+// 4. NEOs
+
+export async function getNEO(startDate, endDate) {
+  try {
+    console.log(`🌍 Richiesta NEO per date: ${startDate} → ${endDate}`);
+
+    const response = await axios.get("https://api.nasa.gov/neo/rest/v1/feed", {
+      params: {
+        start_date: startDate,
+        end_date: endDate,
+        api_key: API_KEY
+      },
+      timeout: 15000
+    });
+
+    const neoObjects = Object.values(response.data.near_earth_objects).flat();
+
+    const simplified = neoObjects.map(neo => ({
+      id: neo.id,
+      name: neo.name,
+      date: neo.close_approach_data?.[0]?.close_approach_date || "N/A",
+      diameter_meters: neo.estimated_diameter?.meters?.estimated_diameter_max?.toFixed(2) || "N/A",
+      distance_km: neo.close_approach_data?.[0]?.miss_distance?.kilometers || "N/A",
+      velocity_kmh: neo.close_approach_data?.[0]?.relative_velocity?.kilometers_per_hour || "N/A",
+      is_hazardous: neo.is_potentially_hazardous_asteroid || false
+    }));
+
+    console.log(`✅ NEO ricevuti: ${simplified.length}`);
+    return simplified;
+  } catch (error) {
+    console.error("❌ Errore nella richiesta NEO:", error.message);
+    if (error.response) {
+      console.error("🛰️ Dettagli NASA:", error.response.status, error.response.data);
+    }
+    throw error;
+  }
+}
+
 
 // Esegui tutte le richieste
 (async () => {
