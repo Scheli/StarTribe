@@ -9,6 +9,7 @@ const WEATHER_KEY = "fc0d8f7948d44b989b580523250711";
 const endpoints = {
   apod: `https://api.nasa.gov/planetary/apod?api_key=4cJbALDipgC5CRY24HMWaBi43dIUSwchTNm9Pgga`,
   NEO: `https://api.nasa.gov/neo/rest/v1/feed`,
+  Solar: `https://api.nasa.gov/DONKI/FLR`,
   insight: `https://api.nasa.gov/insight_weather/?api_key=${API_KEY}&feedtype=json&ver=1.0`,
   weather: `http://api.weatherapi.com/v1/current.json`,
 };
@@ -20,6 +21,35 @@ export async function getAPOD() {
   });
   console.log('\n APOD:', res.data.title);
   return res.data;
+}
+
+export async function getSolarFlares(startDate, endDate) {
+  try {
+    const res = await axios.get("https://api.nasa.gov/DONKI/FLR", {
+      params: {
+        startDate,
+        endDate,
+        api_key: API_KEY
+      },
+      timeout: 10000
+    });
+
+    // Ristrutturiamo i dati per renderli più semplici da usare nel frontend
+    return res.data.map(flr => ({
+      id: flr.flrID,
+      start: flr.beginTime,
+      end: flr.endTime,
+      classType: flr.classType,
+      region: flr.sourceLocation || "N/A",
+      activeRegion: flr.activeRegionNum || "N/A",
+      note: flr.note || "Nessuna nota",
+      link: flr.link,
+      instrument: flr.instruments?.[0]?.displayName || "Sconosciuto"
+    }));
+  } catch (err) {
+    console.error("Errore nella richiesta dei Solar Flares:", err.message);
+    throw err;
+  }
 }
 
 // 2. InSight - Weather on Mars

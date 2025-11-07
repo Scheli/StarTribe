@@ -427,3 +427,31 @@ body[data-theme="light"] #theme-toggle:hover{
   font-weight: bold;
 }
 
+#solar-flares {
+  margin-top: 20px;
+}
+
+.flare-card {
+  background: #111;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin: 10px 0;
+  box-shadow: 0 0 8px rgba(255,255,255,0.15);
+  transition: transform 0.2s ease;
+}
+
+.flare-card:hover {
+  transform: scale(1.02);
+  background: #181818;
+}
+
+.flare-card a {
+  color: #66ccff;
+  text-decoration: none;
+}
+
+.flare-card a:hover {
+  text-decoration: underline;
+}

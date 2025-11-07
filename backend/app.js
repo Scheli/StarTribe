@@ -3,7 +3,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectToDB, aggiungiUtente, GetUtentiConsigliati } from "./db.js";
-import { getAPOD,getNEO, getInSightWeather, getTerniMeteo} from "./apirequest.js";
+import { getAPOD,getNEO, getInSightWeather,getSolarFlares, getTerniMeteo} from "./apirequest.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js";
@@ -624,6 +624,23 @@ app.get("/news/apod", async (req, res) => {
   } catch (error) {
     console.error("Errore nella GET di APOD: ", error);
     res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+app.get("/news/flares", async (req, res) => {
+  try {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 7); 
+
+    const startDate = start.toISOString().split("T")[0];
+    const endDate = today.toISOString().split("T")[0];
+
+    const flares = await getSolarFlares(startDate, endDate);
+    res.json(flares);
+  } catch (error) {
+    console.error("Errore nella GET /news/flares:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -239,3 +239,43 @@ function mostraNEO() {
 }
 
 document.addEventListener("DOMContentLoaded", fetchNEO);
+
+async function fetchSolarFlares() {
+  try {
+    const res = await fetch("http://localhost:8080/news/flares");
+    if (!res.ok) throw new Error("Errore nella fetch dei Solar Flares");
+
+    const data = await res.json();
+    mostraSolarFlares(data);
+  } catch (err) {
+    console.error("❌ Errore nel caricamento dei Solar Flares:", err);
+  }
+}
+
+function mostraSolarFlares(flares) {
+  const div = document.getElementById("solar-flares");
+  div.innerHTML = "<h3>☀️ Solar Flares recenti</h3>";
+
+  if (!flares.length) {
+    div.innerHTML += "<p>Nessun flare registrato di recente.</p>";
+    return;
+  }
+
+  flares.forEach(flr => {
+    const card = document.createElement("div");
+    card.classList.add("flare-card");
+    card.innerHTML = `
+      <p><b>${flr.classType}</b> – Regione Attiva: ${flr.activeRegion}</p>
+      <p>📍 Posizione: ${flr.region}</p>
+      <p>🕐 Inizio: ${new Date(flr.start).toLocaleString()}</p>
+      <p>🔚 Fine: ${new Date(flr.end).toLocaleString()}</p>
+      <p>🔭 Strumento: ${flr.instrument}</p>
+      <p>📝 ${flr.note}</p>
+      <a href="${flr.link}" target="_blank">🔗 Dettagli NASA</a>
+    `;
+    div.appendChild(card);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", fetchSolarFlares);
+
