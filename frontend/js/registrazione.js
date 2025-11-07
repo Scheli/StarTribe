@@ -1,11 +1,11 @@
 const form = document.getElementById("registerForm");
-// checkbox + submit control
+// checkbox e pulsante di invio
 const termsCheckbox = document.getElementById('terms');
 const submitBtn = document.getElementById('send-form');
 
 // Il pulsante rimane sempre abilitato, la validazione avviene solo nel submit handler
 
-// ✅ Popup modale dinamico (riutilizzabile)
+// Funzione per creare popup sicuri
 function showPopup({ title, text, duration = 1500 }) {
   const overlay = safeDom.createSafeElement('div', { className: 'welcome-overlay' });
   
@@ -42,7 +42,7 @@ window.addEventListener("load", () => {
   });
 });
 
-// ✅ Gestione form di registrazione
+// Gestione del submit del form di registrazione
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -60,16 +60,12 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // ensure checkbox accepted (double check on submit)
+  // Verifica accettazione termini
   if (termsCheckbox && !termsCheckbox.checked) {
-    // Prima rimuoviamo la classe per assicurarci che l'animazione possa ripartire
     const checkboxContainer = document.querySelector('.form-checkbox');
     checkboxContainer.classList.remove('shake');
-    
-    // Forziamo un reflow per assicurarci che l'animazione si ripeta
     void checkboxContainer.offsetWidth;
     
-    // Aggiungiamo la classe per l'animazione
     checkboxContainer.classList.add('shake');
     
     showPopup({
@@ -78,10 +74,8 @@ form.addEventListener("submit", async (e) => {
       duration: 1000
     });
 
-    // Rimuoviamo la classe dopo l'animazione
     setTimeout(() => checkboxContainer.classList.remove('shake'), 500);
     
-    // Focus sulla checkbox
     termsCheckbox.focus();
     return;
   }
@@ -99,7 +93,7 @@ form.addEventListener("submit", async (e) => {
       if (data.token) localStorage.setItem("token", data.token);
       form.reset();
 
-      // ✅ Popup di benvenuto post-registrazione
+      // popup di benvenuto dopo registrazione
       showPopup({
         title: `Benvenuto ${username}!`,
         text: "La tua avventura spaziale sta per iniziare...",

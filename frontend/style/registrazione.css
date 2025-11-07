@@ -169,8 +169,8 @@ input:focus {
 .send-form:disabled {
   background-color: rgba(181, 181, 181, 0.599);
   box-shadow: 2px 2px grey;
-  cursor: pointer;  /* Cambiato da not-allowed a pointer */
-  opacity: 0.7;    /* Aumentata leggermente l'opacità */
+  cursor: pointer;  
+  opacity: 0.7;   
   position: relative;
   overflow: hidden;
 }
@@ -183,8 +183,8 @@ input:focus {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-top: 18px; /* increased spacing above checkbox */
-  justify-content: center; /* center the checkbox group horizontally */
+  margin-top: 18px; 
+  justify-content: center; 
 }
 
 .form-checkbox input[type="checkbox"] {

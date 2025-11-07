@@ -1,6 +1,6 @@
 const form = document.getElementById("loginForm");
 
-// ✅ Popup modale dinamico
+// Funzione per creare popup sicuri
 function showPopup({ title, text, duration = 1500 }) {
   const overlay = safeDom.createSafeElement('div', { className: 'welcome-overlay' });
   
@@ -33,7 +33,7 @@ function showPopup({ title, text, duration = 1500 }) {
   }, duration);
 }
 
-// ✅ Popup iniziale all’apertura
+//popup di benvenuto al caricamento della pagina
 window.addEventListener("load", () => {
   showPopup({
     title: "StarTribe Login",
@@ -42,7 +42,7 @@ window.addEventListener("load", () => {
   });
 });
 
-// ✅ Login form
+// Gestione del submit del form di login
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
