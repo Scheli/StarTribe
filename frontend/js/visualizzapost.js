@@ -1,4 +1,3 @@
-// visualizzapost.js (aggiornato per usare il CSS esistente)
 const token = localStorage.getItem("token");
 
 async function resJsonSafe(res) {
@@ -68,11 +67,10 @@ async function PaginaPost() {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
-
+    // Crea il card di un post
     function creaCardPost(articolo) {
       const div = document.createElement('div');
-      div.classList.add('articolo'); // usa la classe che hai nel CSS
-      // autore
+      div.classList.add('articolo');
       const autoreDiv = document.createElement('div');
       autoreDiv.classList.add('autore');
       if (articolo.autoreImmagine) {
@@ -103,7 +101,7 @@ async function PaginaPost() {
       const dataP = document.createElement('p');
       dataP.innerHTML = `<strong>Data di pubblicazione:</strong> ${escapeHtml(articolo.createdAt || '')}`;
 
-      // actions (like button)
+      // sezione azioni (like)
       const actionsDiv = document.createElement('div');
       actionsDiv.classList.add('post-actions');
 
