@@ -1,4 +1,4 @@
-/* Navbar style */
+/* Stili per la pagina dei post */
 .navbar {
   background: linear-gradient(90deg, var(--bg-primary-color-selected), var(--bg-primary-color));
   padding: 1rem 2rem;
@@ -16,11 +16,11 @@
   text-align: center;
 }
 
-/* Posts layout - classic 3-column with central feed and decorative sides */
+
 .posts-section {
   max-width: 1400px;
   margin: 2rem auto;
-  padding: 0 3rem 0 2rem; /* più spazio a destra */
+  padding: 0 3rem 0 2rem; 
   display: grid;
   grid-template-columns: 260px minmax(auto, 760px) 260px;
   gap: 2rem;
@@ -59,7 +59,7 @@
   .side-decorations { display: none; }
 }
 
-/* Central feed */
+/* Contenitore dei post */
 .post-container {
   grid-column: 2;
   display: grid;
@@ -77,7 +77,7 @@
   margin: 1rem 0 0.8rem;
 }
 
-/* Post card (compact, image-first) */
+/* Card del post */
 
 .post-card {
   background: rgba(9, 10, 33, 0.95);
@@ -87,7 +87,7 @@
   padding: 16px;
   width: 100%;
   max-width: 360px;
-  height: 420px; /* altezza fissa per tutte */
+  height: 420px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
