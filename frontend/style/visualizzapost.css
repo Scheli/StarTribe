@@ -1,4 +1,3 @@
-/*===VARIABILI===*/
 :root {
   --bg-primary-color: #090a21;
   --bg-primary-color-selected: #290e4d;
@@ -198,7 +197,6 @@ html, body {
   flex-direction: column;
 }
 
-/*===Header===*/
 .page-header {
   position: fixed;
   top: 0;
@@ -233,7 +231,6 @@ html, body {
   align-items: center;
 }
 
-/*===Bottoni Navbar===*/
 .btn-navbar {
   background-color: var(--btn-bg-color, #1f1f3d);
   border: 2px solid var(--btn-border-color, #ffffff20);
@@ -265,7 +262,6 @@ html, body {
 }
 .testoLink { text-decoration: none; color: inherit; }
 
-/*===Barra di ricerca===*/
 .search-bar {
   width: 100%;
   max-width: 600px;
@@ -303,7 +299,6 @@ html, body {
   transform: scale(1.05);
 }
 
-/*===Container dei Post===*/
 #listaPost {
   display: flex;
   flex-direction: column;
@@ -322,7 +317,6 @@ html, body {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/*===Post===*/
 .articolo {
   background-color: var(--post-bg-color);
   border-radius: 12px;
@@ -336,7 +330,6 @@ html, body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
-/*===Autore===*/
 .articolo .autore {
   display: flex;
   align-items: center;
@@ -355,7 +348,6 @@ html, body {
   color: var(--text-color);
 }
 
-/* ====== TESTI POST ====== */
 .articolo p {
   line-height: 1.4;
   color: var(--text-light);
@@ -368,10 +360,9 @@ html, body {
   margin-bottom: 0;
 }
 
-/* ====== IMMAGINE POST ====== */
 .articolo img {
   width: 100%;
-  height: 400px; /* altezza fissa come Instagram */
+  height: 400px; 
   object-fit: cover;
   border-radius: 8px;
   margin: 10px 0;
@@ -381,7 +372,111 @@ html, body {
   transform: scale(1.05);
 }
 
-/* ====== FOOTER ====== */
+:root{
+  --like-bg: #26224a;
+  --like-hover-bg: #322b63;
+  --like-border: #ffffff24;
+  --like-liked-bg: #3e2c7a;
+  --like-liked-border: #c79aff88;
+  --like-star: #ffd76a;
+  --like-text: var(--text-color);
+}
+
+body[data-theme="light"]{
+  --like-bg: var(--card);
+  --like-hover-bg: #eef3ff;
+  --like-border: var(--input-border);
+  --like-liked-bg: #fff3c2;
+  --like-liked-border: #ffd36d;
+  --like-star: #d97706;
+  --like-text: var(--nav-link);
+}
+
+.post-actions{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+body[data-theme="light"] .post-actions{
+  border-top-color: rgba(0,0,0,.06);
+}
+
+.like-button{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  min-width: 90px;
+  border-radius: 999px;
+  background: var(--like-bg);
+  color: var(--like-text);
+  border: 1px solid var(--like-border);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background .2s ease, transform .12s ease,
+              box-shadow .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.like-button:hover{
+  background: var(--like-hover-bg);
+  transform: translateY(-1px);
+}
+
+.like-button:active{
+  transform: translateY(0) scale(.98);
+}
+
+.like-button:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(199,154,255,.35);
+}
+
+.like-button.liked,
+.like-button[aria-pressed="true"]{
+  background: var(--like-liked-bg);
+  border-color: var(--like-liked-border);
+  box-shadow: 0 0 0 2px var(--like-liked-border) inset;
+}
+
+.like-button .star{
+  font-size: 18px;
+  line-height: 1;
+  transition: transform .15s ease, text-shadow .2s ease;
+  text-shadow: 0 0 0 transparent;
+}
+
+.like-button.liked .star,
+.like-button[aria-pressed="true"] .star{
+  color: var(--like-star);
+  text-shadow: 0 0 8px rgba(255,215,100,.45);
+  animation: like-pop .18s ease;
+}
+
+.like-button .like-count{
+  font-variant-numeric: tabular-nums;
+  min-width: 1.25ch;
+}
+
+@keyframes like-pop{
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .like-button,
+  .like-button .star{
+    transition: none;
+    animation: none !important;
+  }
+}
+
 .footer {
   position: fixed;
   bottom: 0;
@@ -395,7 +490,6 @@ html, body {
   border-top: 1px solid #ffffff33;
 }
 
-/* ====== RESPONSIVE ====== */
 @media (max-width: 480px) {
   .post-utenti { max-width: 95%; }
   .articolo img { height: 250px; }
