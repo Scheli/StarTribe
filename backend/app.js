@@ -3,7 +3,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectToDB, aggiungiUtente, GetUtentiConsigliati } from "./db.js";
-import { getAPOD, getInSightWeather} from "./apirequest.js";
+import { getAPOD, getInSightWeather, getTerniMeteo} from "./apirequest.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { MILESTONES, TIERS, unlockedBorders, computeProgress } from "./trophy.js";
@@ -637,17 +637,36 @@ app.get("/news/getInSightWeather", async (req, res) => {
   }
 });
 
+app.get("/news/TerniMeteo", async (req, res) => {
+  try {
+    const meteoTerni = await getTerniMeteo();
+    res.json(meteoTerni);
+  } catch (error) {
+    console.log("Errore nella GET di meteoTerni: ", error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
 app.get("/news/all", async (req, res) => {
 try {
   const apod = await getAPOD();
   const weather = await getInSightWeather();
   const imageLibrary = await searchImageLibrary();
-
-  res.json({ apod, weather, photos, imageLibrary });
+  res.json({ apod, weather, photos, imageLibrary, meteoTerni });
 } catch (error) {
   console.error("Errore nella GET /news/all:", error);
   res.status(500).json({ error: error.message, stack: error.stack });
 }
+});
+
+app.get("/news/meteoTerni", async (req, res) => {
+  try {
+    const meteoTerni = await getTerniMeteo();
+    res.json(meteoTerni);
+  } catch (error) {
+    console.log("Errore nella GET di meteoTerni: ", error);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
 });
 
 app.get("/api/utente/:id", async (req, res) => {

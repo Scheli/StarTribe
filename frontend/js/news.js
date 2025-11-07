@@ -82,19 +82,6 @@ async function caricaUtentiConsigliati() {
 
 document.addEventListener('DOMContentLoaded', caricaUtentiConsigliati);
 
-async function fetchAllNews() {
-  try {
-    const res = await fetch('http://localhost:8080/news/all');
-    if (!res.ok) throw new Error('Errore nella fetch');
-
-    const data = await res.json();
-    mostraAPOD(data.apod);
-    mostraWeather(data.weather);
-  } catch (err) {
-    console.error('Errore nel caricamento dati:', err);
-  }
-}
-
 function mostraAPOD(apod) {
   const div = document.getElementById('apod');
   while (div.firstChild) div.removeChild(div.firstChild);
@@ -119,4 +106,56 @@ function mostraWeather(weather) {
   div.appendChild(h); div.appendChild(p);
 }
 
+function mostraMeteoTerni(meteo) {
+  const div = document.getElementById('meteo-terni');
+  if (!div) return;
+
+  while (div.firstChild) div.removeChild(div.firstChild);
+
+  const h = document.createElement('h3');
+  h.textContent = `Meteo a ${meteo.location.name}`;
+  const p = document.createElement('p');
+  p.textContent = `${meteo.current.condition.text}, ${meteo.current.temp_c}°C`;
+
+  const img = document.createElement('img');
+  img.src = "https:" + meteo.current.condition.icon;
+  img.alt = meteo.current.condition.text;
+  img.style.width = '64px';
+  img.style.height = '64px';
+
+  const details = document.createElement('p');
+  details.textContent = `Vento: ${meteo.current.wind_kph} km/h | Umidità: ${meteo.current.humidity}%`;
+
+  div.appendChild(h);
+  div.appendChild(img);
+  div.appendChild(p);
+  div.appendChild(details);
+}
+
+async function fetchAllNews() {
+  try {
+    const res = await fetch('http://localhost:8080/news/all');
+    if (!res.ok) throw new Error('Errore nella fetch');
+
+    const data = await res.json();
+    mostraAPOD(data.apod);
+    mostraWeather(data.weather);
+  } catch (err) {
+    console.error('Errore nel caricamento dati:', err);
+  }
+}
 document.addEventListener('DOMContentLoaded', fetchAllNews);
+
+async function fetchMeteoTerni() {
+  try {
+    const res = await fetch('http://localhost:8080/news/meteoTerni');
+    if (!res.ok) throw new Error('Errore nella fetch del meteo a Terni');
+
+    const data = await res.json();
+    mostraMeteoTerni(data);
+  } catch (err) {
+    console.error('Errore nel caricamento del meteo a Terni:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', fetchMeteoTerni);
