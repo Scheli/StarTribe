@@ -48,7 +48,7 @@ body {
   letter-spacing: 0.03em;
   z-index: 2000;
   box-shadow: 0 1px 6px #0008;
-  padding-right: 72px; /* spazio per il toggle tema */
+  padding-right: 72px;
 }
 
 /* NAV */

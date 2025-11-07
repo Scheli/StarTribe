@@ -92,15 +92,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 45px;
-  height: 45px;
+
 }
 
 .news-icon-btn:hover {
   background-color: var(--accent-light);
   transform: scale(1.1);
 }
-.testoLink { text-decoration: none; color: inherit; }
+.testoLink {
+  text-decoration: none;
+  color: inherit;
+  margin: 5px;
+  }
 
 .testoLink {
   color: white;

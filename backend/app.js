@@ -637,16 +637,6 @@ app.get("/news/getInSightWeather", async (req, res) => {
   }
 });
 
-app.get("/news/TerniMeteo", async (req, res) => {
-  try {
-    const meteoTerni = await getTerniMeteo();
-    res.json(meteoTerni);
-  } catch (error) {
-    console.log("Errore nella GET di meteoTerni: ", error);
-    res.status(500).json({ error: error.message, stack: error.stack });
-  }
-});
-
 app.get("/news/all", async (req, res) => {
 try {
   const apod = await getAPOD();
